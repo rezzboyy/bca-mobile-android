@@ -26,6 +26,9 @@ import com.bca.mobile.data.model.TransferReceipt
 import com.bca.mobile.data.model.TransferRecipient
 import com.bca.mobile.data.repository.BcaRepository
 import com.bca.mobile.ui.components.*
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Authentic BCA m-Transfer Antar Rekening Screen matching:
@@ -340,26 +343,51 @@ fun TransferAntarRekeningScreen(
         )
     }
 
-    // Confirmation Dialog before PIN
+    // Confirmation Dialog before PIN matching uploaded_media_3_1794157095212.jpg
     if (showConfirmation) {
         val rec = selectedRecipient
         val amt = amountText.toLongOrNull() ?: 0L
-        BcaAlertResultDialog(
+        val formattedAmt = String.format(Locale.GERMANY, "Rp %,d,00", amt)
+        val currentTime = remember {
+            SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date())
+        }
+
+        BcaConfirmationDialog(
+            onDismissRequest = { showConfirmation = false },
             title = "m-Transfer",
-            message = "Transfer ke Rekening:\n" +
-                    "No. Rekening : ${rec?.accountNumber}\n" +
-                    "Nama : ${rec?.name}\n" +
-                    "Jumlah : ${BcaRepository.formatRupiah(amt)}\n" +
-                    "Berita : ${if (noteText.isNotEmpty()) noteText else "-"}\n\n" +
-                    "Lanjutkan transaksi?",
-            onDismiss = { showConfirmation = false },
             confirmText = "OK",
+            cancelText = "Cancel",
             onConfirm = {
                 showConfirmation = false
                 showPinDialog = true
             },
-            cancelText = "Cancel"
-        )
+            onCancel = { showConfirmation = false },
+            dialogWidth = 260.dp,
+            minHeight = 365.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            ) {
+                Text(text = "m-Transfer:", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                Text(text = currentTime, color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                Text(text = "Dari ${account.accountNumber}", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                Text(text = "Ke ${rec?.accountNumber ?: ""}", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                Text(text = rec?.name ?: "", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                Text(text = formattedAmt, color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = "Pastikan nominal dan nomor rekening yang dimasukkan sudah sesuai.\nJika terdapat kesalahan data, maka sepenuhnya menjadi tanggung jawab nasabah.",
+                    color = Color(0xFF004B87),
+                    fontSize = 13.5.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Normal
+                )
+            }
+        }
     }
 
     // PIN Authentication Dialog

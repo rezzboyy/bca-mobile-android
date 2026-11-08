@@ -159,6 +159,34 @@ class BcaRepositoryTest {
     }
 
     @Test
+    fun testTransferAntarBankBiFastWithoutHyphen() {
+        // Authentic BCA screen uses "BI FAST" without hyphen
+        val initialBalance = repository.account.value.balance
+        val amount = 200_000L
+        val expectedFee = 2_500L
+
+        val result = repository.transferAntarBank(
+            recipientBank = "SEABANK",
+            recipientAccount = "901717125251",
+            recipientName = "BENI SURYAWAN",
+            amount = amount,
+            service = "BI FAST",
+            note = ""
+        )
+
+        assertTrue(result.isSuccess)
+        val receipt = result.getOrNull()
+        assertNotNull(receipt)
+        assertEquals(expectedFee, receipt?.adminFee)
+        assertEquals(amount, receipt?.amount)
+        assertEquals("SEABANK", receipt?.destinationBank)
+        assertEquals("BENI SURYAWAN", receipt?.destinationName)
+
+        val updatedBalance = repository.account.value.balance
+        assertEquals(initialBalance - (amount + expectedFee), updatedBalance, 0.001)
+    }
+
+    @Test
     fun testTransferAntarBankRealtimeOnline() {
         val initialBalance = repository.account.value.balance
         val amount = 50_000L

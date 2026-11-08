@@ -253,7 +253,7 @@ class BcaRepository private constructor() {
         if (_networkSignal.value == NetworkSignalState.OFFLINE) {
             return Result.failure(IllegalStateException("205 - Silakan tunggu beberapa saat sampai lampu indikator di pojok kanan atas berwarna hijau sebelum melanjutkan transaksi."))
         }
-        val adminFee = if (service.contains("BI-FAST", ignoreCase = true)) 2_500L else 6_500L
+        val adminFee = if (service.contains("BI-FAST", ignoreCase = true) || service.contains("BI FAST", ignoreCase = true)) 2_500L else 6_500L
         val totalDeduction = amount + adminFee
 
         if (amount <= 0) {

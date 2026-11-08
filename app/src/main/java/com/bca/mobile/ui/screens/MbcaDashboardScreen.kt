@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bca.mobile.ui.components.BcaConfirmationDialog
 import com.bca.mobile.R
 import com.bca.mobile.ui.components.BcaAlertResultDialog
 import com.bca.mobile.ui.components.BcaBottomNavBar
@@ -52,6 +53,7 @@ fun MbcaDashboardScreen(
     onTabSelected: (BcaNavTab) -> Unit = {}
 ) {
     var placeholderAlert by remember { mutableStateOf<String?>(null) }
+    var showLogoutConfirmation by remember { mutableStateOf(false) }
 
     // Alternating promotional foreground content (3.5 seconds interval)
     val bannerFgList = remember {
@@ -136,7 +138,7 @@ fun MbcaDashboardScreen(
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = rememberRipple(bounded = false, radius = 18.dp),
-                                    onClick = onLogout
+                                    onClick = { showLogoutConfirmation = true }
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
@@ -295,6 +297,32 @@ fun MbcaDashboardScreen(
                 onDismiss = { placeholderAlert = null },
                 confirmText = "OK"
             )
+        }
+
+        if (showLogoutConfirmation) {
+            BcaConfirmationDialog(
+                onDismissRequest = { showLogoutConfirmation = false },
+                title = "Logout",
+                confirmText = "Logout",
+                cancelText = "Cancel",
+                onConfirm = {
+                    showLogoutConfirmation = false
+                    onLogout()
+                },
+                onCancel = { showLogoutConfirmation = false },
+                dialogWidth = 280.dp
+            ) {
+                Text(
+                    text = "Anda akan logout dari BCA mobile",
+                    color = Color(0xFF004B87),
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 14.dp)
+                )
+            }
         }
     }
 }
