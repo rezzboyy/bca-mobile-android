@@ -53,11 +53,11 @@ fun MbcaDashboardScreen(
 ) {
     var placeholderAlert by remember { mutableStateOf<String?>(null) }
 
-    // Alternating promotional banner content (3.5 seconds interval)
-    val bannerList = remember {
+    // Alternating promotional foreground content (3.5 seconds interval)
+    val bannerFgList = remember {
         listOf(
-            R.drawable.banner_gacha,
-            R.drawable.banner_hadiah_600k
+            R.drawable.banner_fg_gacha,
+            R.drawable.banner_fg_600k
         )
     }
     var currentBannerIndex by remember { mutableIntStateOf(0) }
@@ -65,7 +65,7 @@ fun MbcaDashboardScreen(
     LaunchedEffect(Unit) {
         while (true) {
             delay(3500L)
-            currentBannerIndex = (currentBannerIndex + 1) % bannerList.size
+            currentBannerIndex = (currentBannerIndex + 1) % bannerFgList.size
         }
     }
 
@@ -178,29 +178,44 @@ fun MbcaDashboardScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Promotional Banner Container (Single Layer Authentic Crossfade)
+                // Promotional Banner Container (Static Base + Zoom In/Out Animated Foreground)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(636f / 84f),
+                        .aspectRatio(2085f / 429f),
                     contentAlignment = Alignment.Center
                 ) {
+                    // Layer 1: Static background banner + merged locked button "Main & Dapatkan Hadiah >"
+                    Image(
+                        painter = painterResource(id = R.drawable.banner_base_static),
+                        contentDescription = "Promotional Banner Background",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    // Layer 2: Animated zoom in/out stickers
                     AnimatedContent(
                         targetState = currentBannerIndex,
                         transitionSpec = {
-                            fadeIn(
-                                animationSpec = tween(durationMillis = 500)
-                            ).togetherWith(
-                                fadeOut(
-                                    animationSpec = tween(durationMillis = 500)
+                            (scaleIn(
+                                initialScale = 0.82f,
+                                animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
+                            ) + fadeIn(
+                                animationSpec = tween(durationMillis = 650)
+                            )).togetherWith(
+                                scaleOut(
+                                    targetScale = 0.82f,
+                                    animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
+                                ) + fadeOut(
+                                    animationSpec = tween(durationMillis = 650)
                                 )
                             )
                         },
-                        label = "BannerCrossfadeAnimation",
+                        label = "BannerForegroundZoomAnimation",
                         modifier = Modifier.fillMaxSize()
                     ) { targetIndex ->
                         Image(
-                            painter = painterResource(id = bannerList[targetIndex]),
+                            painter = painterResource(id = bannerFgList[targetIndex]),
                             contentDescription = if (targetIndex == 0) "The New Gacha Berhadiah" else "Total 600.000+ Hadiah Siap Dimenangkan",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
