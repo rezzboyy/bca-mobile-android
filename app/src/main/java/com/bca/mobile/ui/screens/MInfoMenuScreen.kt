@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 import com.bca.mobile.ui.components.BcaAlertResultDialog
 import com.bca.mobile.ui.components.BcaBottomNavBar
 import com.bca.mobile.ui.components.BcaNavTab
-import com.bca.mobile.ui.components.BcaPinDialog
 import com.bca.mobile.ui.components.BcaSubMenuTopBar
 
 @Composable
@@ -42,7 +41,6 @@ fun MInfoMenuScreen(
     onTabSelected: (BcaNavTab) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var showPinDialog by remember { mutableStateOf(false) }
     var showSaldoDialog by remember { mutableStateOf(false) }
     var alertInfoMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
@@ -109,7 +107,14 @@ fun MInfoMenuScreen(
                     // Group 1: General Info (Directly under Header)
                     BcaMenuItemRow(
                         title = "Info Saldo",
-                        onClick = { showPinDialog = true }
+                        onClick = {
+                            coroutineScope.launch {
+                                repository.setNetworkSignal(NetworkSignalState.PROCESSING)
+                                delay(300)
+                                repository.setNetworkSignal(NetworkSignalState.READY)
+                                showSaldoDialog = true
+                            }
+                        }
                     )
                     HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
 
@@ -204,23 +209,6 @@ fun MInfoMenuScreen(
             BcaBottomNavBar(
                 selectedTab = BcaNavTab.NONE,
                 onTabSelected = onTabSelected
-            )
-        }
-
-        // PIN Verification Dialog for Saldo
-        if (showPinDialog) {
-            BcaPinDialog(
-                onDismiss = { showPinDialog = false },
-                onSuccess = {
-                    showPinDialog = false
-                    coroutineScope.launch {
-                        repository.setNetworkSignal(NetworkSignalState.PROCESSING)
-                        delay(600)
-                        repository.setNetworkSignal(NetworkSignalState.READY)
-                        showSaldoDialog = true
-                    }
-                },
-                onVerifyPin = { repository.verifyPin(it) }
             )
         }
 

@@ -72,30 +72,21 @@ fun BcaUpdateDialog(
                 .padding(horizontal = 24.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Outer Card with clean white border
+            // Clean Dialog Card without dark silver inner outline
             Box(
                 modifier = Modifier
                     .width(300.dp)
                     .heightIn(min = 280.dp, max = 380.dp)
                     .shadow(elevation = 16.dp, shape = RoundedCornerShape(4.dp))
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color.White)
-                    .padding(5.5.dp)
+                    .background(innerPanelGradient)
             ) {
-                // Inner Dialog Body with subtle border and gradient background
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(3.dp))
-                        .border(1.dp, Color(0xFFC5CAD0), RoundedCornerShape(3.dp))
-                        .background(innerPanelGradient)
+                        .padding(vertical = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(vertical = 12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
                         // Header Title
                         Text(
                             text = if (isDownloading) "Mengunduh Pembaruan" else "Pembaruan Tersedia",
@@ -276,4 +267,3 @@ fun BcaUpdateDialog(
             }
         }
     }
-}

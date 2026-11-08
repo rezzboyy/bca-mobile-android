@@ -231,14 +231,6 @@ fun BcaMetallicBackground(
                         endY = canvasH
                     )
                 )
-
-                // 3. Crisp crease line along the facet seam ("jaret")
-                drawLine(
-                    color = Color(0xFFB5BAC0),
-                    start = Offset(0f, canvasH * 0.516f),
-                    end = Offset(canvasW, canvasH * 0.267f),
-                    strokeWidth = 1.2.dp.toPx()
-                )
             },
         content = content
     )

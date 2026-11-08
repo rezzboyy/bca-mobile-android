@@ -66,29 +66,20 @@ fun BcaAlertResultDialog(
                 .padding(horizontal = 24.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Outer Card with clean white border (560px x 621px at 720p = 284dp x 314dp, aspect ratio 1.11)
+            // Clean Dialog Card without dark silver inner outline
             Box(
                 modifier = Modifier
                     .width(284.dp)
                     .height(314.dp)
                     .shadow(elevation = 16.dp, shape = RoundedCornerShape(4.dp))
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color.White)
-                    .padding(5.5.dp)
+                    .background(innerPanelGradient)
             ) {
-                // Inner Dialog Body with subtle border and gradient background
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(3.dp))
-                        .border(1.dp, Color(0xFFC5CAD0), RoundedCornerShape(3.dp))
-                        .background(innerPanelGradient)
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Spacer(modifier = Modifier.height(11.dp))
+                    Spacer(modifier = Modifier.height(11.dp))
 
                         // Header Title (e.g. "m-Info" in official BCA Blue #01547B)
                         Text(
@@ -195,7 +186,6 @@ fun BcaAlertResultDialog(
             }
         }
     }
-}
 
 /**
  * Text composable that automatically scales down font size so that the content
