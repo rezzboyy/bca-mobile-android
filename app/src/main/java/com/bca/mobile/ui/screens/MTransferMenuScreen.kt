@@ -29,6 +29,8 @@ fun MTransferMenuScreen(
     onBack: () -> Unit,
     onNavigateTransferBca: () -> Unit,
     onNavigateTransferBank: () -> Unit,
+    onNavigateDaftarTransferBca: () -> Unit = {},
+    onNavigateDaftarTransferBank: () -> Unit = {},
     onNavigateToInbox: () -> Unit = {},
     onTabSelected: (BcaNavTab) -> Unit = {},
     modifier: Modifier = Modifier
@@ -95,17 +97,13 @@ fun MTransferMenuScreen(
 
                     BcaMenuItemRow(
                         title = "Antar Rekening",
-                        onClick = {
-                            alertMessage = "Menu Pendaftaran Nomor Rekening BCA ke Daftar Transfer."
-                        }
+                        onClick = onNavigateDaftarTransferBca
                     )
                     HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
                         title = "Antar Bank",
-                        onClick = {
-                            alertMessage = "Menu Pendaftaran Rekening Bank Lain ke Daftar Transfer."
-                        }
+                        onClick = onNavigateDaftarTransferBank
                     )
 
                     // Section 2: Transfer

@@ -13,4 +13,6 @@ local.properties
 .navigation
 work_images/
 *.png
+*.jpeg
+*.jpg
 !app/src/main/res/**/*.png

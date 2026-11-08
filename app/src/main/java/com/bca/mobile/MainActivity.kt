@@ -33,6 +33,8 @@ sealed interface Screen {
     data object MTransferMenu : Screen
     data object TransferAntarRekening : Screen
     data object TransferAntarBank : Screen
+    data object DaftarTransferAntarRekening : Screen
+    data object DaftarTransferAntarBank : Screen
     data object FlazzScreen : Screen
     data object CardlessScreen : Screen
     data object Notifikasi : Screen
@@ -228,10 +230,24 @@ class MainActivity : ComponentActivity() {
                             onNavigateTransferBank = {
                                 navigateTo(Screen.TransferAntarBank)
                             },
+                            onNavigateDaftarTransferBca = {
+                                navigateTo(Screen.DaftarTransferAntarRekening)
+                            },
+                            onNavigateDaftarTransferBank = {
+                                navigateTo(Screen.DaftarTransferAntarBank)
+                            },
                             onNavigateToInbox = {
                                 navigateTo(Screen.TransferInbox)
                             },
                             onTabSelected = ::handleBottomNavTab
+                        )
+
+                        Screen.DaftarTransferAntarRekening -> DaftarTransferAntarRekeningScreen(
+                            onBack = { popBack() }
+                        )
+
+                        Screen.DaftarTransferAntarBank -> DaftarTransferAntarBankScreen(
+                            onBack = { popBack() }
                         )
 
                         Screen.TransferAntarRekening -> TransferAntarRekeningScreen(

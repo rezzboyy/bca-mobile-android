@@ -28,20 +28,23 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 /**
- * Authentic BCA "Jumlah Uang:" Input Dialog matching Screenshot_2026-10-28-09-13-25-578_com.bca.jpg.jpeg
+ * Authentic BCA Signature Black Input Modal Dialog matching BCA Mobile UI
  * Features:
  * - Solid Black background with thin border
- * - White "Jumlah Uang:" label
+ * - White title label (e.g. "Jumlah Uang:", "No. Rekening Tujuan:", "Berita:")
  * - White rectangular text input field
  * - Glossy Blue "Cancel" and "OK" action buttons
  */
 @Composable
-fun BcaAmountInputDialog(
+fun BcaBlackInputDialog(
+    title: String,
     initialValue: String = "",
+    isNumericOnly: Boolean = false,
+    maxLength: Int = 40,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    var amountText by remember { mutableStateOf(initialValue) }
+    var inputText by remember { mutableStateOf(initialValue) }
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
@@ -77,7 +80,7 @@ fun BcaAmountInputDialog(
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Jumlah Uang:",
+                        text = title,
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Normal
@@ -95,10 +98,11 @@ fun BcaAmountInputDialog(
                         contentAlignment = Alignment.CenterStart
                     ) {
                         BasicTextField(
-                            value = amountText,
+                            value = inputText,
                             onValueChange = { input ->
-                                if (input.all { it.isDigit() }) {
-                                    amountText = input
+                                val isValid = if (isNumericOnly) input.all { it.isDigit() } else true
+                                if (isValid && input.length <= maxLength) {
+                                    inputText = input
                                 }
                             },
                             textStyle = TextStyle(
@@ -108,7 +112,9 @@ fun BcaAmountInputDialog(
                             ),
                             cursorBrush = SolidColor(Color.Black),
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = if (isNumericOnly) KeyboardType.Number else KeyboardType.Text
+                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(focusRequester)
@@ -154,7 +160,7 @@ fun BcaAmountInputDialog(
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = rememberRipple(color = Color.White.copy(alpha = 0.3f)),
-                                    onClick = { onConfirm(amountText) }
+                                    onClick = { onConfirm(inputText) }
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
@@ -170,4 +176,23 @@ fun BcaAmountInputDialog(
             }
         }
     }
+}
+
+/**
+ * Authentic BCA "Jumlah Uang:" Input Dialog matching Screenshot_2026-10-28-09-13-25-578_com.bca.jpg.jpeg
+ */
+@Composable
+fun BcaAmountInputDialog(
+    initialValue: String = "",
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    BcaBlackInputDialog(
+        title = "Jumlah Uang:",
+        initialValue = initialValue,
+        isNumericOnly = true,
+        maxLength = 15,
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
+    )
 }

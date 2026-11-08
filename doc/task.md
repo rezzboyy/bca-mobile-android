@@ -10,121 +10,111 @@ Dokumen ini memuat daftar tugas terperinci, tahapan eksekusi, dan pelacakan prog
 - [x] Selesai
 
 > [!NOTE]
-> Proyek ini dibangun sebagai konversi native murni (Opsi 2) dari prototipe web BCA Mobile (`E:\My Produk\App Android\Bca Mobile`).
-> Seluruh aset visual (wallpaper starburst, logo resolusi tinggi, icon m-BCA, KlikBCA, myBCA) diadaptasi langsung untuk mencapai akurasi pixel-perfect dengan performa hardware Android maksimal (cold start instan, konsumsi RAM < 45 MB, ukuran APK < 6 MB).
+> Proyek ini dibangun sebagai konversi native murni dari prototipe web dan referensi resmi BCA Mobile.
+> Pembaruan tanggal **08 Nov 2026** memfokuskan pada penyempurnaan menyeluruh modul **m-Transfer** dan penambahan layar-layar baru yang belum ada berdasarkan 5 foto referensi resmi terbaru (*WhatsApp Images*).
 
 ---
 
-## Fase 1: Inisialisasi Proyek & Fondasi Arsitektur
-- [x] **1.1 Setup Android Project & Gradle DSL**
-  - [x] Konfigurasi `settings.gradle.kts` dan root `build.gradle.kts` dengan Gradle 8.x + JDK 17.
-  - [x] Konfigurasi `app/build.gradle.kts`:
-    - [x] `compileSdk = 34`, `minSdk = 24`, `targetSdk = 34`.
-    - [x] Compose Compiler plugin & Jetpack Compose BOM (`2024.05.00`).
-    - [x] Material 3 (`androidx.compose.material3`).
-    - [x] AndroidX Biometric (`androidx.biometric:biometric-ktx`).
-    - [x] Security Crypto (`androidx.security:security-crypto`).
-  - [x] Konfigurasi `AndroidManifest.xml` (Edge-to-Edge, permissions NFC & Biometric, `allowBackup="false"`).
-- [x] **1.2 Setup Clean Architecture Package Structure**
-  - [x] Paket `ui/theme` (`Color.kt`, `Theme.kt`, `Type.kt`).
-  - [x] Paket `ui/components` (`MenuRowCard.kt`, `GlossyActionButton.kt`, `BcaModalDialog.kt`).
-  - [x] Paket `ui/screens` (`BcaHubScreen.kt`).
-  - [x] Activity entry point (`MainActivity.kt`).
+## 📸 Referensi Screenshot Baru (08 Nov 2026) & Analisis Kebutuhan
+
+| No | File Screenshot | Tampilan / Fitur Nyata | Status di Proyek | Action Plan |
+| :---: | :--- | :--- | :--- | :--- |
+| **1** | `WhatsApp Image 2026-11-08 at 18.00.21.jpeg` | **Daftar Transfer -> Antar Rekening**<br>• Header: `m-Transfer`, lampu hijau, tombol `Send`<br>• Subtitle luar: `No.Rekening Tujuan`<br>• Card 3 baris: `Rekening 1` >, `Rekening 2` >, `Rekening 3` > | **Belum Ada** (sebelumnya hanya dialog pop-up) | Buat layar baru `DaftarTransferAntarRekeningScreen.kt` lengkap dengan alur input 3 rekening, tombol Send, konfirmasi, PIN, dan simpan ke database. |
+| **2** | `WhatsApp Image 2026-11-08 at 18.00.21 (1).jpeg` | **Transfer -> Antar Rekening**<br>• Header: `m-Transfer`, lampu hijau, tombol `Send`<br>• Baris 1: `Dari Rekening` (`0060387737`)<br>• Baris 2: `Ke Rekening` (`- PILIH -` >)<br>• Baris 3: `Jumlah Uang` (Split: `Rp` > \| >)<br>• Baris 4: `Berita` > | **Belum Sesuai** (sebelumnya keliru menampilkan Rekening 1,2,3 di form transfer ini) | Rekonstruksi `TransferAntarRekeningScreen.kt` agar 100% presisi sesuai gambar referensi asli. |
+| **3** | `WhatsApp Image 2026-11-08 at 18.00.20.jpeg` | **Pemilih Rekening Tujuan (Account Picker)**<br>• Header: `m-Transfer`, lampu hijau<br>• Toggle: `Rekening Sendiri` vs `Daftar Transfer`<br>• Search bar: `Search` dengan icon 🔍<br>• Daftar Kontak: Nama kapital biru tebal + Nomor rekening hitam | **Belum Ada** (sebelumnya hanya dialog pop-up sederhana) | Buat layar pemilih rekening `TransferRecipientPickerScreen.kt` dengan filter realtime dan dataset asli (`ABDILLAH`, `ACHMAD RIZAL`, dll). |
+| **4** | `WhatsApp Image 2026-11-08 at 18.00.20 (1).jpeg` & `(2).jpeg` | **Transfer -> Antar Bank**<br>• Header: `m-Transfer`, lampu hijau, tombol `Send`<br>• Baris 1: `Bank` (`- PILIH -` >)<br>• Baris 2: `Ke Rekening Tujuan`<br>• Baris 3: `Jumlah Uang` ><br>• Baris 4: `Dari Rekening` (`0060387737`) | **Perlu Penyesuaian** (baris Dari Rekening sebelumnya terjejal saldo panjang dan urutan perlu disesuaikan) | Sempurnakan `TransferAntarBankScreen.kt` agar 4 baris tampil rapi dan presisi sesuai gambar. |
+| **5** | *Pelengkap Sistem Transfer* | **Daftar Transfer -> Antar Bank**<br>• Pendaftaran nomor rekening bank lain baru ke daftar transfer sebelum transfer antar bank dilakukan | **Belum Ada** (sebelumnya hanya dialog alert) | Buat layar `DaftarTransferAntarBankScreen.kt` lengkap dengan pemilih bank, input rekening, Send, PIN, dan penyimpanan. |
 
 ---
 
-## Fase 2: Migrasi Aset Visual & Design System (Tokens)
-- [x] **2.1 Migrasi Aset dari Prototipe Web ke Android Resources**
-  - [x] Konversi & salin wallpaper radiant navy ke `res/drawable-nodpi/bca_wallpaper.png`.
-  - [x] Salin logo resmi `bca_mobile_logo.png` ke `res/drawable/bca_mobile_logo.png`.
-  - [x] Salin icon rounded tiles: `mbca_clean.png`, `klikbca_clean.png`, `mybca_clean.png`.
-  - [x] Salin icon info lingkaran `info_icon_clean.png` dan logo aplikasi `bca_app_icon.png`.
-- [x] **2.2 Implementasi Jetpack Compose Theme & Tokens**
-  - [x] Buat file `Color.kt` dengan definisi palet warna BCA (Navy background, royal blue, cyan highlight, white borders).
-  - [x] Buat custom `Brush` gradien vertikal 3-stop untuk menu row dan 5-stop untuk tombol 3D glossy.
-  - [x] Buat file `Type.kt` dengan tipografi presisi (*sans-serif* tebal, tracking, line height).
-  - [x] Buat file `Theme.kt` (`BcaMobileTheme`) pembungkus context composable.
+## 🎯 Task Breakdown Baru: Refactoring & Pemenuhan Modul m-Transfer (Milestone 8)
+
+### Sub-Fase 8.1: Penyiapan Mock Data & Logika Repository (`BcaRepository.kt`)
+- [x] **Task 8.1.1**: Update default `accountNumber` pengirim menjadi `0060387737` agar 100% identik dengan foto referensi.
+- [x] **Task 8.1.2**: Perbarui daftar kontak `recipients` default dengan nama & nomor rekening dari foto Image 2:
+  - `ABDILLAH` - `2181475538` (BCA)
+  - `ACHMAD RIZAL` - `2481574694` (BCA)
+  - `ADE FERY PERMANA` - `6520643140` (BCA)
+  - `ADE JAJANG NURJAMAN` - `2990889042` (BCA)
+  - `BUDI SANTOSO` - `0881234567` (BCA)
+  - Bank Lain: `HENDRA WIJAYA` - `1400012345678` (MANDIRI), `DEWI LESTARI` - `001201998877501` (BRI).
+- [x] **Task 8.1.3**: Tambahkan metode `registerBcaRecipients(list: List<String>)` dan `registerBankRecipient(bank: String, accNo: String, name: String)` di `BcaRepository`.
+
+### Sub-Fase 8.2: Implementasi Layar Pemilih Rekening Tujuan (`TransferRecipientPickerScreen.kt`)
+- [x] **Task 8.2.1**: Buat Composable `TransferRecipientPickerScreen` sesuai Image 2 (`WhatsApp Image 2026-11-08 at 18.00.20.jpeg`):
+  - Top Bar m-Transfer dengan lampu hijau.
+  - Segmented control: `Rekening Sendiri` (unselected) dan `Daftar Transfer` (selected biru BCA).
+  - Search Box dengan icon kaca pembesar dan filter live query.
+  - Kartu putih rounded dengan list nama (Biru tebal kapital) dan nomor rekening (Hitam).
+  - Callback pemilihan rekening untuk dikembalikan ke form transfer.
+
+### Sub-Fase 8.3: Implementasi Layar Pendaftaran Rekening Baru (`DaftarTransferAntarRekeningScreen.kt`)
+- [x] **Task 8.3.1**: Buat Composable `DaftarTransferAntarRekeningScreen` sesuai Image 5 (`WhatsApp Image 2026-11-08 at 18.00.21.jpeg`):
+  - Top Bar m-Transfer dengan lampu indikator hijau dan tombol glossy 3D `Send`.
+  - Teks judul luar: `No.Rekening Tujuan` (warna biru BCA).
+  - Kartu putih 3 baris input: `Rekening 1` >, `Rekening 2` >, `Rekening 3` >.
+  - Dialog input nomor rekening saat baris ditekan (atau input langsung).
+  - Validasi & integrasi tombol `Send` -> Dialog Konfirmasi -> Dialog PIN m-BCA -> Pendaftaran sukses.
+
+### Sub-Fase 8.4: Restrukturisasi & Penyempurnaan Layar Transfer Antar Rekening (`TransferAntarRekeningScreen.kt`)
+- [x] **Task 8.4.1**: Rombak struktur form di `TransferAntarRekeningScreen.kt` sesuai Image 3 (`WhatsApp Image 2026-11-08 at 18.00.21 (1).jpeg`):
+  - Row 1: `Dari Rekening` -> `0060387737`.
+  - Row 2: `Ke Rekening` -> Menampilkan `- PILIH -` dengan chevron `>`, klik membuka `TransferRecipientPickerScreen`.
+  - Row 3: `Jumlah Uang` -> Split item: container kiri abu-abu bertuliskan `Rp` dengan chevron `>`, dan kolom kanan nominal uang dengan chevron `>`. Klik membuka `BcaAmountInputDialog`.
+  - Row 4: `Berita` -> Baris berita transfer dengan chevron `>`.
+  - Tombol `Send` -> Validasi data -> Dialog Konfirmasi transfer -> Dialog PIN 6-digit -> Bukti Transfer Digital Resmi (`BcaReceiptDialog`).
+
+### Sub-Fase 8.5: Penyempurnaan Layar Transfer Antar Bank (`TransferAntarBankScreen.kt`)
+- [x] **Task 8.5.1**: Perbarui layout `TransferAntarBankScreen.kt` sesuai Image 1 & 4 (`WhatsApp Image 2026-11-08 at 18.00.20 (1).jpeg`):
+  - Row 1: `Bank` -> `- PILIH -` > (membuka `BcaBankSelectionDialog`).
+  - Row 2: `Ke Rekening Tujuan` -> Membuka daftar rekening bank penerima.
+  - Row 3: `Jumlah Uang` > -> Membuka `BcaAmountInputDialog`.
+  - Row 4: `Dari Rekening` -> Menampilkan `0060387737` (bersih tanpa format saldo bertumpuk).
+  - Tombol `Send` -> Konfirmasi -> PIN -> Resi Transfer resmi.
+
+### Sub-Fase 8.6: Implementasi Layar Pendaftaran Rekening Bank Lain (`DaftarTransferAntarBankScreen.kt`)
+- [x] **Task 8.6.1**: Buat Composable `DaftarTransferAntarBankScreen`:
+  - Form input: Pilih Bank tujuan (`- PILIH -` >) dan input `No.Rekening Tujuan`.
+  - Tombol `Send` -> Konfirmasi nama penerima mock -> Dialog PIN -> Simpan ke database daftar transfer bank lain.
+
+### Sub-Fase 8.7: Integrasi Navigasi & Routing (`MTransferMenuScreen.kt` & `MainActivity.kt`)
+- [x] **Task 8.7.1**: Hubungkan menu `Daftar Transfer` -> `Antar Rekening` ke `DaftarTransferAntarRekeningScreen`.
+- [x] **Task 8.7.2**: Hubungkan menu `Daftar Transfer` -> `Antar Bank` ke `DaftarTransferAntarBankScreen`.
+- [x] **Task 8.7.3**: Hubungkan menu `Transfer` -> `Antar Rekening` dan `Antar Bank` dengan layar pemilih rekening penerima baru.
+- [x] **Task 8.7.4**: Daftarkan seluruh rute layar baru di sealed class `Screen` pada `MainActivity.kt`.
+
+### Sub-Fase 8.8: Verifikasi, Audit Kompilasi & Build Release
+- [x] **Task 8.8.1**: Jalankan unit test dan compile Android (`./gradlew testDebugUnitTest` / `./gradlew assembleDebug`).
+- [x] **Task 8.8.2**: Pastikan 0 lint error dan seluruh alur interaktif bekerja mulus.
 
 ---
 
-## Fase 3: Layar Utama Launcher (Hub Screen) UI Pixel-Perfect
-- [x] **3.1 Container Layar & Adaptive Layout**
-  - [x] Buat composable `BcaHubScreen` dengan background wallpaper edge-to-edge.
-  - [x] Dukungan max-width container (448dp pada tablet/desktop) dan full-width pada smartphone.
-  - [x] Setup `statusBarsPadding()` dan `navigationBarsPadding()` bebas tumpang tindih.
-- [x] **3.2 Top Info Bar & Logo Area**
-  - [x] Tombol info bulat `(i)` di pojok kanan atas dengan efek klik halus.
-  - [x] Container logo `BCA mobile` dengan drop-shadow lembut.
-- [x] **3.3 Kartu Aksi 3 Baris (3-Row Action Card)**
-  - [x] Container border putih 2dp dengan sudut membulat 18dp.
-  - [x] Baris 1: `m-BCA` (tile icon + label tebal + divider pemisah).
-  - [x] Baris 2: `KlikBCA` (tile icon + label tebal + divider pemisah).
-  - [x] Baris 3: `myBCA` (tile icon + label tebal + kapsul badge `"NEW!"`).
-  - [x] Efek ripple dan animasi klik touch feedback pada setiap baris.
-- [x] **3.4 Tombol Aksi Metalik 3D (Glossy Action Buttons)**
-  - [x] Tombol `Buka Rekening Baru` dengan gradien metalik 5-stop, rounded 16dp, dan drop-shadow tebal.
-  - [x] Tombol `Flazz` dengan styling serupa.
-  - [x] Animasi reduksi skala (`0.985f`) saat tombol disentuh pengguna.
-- [x] **3.5 Teks Regulasi & Disclaimer (Footer)**
-  - [x] Susunan teks resmi OJK, BI, dan LPS rata tengah dengan opacity 95%.
-- [x] **3.6 Dialog / Modal Interaktif**
-  - [x] Modal informasi fitur saat menu ditekan (`Info`, `KlikBCA`, `myBCA`, `Buka Rekening Baru`).
-  - [x] Dialog preview popup beranimasi fade-in dan backdrop blur.
+## Riwayat Fase Sebelumnya (Fondasi & Rilis)
 
----
+### Fase 1: Inisialisasi Proyek & Fondasi Arsitektur
+- [x] Inisialisasi Jetpack Compose, Material 3, Clean Architecture, Gradle 8.x + JDK 17.
 
-## Fase 4: Modul Autentikasi & Dialog Kode Akses (m-BCA)
-- [x] **4.1 Dialog Autentikasi Kode Akses (Pixel-Perfect dari Foto Referensi)**
-  - [x] Card dialog putih presisi dengan border radius 6dp.
-  - [x] Judul tengah `"Kode Akses"`.
-  - [x] Input box dengan placeholder `"Input 6 alphanum"`.
-  - [x] Filter alfanumerik 6-digit & auto-masking password.
-  - [x] Tombol `"Cancel"` dan `"Login"` berdampingan dengan gradien biru BCA murni.
-  - [x] Validasi panjang 6 karakter & pesan error interaktif.
-- [x] **4.2 Dashboard Layar Menu Utama m-BCA (Sesuai IMG-20261021-WA0007.jpg)**
-  - [x] Top bar putih dengan logo resmi `BCA mobile`, lampu indikator hijau online, dan tombol Logout.
-  - [x] Greeting nasabah atas nama **DADANG MUBAROK** ("Selamat datang, DADANG MUBAROK").
-  - [x] Kartu banner promo resmi ("THE NEW GACHA BERHADIAH").
-  - [x] Grid 4 kolom dengan 11 icon tile asli:
-    - [x] Baris 1: `m-Info`, `m-Transfer`, `m-Payment`, `m-Commerce`
-    - [x] Baris 2: `Cardless`, `m-Admin`, `BCA Keyboard`, `Flazz`
-    - [x] Baris 3: `BagiBagi`, `Lifestyle`, `Financial Diary`
-  - [x] Bottom Navigation Bar (5 tabs: `Home` [aktif], `Transaksi`, `QRIS` [floating icon], `Notifikasi`, `Akun Saya`).
-  - [x] **4.3 Pengerjaan Sub-Menu & Alur Transaksi**
-    - [x] **m-Info**: Replikasi struktur 100% presisi pixel-perfect sesuai foto referensi asli (`pasted-image-2026-10-28T00-11-24-360Z.png`): Top bar putih tanpa panah back, kartu mengambang berlatar navy pekat, header squircle `m-Info`, susunan menu persis: Group 1 (Info Saldo, Mutasi Rekening, Rekening Deposito, Info Reward BCA), Section Info Reksadana (NAB Reksadana, Saldo Reksadana, Info Kurs), Section Info RDN (Info Saldo, Mutasi Rekening), Section Info KPR (Inquiry Pinjaman), Section Info Kartu Kredit (Saldo), chevron cyan `>`, dan Bottom Navigation Bar.
-    - [x] **m-Transfer**: Replikasi struktur 100% presisi pixel-perfect sesuai foto referensi asli (`pasted-image-2026-10-28T00-11-49-982Z.png`): Top bar putih, Section Daftar Transfer (Antar Rekening, Antar Bank), Section Transfer (Antar Rekening, Antar Bank, BCA Virtual Account, Sakuku, Status Transaksi Sakuku, Inbox (16)), Bottom Navigation Bar aktif pada tab Transaksi.
-    - [x] **Notifikasi**: Implementasi modul layar Notifikasi sesuai foto referensi asli (`pasted-image-2026-10-28T00-12-27-800Z.png`): Filter chip horizontal (Semua [aktif], OTP & Persetujuan, Info), tombol aksi "Hapus Semua" dan "Tandai Terbaca Semua", empty state "Silakan hubungi HALO BCA" dengan tombol 3D glossy "Refresh", Bottom Navigation Bar aktif pada tab Notifikasi.
-    - [x] **Cardless**: Tarik tunai tanpa kartu di ATM BCA, pilihan nominal kelipatan Rp 100k s/d 1M, autentikasi PIN, penerbitan 6-digit kode tarik tunai & countdown timer 60 menit.
-    - [x] **Bottom Navigation Bar Reusable**: Komponen `BcaBottomNavBar.kt` terintegrasi di Dashboard, m-Info, m-Transfer, dan Notifikasi dengan floating elevated button QRIS.
+### Fase 2: Migrasi Aset Visual & Design System
+- [x] Wallpaper starburst navy, icon m-BCA, KlikBCA, myBCA, palet warna resmi BCA.
 
----
+### Fase 3: Layar Utama Launcher (Hub Screen)
+- [x] Container adaptive layout, tombol 3 baris (m-BCA, KlikBCA, myBCA), tombol 3D glossy Buka Rekening & Flazz.
 
-## Fase 5: Modul Flazz & Simulasi Chip NFC
-- [x] **5.1 Layar Pembacaan Flazz**
-  - [x] Animasi radar gelombang pembacaan kartu Flazz (infinite pulsing radar animation di Compose).
-  - [x] Tombol dan engine simulasi tempel kartu Flazz (berfungsi penuh baik dengan NFC fisik maupun tanpa hardware NFC).
-- [x] **5.2 Kartu & Transaksi Flazz**
-  - [x] Tampilan kartu Flazz resmi (chip visual, nomor kartu tersamar `6019 **** **** 8821`, saldo aktif Rp 175.000).
-  - [x] Riwayat mutasi kartu Flazz (Tol Cililitan, Indomaret, Transjakarta, Top Up ATM BCA).
+### Fase 4: Dashboard m-BCA & Modul Finansial Awal
+- [x] Dialog Kode Akses alfanumerik 6 karakter.
+- [x] Header online indicator, greeting Dadang Mubarok, banner promo anti-flicker, grid 11 menu, 5-tab Bottom Nav.
+- [x] Modul m-Info (Info Saldo 1 baris presisi, Mutasi Rekening, Info Kurs).
+- [x] Modul Cardless (Tarik tunai ATM 6-digit & countdown 60 menit).
+- [x] Modul Notifikasi & Akun Saya.
 
----
+### Fase 5: Modul Flazz & Simulasi Chip NFC
+- [x] Radar scanning animation, simulasi sensor NFC, pengecekan saldo aktif & mutasi tap Flazz.
 
-## Fase 6: Keamanan Data Lokal & Enkripsi
-- [ ] **6.1 Hardware Keystore Wrapper**
-  - [ ] Kelas utilitas `CryptoManager.kt` menggunakan Android Keystore `AES/GCM/NoPadding`.
-- [ ] **6.2 Enkripsi Preferensi & Cache Sesi**
-  - [ ] Implementasi `EncryptedSharedPreferences` untuk menyimpan data akun mock, status aktivasi, dan preferensi biometric.
-  - [ ] Timer otomatis Session Invalidation (logout otomatis setelah periode idle).
+### Fase 6: Keamanan Data Lokal & Enkripsi
+- [ ] Hardware Keystore & EncryptedSharedPreferences.
+- [ ] Idle session auto-logout timer.
 
----
-
-## Fase 7: Pengujian, Profiling & Visual Regression Audit
-- [x] **7.1 Compose Previews & Unit Tests**
-  - [x] Unit testing domain model & repository `BcaRepositoryTest.kt`, color palette & tokens `BcaThemeTest.kt`, serta struktur menu `BcaMenuFidelityTest.kt`.
-  - [x] Skrip verifikasi audit otomatis `app/verify_audit.py` (57 assertions pass, 0 error, 0 warning).
-- [ ] **7.2 Audit Fidelitas Visual**
-  - [ ] Uji perbandingan berdampingan (side-by-side) antara render Jetpack Compose dengan prototipe web dan tangkapan layar `awal.jpeg`.
-- [ ] **7.3 Optimasi Binary & Release Build**
-  - [ ] Menjalankan kompilasi R8/ProGuard Release.
-  - [ ] Verifikasi ukuran APK release final: **target < 6 MB**.
-  - [ ] Verifikasi cold-start latency: **target < 150 ms**.
+### Fase 7: Pengujian & Infrastruktur Distribusi OTA
+- [x] Keystore rilis permanen `bca_release.jks` (27+ tahun).
+- [x] `GitHubUpdateManager` & `BcaUpdateDialog` auto-update Over-The-Air via GitHub Releases.
+- [x] Skrip rilis 1-klik `release.ps1` dan publikasi v1.0.1 & v1.0.2.

@@ -1,5 +1,6 @@
 package com.bca.mobile.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,9 +17,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -118,25 +127,87 @@ fun BcaTopBarActionButton(
 
     Box(
         modifier = modifier
-            .height(34.dp)
-            .widthIn(min = 62.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .border(0.8.dp, Color(0xFF1B324E), RoundedCornerShape(4.dp))
+            .height(36.dp)
+            .width(76.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .border(1.dp, Color(0xFF1B324E), RoundedCornerShape(6.dp))
             .background(if (enabled) buttonBrush else androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xFF94A3B8), Color(0xFF64748B))))
             .clickable(
                 enabled = enabled,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(color = Color.White.copy(alpha = 0.3f)),
                 onClick = onClick
-            )
-            .padding(horizontal = 14.dp),
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
             color = Color.White,
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+/**
+ * Authentic BCA Blue Chevron Right (>) matching WhatsApp screenshots
+ */
+@Composable
+fun BcaChevron(
+    modifier: Modifier = Modifier,
+    color: Color = Color(0xFF005CA9),
+    size: Dp = 18.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val strokePx = 2.4.dp.toPx()
+        val path = Path().apply {
+            moveTo(this@Canvas.size.width * 0.32f, this@Canvas.size.height * 0.18f)
+            lineTo(this@Canvas.size.width * 0.68f, this@Canvas.size.height * 0.50f)
+            lineTo(this@Canvas.size.width * 0.32f, this@Canvas.size.height * 0.82f)
+        }
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(
+                width = strokePx,
+                cap = StrokeCap.Round,
+                join = StrokeJoin.Round
+            )
+        )
+    }
+}
+
+/**
+ * Authentic BCA Signature Diagonal Metallic Background matching WhatsApp screenshots
+ */
+@Composable
+fun BcaMetallicBackground(
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .drawBehind {
+                val canvasW = size.width
+                val canvasH = size.height
+                drawRect(Color(0xFFE5E7EB))
+                val path = Path().apply {
+                    moveTo(0f, canvasH * 0.38f)
+                    lineTo(canvasW, canvasH * 0.58f)
+                    lineTo(canvasW, canvasH)
+                    lineTo(0f, canvasH)
+                    close()
+                }
+                drawPath(
+                    path = path,
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFFD4D9DF), Color(0xFFC7CDD4)),
+                        start = Offset(0f, canvasH * 0.38f),
+                        end = Offset(canvasW, canvasH)
+                    )
+                )
+            },
+        content = content
+    )
 }

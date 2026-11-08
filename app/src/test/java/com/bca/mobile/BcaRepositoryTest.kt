@@ -20,10 +20,10 @@ class BcaRepositoryTest {
     @Test
     fun testInitialAccountState() {
         val account = repository.account.value
-        assertEquals("2270216440", account.accountNumber)
+        assertEquals("0060387737", account.accountNumber)
         assertEquals("DADANG MUBAROK", account.accountHolder)
         assertEquals("TABUNGAN TAHAPAN", account.accountType)
-        assertEquals(260240.16, account.balance, 0.001)
+        assertEquals(261232130240.16, account.balance, 0.001)
         assertEquals("IDR", account.currency)
     }
 
@@ -215,5 +215,23 @@ class BcaRepositoryTest {
         val formatted = BcaRepository.formatRupiah(250_000L)
         assertTrue(formatted.startsWith("Rp"))
         assertTrue(formatted.contains("250"))
+    }
+
+    @Test
+    fun testRegisterBcaRecipients() {
+        val newAccounts = listOf("8881234567", "9998765432")
+        val added = repository.registerBcaRecipients(newAccounts)
+        assertEquals(2, added.size)
+        assertTrue(repository.recipients.value.any { it.accountNumber == "8881234567" })
+        assertTrue(repository.recipients.value.any { it.accountNumber == "9998765432" })
+    }
+
+    @Test
+    fun testLookupBcaAccountHolder() {
+        val existingName = repository.lookupBcaAccountHolder("2181475538")
+        assertEquals("ABDILLAH", existingName)
+        val generatedName = repository.lookupBcaAccountHolder("1234567890")
+        assertNotNull(generatedName)
+        assertTrue(generatedName.isNotEmpty())
     }
 }

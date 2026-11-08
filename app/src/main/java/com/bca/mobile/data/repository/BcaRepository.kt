@@ -16,7 +16,7 @@ class BcaRepository private constructor() {
 
     private val _account = MutableStateFlow(
         Account(
-            accountNumber = "2270216440",
+            accountNumber = "0060387737",
             accountType = "TABUNGAN TAHAPAN",
             accountHolder = "DADANG MUBAROK",
             balance = 261232130240.16,
@@ -109,11 +109,15 @@ class BcaRepository private constructor() {
 
     private val _recipients = MutableStateFlow(
         listOf(
-            TransferRecipient("REC-1", "0881234567", "BUDI SANTOSO", "BCA"),
-            TransferRecipient("REC-2", "0779876543", "SITI RAHMAWATI", "BCA"),
-            TransferRecipient("REC-3", "0112233445", "AHMAD FAUZI", "BCA"),
-            TransferRecipient("REC-4", "1400012345678", "HENDRA WIJAYA", "BANK MANDIRI"),
-            TransferRecipient("REC-5", "001201998877501", "DEWI LESTARI", "BRI")
+            TransferRecipient("REC-1", "2181475538", "ABDILLAH", "BCA"),
+            TransferRecipient("REC-2", "2481574694", "ACHMAD RIZAL", "BCA"),
+            TransferRecipient("REC-3", "6520643140", "ADE FERY PERMANA", "BCA"),
+            TransferRecipient("REC-4", "2990889042", "ADE JAJANG NURJAMAN", "BCA"),
+            TransferRecipient("REC-5", "0881234567", "BUDI SANTOSO", "BCA"),
+            TransferRecipient("REC-6", "1400012345678", "HENDRA WIJAYA", "BANK MANDIRI"),
+            TransferRecipient("REC-7", "001201998877501", "DEWI LESTARI", "BRI"),
+            TransferRecipient("REC-8", "0779876543", "SITI RAHMAWATI", "BNI"),
+            TransferRecipient("REC-9", "0112233445", "AHMAD FAUZI", "CIMB NIAGA")
         )
     )
     val recipients: StateFlow<List<TransferRecipient>> = _recipients.asStateFlow()
@@ -292,6 +296,43 @@ class BcaRepository private constructor() {
         )
 
         return Result.success(receipt)
+    }
+
+    fun lookupBcaAccountHolder(accountNumber: String): String {
+        val existing = _recipients.value.firstOrNull { it.accountNumber == accountNumber.trim() }
+        if (existing != null) return existing.name
+        val mockNames = listOf(
+            "YUSUF MAULANA", "DIMAS PRASETYO", "EKO WAHYUDI", 
+            "FAJAR NUGROHO", "INDAH PERMATA", "TRI WAHYUNI",
+            "REZA PAHLEVI", "BAYU ANGGORO", "CANDRA KURNIAWAN"
+        )
+        val idx = kotlin.math.abs(accountNumber.trim().hashCode()) % mockNames.size
+        return mockNames[idx]
+    }
+
+    fun registerBcaRecipients(accountNumbers: List<String>): List<TransferRecipient> {
+        val addedList = mutableListOf<TransferRecipient>()
+        val currentRecipients = _recipients.value.toMutableList()
+        
+        for (acc in accountNumbers) {
+            val cleanAcc = acc.trim()
+            if (cleanAcc.isNotEmpty()) {
+                val holderName = lookupBcaAccountHolder(cleanAcc)
+                val newRec = TransferRecipient(
+                    id = "REC-${System.currentTimeMillis()}-${addedList.size}",
+                    accountNumber = cleanAcc,
+                    name = holderName,
+                    bankName = "BCA"
+                )
+                // If not already exists, add
+                if (currentRecipients.none { it.accountNumber == cleanAcc && it.bankName == "BCA" }) {
+                    currentRecipients.add(newRec)
+                    addedList.add(newRec)
+                }
+            }
+        }
+        _recipients.value = currentRecipients
+        return addedList
     }
 
     fun addRecipient(accountNumber: String, name: String, bankName: String = "BCA") {

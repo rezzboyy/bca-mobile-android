@@ -7,34 +7,29 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.bca.mobile.data.model.Account
 import com.bca.mobile.data.model.NetworkSignalState
 import com.bca.mobile.data.model.TransferReceipt
 import com.bca.mobile.data.model.TransferRecipient
 import com.bca.mobile.data.repository.BcaRepository
 import com.bca.mobile.ui.components.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Authentic BCA m-Transfer Antar Rekening Screen matching:
- * - Screenshot_2026-10-28-09-13-09-327_com.bca.jpg.jpeg (No.Rekening Tujuan List)
- * - Screenshot_2026-10-28-09-13-25-578_com.bca.jpg.jpeg (Jumlah Uang Dialog)
+ * WhatsApp Image 2026-11-08 at 18.00.21 (1).jpeg
  */
 @Composable
 fun TransferAntarRekeningScreen(
@@ -44,18 +39,20 @@ fun TransferAntarRekeningScreen(
     modifier: Modifier = Modifier
 ) {
     val bcaRecipients = remember(recipients) { recipients.filter { it.bankName == "BCA" } }
-    var selectedIndex by remember { mutableStateOf<Int?>(null) }
-    var selectedRecipient by remember { mutableStateOf<TransferRecipient?>(bcaRecipients.firstOrNull()) }
+    var selectedRecipient by remember { mutableStateOf<TransferRecipient?>(null) }
+    var showRecipientPicker by remember { mutableStateOf(false) }
 
     var amountText by remember { mutableStateOf("") }
     var showAmountDialog by remember { mutableStateOf(false) }
+
     var noteText by remember { mutableStateOf("") }
+    var showNoteDialog by remember { mutableStateOf(false) }
+    var tempNote by remember { mutableStateOf("") }
 
     var showConfirmation by remember { mutableStateOf(false) }
     var showPinDialog by remember { mutableStateOf(false) }
     var receiptResult by remember { mutableStateOf<TransferReceipt?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    val coroutineScope = rememberCoroutineScope()
 
     val repository = remember { BcaRepository.getInstance() }
 
@@ -64,11 +61,11 @@ fun TransferAntarRekeningScreen(
             errorMessage = "205 - Silakan tunggu beberapa saat sampai lampu indikator di pojok kanan atas berwarna hijau sebelum melanjutkan transaksi."
             return
         }
-        val amount = amountText.toLongOrNull() ?: 0L
         if (selectedRecipient == null) {
             errorMessage = "Pilih rekening tujuan transfer."
             return
         }
+        val amount = amountText.toLongOrNull() ?: 0L
         if (amount <= 0) {
             errorMessage = "Masukkan jumlah uang transfer terlebih dahulu."
             return
@@ -81,68 +78,210 @@ fun TransferAntarRekeningScreen(
         showConfirmation = true
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFFE5E7EB)) // Subtle light background matching authentic BCA
-    ) {
-        // 1. Top Bar: "m-Transfer" + Green Indicator + Glossy "Send" Button
-        BcaSubMenuTopBar(
-            title = "m-Transfer",
-            onBackClick = onBack,
-            showBackButton = true,
-            trailingAction = {
-                BcaTopBarActionButton(
-                    text = "Send",
-                    onClick = { onSendClicked() }
-                )
-            }
-        )
+    fun executeTransfer() {
+        val rec = selectedRecipient ?: return
+        val amount = amountText.toLongOrNull() ?: 0L
+        val res = repository.transferAntarRekening(rec, amount, noteText)
+        res.onSuccess { receipt ->
+            receiptResult = receipt
+        }.onFailure { err ->
+            errorMessage = err.message ?: "Transfer gagal diproses."
+        }
+    }
 
-        // 2. Main Content Layout
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 14.dp, vertical = 14.dp)
-        ) {
-            // Label: "No.Rekening Tujuan" (Exact match to Screenshot_2026-10-28-09-13-09-327_com.bca.jpg.jpeg)
-            Text(
-                text = "No.Rekening Tujuan",
-                color = Color(0xFF005CA9),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 6.dp)
+    if (showRecipientPicker) {
+        TransferRecipientPickerScreen(
+            account = account,
+            recipients = bcaRecipients,
+            bankFilter = "BCA",
+            onSelectRecipient = { rec ->
+                selectedRecipient = rec
+                showRecipientPicker = false
+            },
+            onBack = { showRecipientPicker = false }
+        )
+        return
+    }
+
+    BcaMetallicBackground(modifier = modifier) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // 1. Top Bar: "m-Transfer" + Green Indicator + Glossy "Send" Button
+            BcaSubMenuTopBar(
+                title = "m-Transfer",
+                onBackClick = onBack,
+                showBackButton = false,
+                trailingAction = {
+                    BcaTopBarActionButton(
+                        text = "Send",
+                        onClick = { onSendClicked() }
+                    )
+                }
             )
 
-            // Rekening 1, Rekening 2, Rekening 3 Card
-            Box(
+            // 2. Main Content Form Card
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 14.dp, vertical = 14.dp)
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    val displayList = listOf(
-                        "Rekening 1" to (bcaRecipients.getOrNull(0) ?: TransferRecipient("1", "SUTISNA WIJAYA", "5371829012", "BCA")),
-                        "Rekening 2" to (bcaRecipients.getOrNull(1) ?: TransferRecipient("2", "RATNA SARI", "2891047123", "BCA")),
-                        "Rekening 3" to (bcaRecipients.getOrNull(2) ?: TransferRecipient("3", "AGUS SETIAWAN", "8492018374", "BCA"))
-                    )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White)
+                        .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(8.dp))
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // Row 1: Dari Rekening
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 14.dp)
+                        ) {
+                            Text(
+                                text = "Dari Rekening",
+                                color = Color(0xFF005CA9),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = account.accountNumber,
+                                color = Color(0xFF1E293B),
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
 
-                    displayList.forEachIndexed { index, (label, recipient) ->
-                        val isSelected = selectedIndex == index || (selectedIndex == null && index == 0)
+                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+
+                        // Row 2: Ke Rekening (- PILIH - >)
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(if (isSelected) Color(0xFFEFF6FF) else Color.White)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = rememberRipple(bounded = true),
+                                    onClick = { showRecipientPicker = true }
+                                )
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Ke Rekening",
+                                    color = Color(0xFF005CA9),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = if (selectedRecipient != null)
+                                        "${selectedRecipient?.accountNumber} - ${selectedRecipient?.name}"
+                                    else
+                                        "- PILIH -",
+                                    color = if (selectedRecipient != null) Color(0xFF1E293B) else Color(0xFF707A8A),
+                                    fontSize = 15.sp,
+                                    fontWeight = if (selectedRecipient != null) FontWeight.SemiBold else FontWeight.Normal
+                                )
+                            }
+
+                            BcaChevron(size = 20.dp)
+                        }
+
+                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+
+                        // Row 3: Jumlah Uang (Split: Rp > | >)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 14.dp)
+                        ) {
+                            Text(
+                                text = "Jumlah Uang",
+                                color = Color(0xFF005CA9),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Split Box matching WhatsApp Image 2026-11-08 at 18.00.21 (1).jpeg
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(44.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(4.dp))
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = rememberRipple(bounded = true),
+                                        onClick = { showAmountDialog = true }
+                                    ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Left part: Gray Box with "Rp" and ">"
+                                Row(
+                                    modifier = Modifier
+                                        .width(90.dp)
+                                        .fillMaxHeight()
+                                        .background(Color(0xFFE5E7EB))
+                                        .padding(horizontal = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Rp",
+                                        color = Color(0xFF005CA9),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    BcaChevron(size = 16.dp)
+                                }
+
+                                VerticalDivider(color = Color(0xFFCBD5E1), thickness = 1.dp)
+
+                                // Right part: Amount value and right chevron
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .background(Color.White)
+                                        .padding(horizontal = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = if (amountText.isNotEmpty()) {
+                                            val num = amountText.toLongOrNull() ?: 0L
+                                            BcaRepository.formatNumberOnly(num)
+                                        } else {
+                                            ""
+                                        },
+                                        color = Color(0xFF1E293B),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+
+                                    BcaChevron(size = 16.dp)
+                                }
+                            }
+                        }
+
+                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+
+                        // Row 4: Berita (Berita >)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = rememberRipple(bounded = true),
                                     onClick = {
-                                        selectedIndex = index
-                                        selectedRecipient = recipient
+                                        tempNote = noteText
+                                        showNoteDialog = true
                                     }
                                 )
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -151,208 +290,87 @@ fun TransferAntarRekeningScreen(
                         ) {
                             Column {
                                 Text(
-                                    text = label,
-                                    color = if (isSelected) Color(0xFF005CA9) else Color(0xFF64748B),
+                                    text = "Berita",
+                                    color = Color(0xFF005CA9),
                                     fontSize = 16.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    fontWeight = FontWeight.Bold
                                 )
-                                if (isSelected) {
+                                if (noteText.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "${recipient.accountNumber} - ${recipient.name}",
+                                        text = noteText,
                                         color = Color(0xFF1E293B),
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.SemiBold
+                                        fontSize = 14.sp
                                     )
                                 }
                             }
 
-                            Text(
-                                text = "›",
-                                color = Color(0xFF005CA9),
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        if (index < displayList.size - 1) {
-                            HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+                            BcaChevron(size = 20.dp)
                         }
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Form Card: Jumlah Uang & Dari Rekening
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 16.dp, vertical = 14.dp)
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    // Jumlah Uang Row (Tapping opens the black Jumlah Uang popup dialog)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = rememberRipple(bounded = true),
-                                onClick = { showAmountDialog = true }
-                            ),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Jumlah Uang",
-                                color = Color(0xFF005CA9),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = if (amountText.isNotEmpty()) {
-                                    val num = amountText.toLongOrNull() ?: 0L
-                                    BcaRepository.formatRupiah(num)
-                                } else {
-                                    "0"
-                                },
-                                color = if (amountText.isNotEmpty()) Color(0xFF1E293B) else Color(0xFF94A3B8),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-
-                        Text(
-                            text = "›",
-                            color = Color(0xFF005CA9),
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Dari Rekening Row
-                    Text(
-                        text = "Dari Rekening",
-                        color = Color(0xFF005CA9),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "${account.accountNumber} - ${BcaRepository.formatRupiah(account.balance)}",
-                        color = Color(0xFF64748B),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Normal
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Berita Transfer
-                    Text(
-                        text = "Berita:",
-                        color = Color(0xFF005CA9),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    BasicTextField(
-                        value = noteText,
-                        onValueChange = { if (it.length <= 40) noteText = it },
-                        textStyle = TextStyle(color = Color(0xFF1E293B), fontSize = 14.sp),
-                        cursorBrush = SolidColor(Color(0xFF005CA9)),
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(38.dp)
-                            .background(Color(0xFFF8FAFC), RoundedCornerShape(4.dp))
-                            .border(0.8.dp, Color(0xFFCBD5E1), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 10.dp, vertical = 8.dp)
-                    )
                 }
             }
         }
     }
 
-    // Black "Jumlah Uang:" Dialog matching Screenshot_2026-10-28-09-13-25-578_com.bca.jpg.jpeg
+    // Amount Input Dialog
     if (showAmountDialog) {
         BcaAmountInputDialog(
             initialValue = amountText,
             onDismiss = { showAmountDialog = false },
-            onConfirm = { valInput ->
-                amountText = valInput
+            onConfirm = { newAmount ->
+                amountText = newAmount
                 showAmountDialog = false
             }
         )
     }
 
-    // Confirmation Alert
-    if (showConfirmation) {
-        val amount = amountText.toLongOrNull() ?: 0L
-        val confMessage = """
-m-Transfer:
-DARI: ${account.accountNumber}
-KE: ${selectedRecipient?.accountNumber}
-NAMA: ${selectedRecipient?.name}
-JUMLAH: ${BcaRepository.formatRupiah(amount)}
-BERITA: ${noteText.ifEmpty { "-" }}
-        """.trimIndent()
-
-        BcaAlertResultDialog(
-            title = "Konfirmasi Transfer",
-            message = confMessage,
-            onDismiss = { showConfirmation = false },
-            confirmText = "Lanjut",
-            cancelText = "Batal",
-            onConfirm = {
-                showConfirmation = false
-                showPinDialog = true
+    // Transfer Note Dialog
+    if (showNoteDialog) {
+        BcaBlackInputDialog(
+            title = "Berita:",
+            initialValue = noteText,
+            isNumericOnly = false,
+            maxLength = 40,
+            onDismiss = { showNoteDialog = false },
+            onConfirm = { note ->
+                noteText = note
+                showNoteDialog = false
             }
         )
     }
 
-    // PIN Verification Dialog
-    if (showPinDialog) {
-        BcaPinDialog(
-            onDismiss = { showPinDialog = false },
-            onSuccess = {
-                showPinDialog = false
-                val amount = amountText.toLongOrNull() ?: 0L
-                val recipient = selectedRecipient ?: bcaRecipients.first()
-
-                coroutineScope.launch {
-                    repository.setNetworkSignal(NetworkSignalState.PROCESSING)
-                    delay(1000)
-                    repository.setNetworkSignal(NetworkSignalState.READY)
-                    val result = repository.transferAntarRekening(
-                        recipient = recipient,
-                        amount = amount,
-                        note = noteText
-                    )
-                    receiptResult = result.getOrNull()
-                    amountText = ""
-                    noteText = ""
-                }
+    // Confirmation Dialog before PIN
+    if (showConfirmation) {
+        val rec = selectedRecipient
+        val amt = amountText.toLongOrNull() ?: 0L
+        BcaAlertResultDialog(
+            title = "m-Transfer",
+            message = "Transfer ke Rekening:\n" +
+                    "No. Rekening : ${rec?.accountNumber}\n" +
+                    "Nama : ${rec?.name}\n" +
+                    "Jumlah : ${BcaRepository.formatRupiah(amt)}\n" +
+                    "Berita : ${if (noteText.isNotEmpty()) noteText else "-"}\n\n" +
+                    "Lanjutkan transaksi?",
+            onDismiss = { showConfirmation = false },
+            confirmText = "OK",
+            onConfirm = {
+                showConfirmation = false
+                showPinDialog = true
             },
-            onVerifyPin = { repository.verifyPin(it) }
+            cancelText = "Cancel"
         )
     }
 
-    // Official Receipt Dialog
-    receiptResult?.let { receipt ->
-        BcaReceiptDialog(
-            receipt = receipt,
-            onDismiss = { receiptResult = null }
+    // PIN Authentication Dialog
+    if (showPinDialog) {
+        BcaPinDialog(
+            onDismiss = { showPinDialog = false },
+            onVerifyPin = { pin -> repository.verifyPin(pin) },
+            onSuccess = {
+                showPinDialog = false
+                executeTransfer()
+            }
         )
     }
 
@@ -363,6 +381,17 @@ BERITA: ${noteText.ifEmpty { "-" }}
             message = errorMessage ?: "",
             onDismiss = { errorMessage = null },
             confirmText = "OK"
+        )
+    }
+
+    // Digital Receipt Dialog
+    receiptResult?.let { receipt ->
+        BcaReceiptDialog(
+            receipt = receipt,
+            onDismiss = {
+                receiptResult = null
+                onBack()
+            }
         )
     }
 }
