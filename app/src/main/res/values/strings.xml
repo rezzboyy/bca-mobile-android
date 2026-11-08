@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BCA mobile</string>
+    <string name="info_title">BCA mobile</string>
+    <string name="info_desc">Selamat datang di BCA mobile. Layanan transaksi perbankan mudah, praktis, aman, dan nyaman dalam genggaman Anda.</string>
+    <string name="disclaimer_line1">BCA berizin dan diawasi oleh</string>
+    <string name="disclaimer_line2">Otoritas Jasa Keuangan &amp; Bank Indonesia.</string>
+    <string name="disclaimer_line3">BCA merupakan peserta penjaminan LPS.</string>
+</resources>

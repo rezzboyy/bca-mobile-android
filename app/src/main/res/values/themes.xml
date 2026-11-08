@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.BcaMobile" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#000518</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="android:windowBackground">#000518</item>
+    </style>
+</resources>
