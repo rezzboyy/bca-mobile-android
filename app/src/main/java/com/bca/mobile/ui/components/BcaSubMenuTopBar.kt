@@ -179,6 +179,7 @@ fun BcaChevron(
 
 /**
  * Authentic BCA Signature Diagonal Metallic Background matching WhatsApp screenshots
+ * Features the signature upward-sloping metallic facet ("jaret") with authentic BCA gradients.
  */
 @Composable
 fun BcaMetallicBackground(
@@ -191,21 +192,52 @@ fun BcaMetallicBackground(
             .drawBehind {
                 val canvasW = size.width
                 val canvasH = size.height
-                drawRect(Color(0xFFE5E7EB))
+
+                // 1. Base upper plane: Light silver metallic gradient
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFFE4E7EB),
+                            Color(0xFFDCDFE3),
+                            Color(0xFFD6D9DD)
+                        ),
+                        startY = 0f,
+                        endY = canvasH * 0.52f
+                    )
+                )
+
+                // 2. Lower facet polygon: Darker silver plane
+                // Authentic BCA signature diagonal streak ("jaret") slopes UPWARDS from bottom-left to top-right
+                // Measured exactly from authentic 720x1600 & 1080x2400 BCA Mobile screenshots:
+                // Left edge (x = 0): y = canvasH * 0.516f
+                // Right edge (x = canvasW): y = canvasH * 0.267f
                 val path = Path().apply {
-                    moveTo(0f, canvasH * 0.38f)
-                    lineTo(canvasW, canvasH * 0.58f)
+                    moveTo(0f, canvasH * 0.516f)
+                    lineTo(canvasW, canvasH * 0.267f)
                     lineTo(canvasW, canvasH)
                     lineTo(0f, canvasH)
                     close()
                 }
+
                 drawPath(
                     path = path,
-                    brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFFD4D9DF), Color(0xFFC7CDD4)),
-                        start = Offset(0f, canvasH * 0.38f),
-                        end = Offset(canvasW, canvasH)
+                    brush = Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to Color(0xFFC7CBD0),
+                            0.45f to Color(0xFFC4C8CC),
+                            1.0f to Color(0xFFD8DCDF)
+                        ),
+                        startY = canvasH * 0.267f,
+                        endY = canvasH
                     )
+                )
+
+                // 3. Crisp crease line along the facet seam ("jaret")
+                drawLine(
+                    color = Color(0xFFB5BAC0),
+                    start = Offset(0f, canvasH * 0.516f),
+                    end = Offset(canvasW, canvasH * 0.267f),
+                    strokeWidth = 1.2.dp.toPx()
                 )
             },
         content = content
