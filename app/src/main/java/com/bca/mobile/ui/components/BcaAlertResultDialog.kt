@@ -1,5 +1,6 @@
 package com.bca.mobile.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.bca.mobile.R
 
 /**
  * Authentic BCA Alert/Result Modal Dialog
@@ -48,14 +52,6 @@ fun BcaAlertResultDialog(
         1.0f to Color(0xFF053F88)
     )
 
-    // Inner dialog subtle silver gradient matching official BCA client
-    val innerPanelGradient = Brush.verticalGradient(
-        0.0f to Color(0xFFF3F7FA),
-        0.08f to Color(0xFFFAFAFA),
-        0.7f to Color(0xFFF6F6F6),
-        1.0f to Color(0xFFEFEFEF)
-    )
-
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -66,15 +62,21 @@ fun BcaAlertResultDialog(
                 .padding(horizontal = 24.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Clean Dialog Card without dark silver inner outline
+            // Clean Dialog Card with Authentic Gradient Gray Panel
             Box(
                 modifier = Modifier
                     .width(284.dp)
                     .height(314.dp)
-                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(4.dp))
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(innerPanelGradient)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp))
             ) {
+                Image(
+                    painter = painterResource(id = R.drawable.bg_clean_gradient_gray_panel),
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.FillBounds
+                )
+
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally

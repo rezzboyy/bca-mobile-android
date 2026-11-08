@@ -1,5 +1,6 @@
 package com.bca.mobile.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.bca.mobile.R
 
 /**
  * Authentic BCA Confirmation Modal Dialog
@@ -53,13 +57,6 @@ fun BcaConfirmationDialog(
         1.0f to Color(0xFF0C4C93)
     )
 
-    // Inner panel background
-    val panelGradient = Brush.verticalGradient(
-        0.0f to Color(0xFFFCFDFE),
-        0.5f to Color(0xFFF9FAFB),
-        1.0f to Color(0xFFF4F6F8)
-    )
-
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -79,9 +76,15 @@ fun BcaConfirmationDialog(
                     )
                     .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
-                    .background(panelGradient)
-                    .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(8.dp))
             ) {
+                // Authentic Clean Gradient Gray Panel Background
+                Image(
+                    painter = painterResource(id = R.drawable.bg_clean_gradient_gray_panel),
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.FillBounds
+                )
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
