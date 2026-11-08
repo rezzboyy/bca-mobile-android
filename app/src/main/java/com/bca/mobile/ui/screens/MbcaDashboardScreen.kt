@@ -53,11 +53,11 @@ fun MbcaDashboardScreen(
 ) {
     var placeholderAlert by remember { mutableStateOf<String?>(null) }
 
-    // Alternating promotional foreground content (3.5 seconds interval)
-    val bannerFgList = remember {
+    // Alternating promotional banner content (3.5 seconds interval)
+    val bannerList = remember {
         listOf(
-            R.drawable.banner_fg_gacha,
-            R.drawable.banner_fg_600k
+            R.drawable.banner_gacha,
+            R.drawable.banner_hadiah_600k
         )
     }
     var currentBannerIndex by remember { mutableIntStateOf(0) }
@@ -65,7 +65,7 @@ fun MbcaDashboardScreen(
     LaunchedEffect(Unit) {
         while (true) {
             delay(3500L)
-            currentBannerIndex = (currentBannerIndex + 1) % bannerFgList.size
+            currentBannerIndex = (currentBannerIndex + 1) % bannerList.size
         }
     }
 
@@ -178,22 +178,13 @@ fun MbcaDashboardScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Promotional Banner Container (Static Base Background + Dynamic Zoom In/Out Foreground)
+                // Promotional Banner Container (Single Layer Authentic Crossfade)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(636f / 84f),
                     contentAlignment = Alignment.Center
                 ) {
-                    // 1. Static Capsule Background + Button (100% DIAM / STATIC)
-                    Image(
-                        painter = painterResource(id = R.drawable.banner_base_static),
-                        contentDescription = "Promo Background",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
-
-                    // 2. Animated Foreground (Teks Iklan + Bola Sayap Biru & Hijau Crossfade Mulus)
                     AnimatedContent(
                         targetState = currentBannerIndex,
                         transitionSpec = {
@@ -205,11 +196,11 @@ fun MbcaDashboardScreen(
                                 )
                             )
                         },
-                        label = "BannerForegroundCrossfadeAnimation",
+                        label = "BannerCrossfadeAnimation",
                         modifier = Modifier.fillMaxSize()
                     ) { targetIndex ->
                         Image(
-                            painter = painterResource(id = bannerFgList[targetIndex]),
+                            painter = painterResource(id = bannerList[targetIndex]),
                             contentDescription = if (targetIndex == 0) "The New Gacha Berhadiah" else "Total 600.000+ Hadiah Siap Dimenangkan",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
