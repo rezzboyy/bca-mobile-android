@@ -46,6 +46,7 @@ fun BcaConfirmationDialog(
     onCancel: () -> Unit = onDismissRequest,
     dialogWidth: Dp = 280.dp,
     minHeight: Dp? = 320.dp,
+    contentAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Official BCA Action Button Gradient (verified from authentic screenshot telemetry)
@@ -92,14 +93,14 @@ fun BcaConfirmationDialog(
                             if (minHeight != null) Modifier.defaultMinSize(minHeight = minHeight)
                             else Modifier
                         )
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                        .padding(horizontal = 14.dp, vertical = 14.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (!title.isNullOrBlank()) {
                         Text(
                             text = title,
                             color = Color(0xFF004B87),
-                            fontSize = 17.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
@@ -112,7 +113,7 @@ fun BcaConfirmationDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f, fill = true),
-                        horizontalAlignment = Alignment.Start
+                        horizontalAlignment = contentAlignment
                     ) {
                         content()
                     }
@@ -123,7 +124,7 @@ fun BcaConfirmationDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(36.dp),
+                            .height(42.dp),
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         if (cancelText != null) {
@@ -131,8 +132,8 @@ fun BcaConfirmationDialog(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(4.dp))
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(6.dp))
                                     .background(buttonGradient)
                                     .clickable(
                                         interactionSource = remember { MutableInteractionSource() },
@@ -144,8 +145,8 @@ fun BcaConfirmationDialog(
                                 Text(
                                     text = cancelText,
                                     color = Color.White,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
@@ -154,8 +155,8 @@ fun BcaConfirmationDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
-                                .clip(RoundedCornerShape(4.dp))
-                                .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(4.dp))
+                                .clip(RoundedCornerShape(6.dp))
+                                .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(6.dp))
                                 .background(buttonGradient)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
@@ -167,8 +168,8 @@ fun BcaConfirmationDialog(
                             Text(
                                 text = confirmText,
                                 color = Color.White,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }

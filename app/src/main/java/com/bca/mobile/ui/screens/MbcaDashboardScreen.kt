@@ -1,5 +1,6 @@
 package com.bca.mobile.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -55,6 +56,11 @@ fun MbcaDashboardScreen(
     var placeholderAlert by remember { mutableStateOf<String?>(null) }
     var showLogoutConfirmation by remember { mutableStateOf(false) }
 
+    // Intercept back button on Dashboard to display official Logout confirmation
+    BackHandler {
+        showLogoutConfirmation = true
+    }
+
     // Alternating promotional foreground content (3.5 seconds interval)
     val bannerFgList = remember {
         listOf(
@@ -71,7 +77,7 @@ fun MbcaDashboardScreen(
         }
     }
 
-    // 11 Core Menu Items matching the exact 4-column layout from screenshot
+    // 12 Core Menu Items matching the 4-column x 3-row layout from screenshot
     val menuItems = listOf(
         // Row 1
         DashboardMenuItem("minfo", "m-Info", R.drawable.tile_minfo),
@@ -86,7 +92,8 @@ fun MbcaDashboardScreen(
         // Row 3
         DashboardMenuItem("bagibagi", "BagiBagi", R.drawable.tile_bagibagi),
         DashboardMenuItem("lifestyle", "Lifestyle", R.drawable.tile_lifestyle),
-        DashboardMenuItem("financialdiary", "Financial\nDiary", R.drawable.tile_financialdiary)
+        DashboardMenuItem("financialdiary", "Financial\nDiary", R.drawable.tile_financialdiary),
+        DashboardMenuItem("logout", "Logout", R.drawable.tile_logout)
     )
 
     Box(
@@ -248,6 +255,9 @@ fun MbcaDashboardScreen(
                                             "mtransfer" -> onNavigateToMTransfer()
                                             "flazz" -> onNavigateToFlazz()
                                             "cardless" -> onNavigateToCardless()
+                                            "logout" -> {
+                                                showLogoutConfirmation = true
+                                            }
                                             else -> {
                                                 placeholderAlert = "Fitur ${item.title.replace("\n", " ")} saat ini sedang dalam pemeliharaan sistem berkala."
                                             }
@@ -310,17 +320,18 @@ fun MbcaDashboardScreen(
                     onLogout()
                 },
                 onCancel = { showLogoutConfirmation = false },
-                dialogWidth = 280.dp
+                dialogWidth = 280.dp,
+                minHeight = 320.dp
             ) {
                 Text(
                     text = "Anda akan logout dari BCA mobile",
                     color = Color(0xFF004B87),
-                    fontSize = 15.sp,
-                    lineHeight = 22.sp,
+                    fontSize = 14.5.sp,
+                    lineHeight = 20.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 14.dp)
+                        .padding(top = 6.dp)
                 )
             }
         }
