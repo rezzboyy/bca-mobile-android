@@ -1,5 +1,10 @@
 package com.bca.mobile.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,6 +59,9 @@ fun TransferAntarBankScreen(
 
     var amountText by remember { mutableStateOf("") }
     var showAmountDialog by remember { mutableStateOf(false) }
+
+    // Authentic BCA logic: Layanan Transfer & Biaya only appear after selecting Bank and inputting amount
+    val canShowTransferService = selectedBank != "- PILIH -" && amountText.isNotBlank() && (amountText.toLongOrNull() ?: 0L) > 0L
 
     var selectedService by remember { mutableStateOf("BI FAST") }
     var adminFee by remember { mutableLongStateOf(2500L) }
@@ -287,62 +295,71 @@ fun TransferAntarBankScreen(
 
                         HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
 
-                        // Row 4: Layanan Transfer (BI FAST >)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(bounded = true),
-                                    onClick = { showLayananScreen = true }
-                                )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        // Rows 4 & 5: Layanan Transfer & Biaya (Muncul setelah Bank dan Nominal selesai diinput)
+                        AnimatedVisibility(
+                            visible = canShowTransferService,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
                         ) {
-                            Column {
-                                Text(
-                                    text = "Layanan Transfer",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = selectedService,
-                                    color = Color(0xFF1E293B),
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                // Row 4: Layanan Transfer (BI FAST >)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = rememberRipple(bounded = true),
+                                            onClick = { showLayananScreen = true }
+                                        )
+                                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Layanan Transfer",
+                                            color = Color(0xFF005CA9),
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = selectedService,
+                                            color = Color(0xFF707A8A),
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Normal
+                                        )
+                                    }
+
+                                    BcaChevron(size = 20.dp, color = Color(0xFF0081C6))
+                                }
+
+                                HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+
+                                // Row 5: Biaya (Format: 2.500)
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 14.dp)
+                                ) {
+                                    Text(
+                                        text = "Biaya",
+                                        color = Color(0xFF005CA9),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = String.format(Locale.GERMANY, "%,d", adminFee),
+                                        color = Color(0xFF707A8A),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                }
+
+                                HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
                             }
-
-                            BcaChevron(size = 20.dp)
                         }
-
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-
-                        // Row 5: Biaya
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp)
-                        ) {
-                            Text(
-                                text = "Biaya",
-                                color = Color(0xFF005CA9),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = String.format(Locale.GERMANY, "%,d,00", adminFee),
-                                color = Color(0xFF1E293B),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Normal
-                            )
-                        }
-
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
 
                         // Row 6: Berita (optional note)
                         Row(
