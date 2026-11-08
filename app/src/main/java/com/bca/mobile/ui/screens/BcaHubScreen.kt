@@ -14,10 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -61,78 +58,13 @@ fun BcaHubScreen(
                 .widthIn(max = 448.dp)
                 .fillMaxWidth()
         ) {
-            // 1. Radiant Navy Wallpaper Background (FillWidth, TopCenter to align peak light with logo)
+            // Authentic Radiant Navy Wallpaper Background
             Image(
                 painter = painterResource(id = R.drawable.bca_wallpaper),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.Crop,
                 alignment = Alignment.TopCenter
-            )
-
-            // 2. Radiant Starburst Glow Overlay (Centered right behind the BCA mobile logo)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        val canvasW = size.width
-                        val canvasH = size.height
-
-                        // Radial bloom behind BCA mobile logo
-                        val glowCenterY = canvasH * 0.165f
-                        val glowRadius = canvasW * 0.70f
-
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colorStops = arrayOf(
-                                    0.0f to Color(0xFF64B5F6).copy(alpha = 0.32f),
-                                    0.35f to Color(0xFF1E88E5).copy(alpha = 0.20f),
-                                    0.65f to Color(0xFF0D47A1).copy(alpha = 0.10f),
-                                    1.0f to Color.Transparent
-                                ),
-                                center = Offset(canvasW * 0.5f, glowCenterY),
-                                radius = glowRadius
-                            ),
-                            center = Offset(canvasW * 0.5f, glowCenterY),
-                            radius = glowRadius
-                        )
-
-                        // Subtle diagonal flare rays cutting across the sides of the card
-                        val strokeW = 48.dp.toPx()
-                        drawLine(
-                            brush = Brush.linearGradient(
-                                colorStops = arrayOf(
-                                    0.0f to Color.Transparent,
-                                    0.4f to Color(0xFF80D8FF).copy(alpha = 0.16f),
-                                    0.5f to Color(0xFFB3E5FC).copy(alpha = 0.22f),
-                                    0.6f to Color(0xFF80D8FF).copy(alpha = 0.16f),
-                                    1.0f to Color.Transparent
-                                ),
-                                start = Offset(0f, glowCenterY - canvasW * 0.35f),
-                                end = Offset(canvasW, glowCenterY + canvasW * 0.35f)
-                            ),
-                            start = Offset(0f, glowCenterY - canvasW * 0.35f),
-                            end = Offset(canvasW, glowCenterY + canvasW * 0.35f),
-                            strokeWidth = strokeW
-                        )
-
-                        drawLine(
-                            brush = Brush.linearGradient(
-                                colorStops = arrayOf(
-                                    0.0f to Color.Transparent,
-                                    0.4f to Color(0xFF80D8FF).copy(alpha = 0.16f),
-                                    0.5f to Color(0xFFB3E5FC).copy(alpha = 0.22f),
-                                    0.6f to Color(0xFF80D8FF).copy(alpha = 0.16f),
-                                    1.0f to Color.Transparent
-                                ),
-                                start = Offset(canvasW, glowCenterY - canvasW * 0.35f),
-                                end = Offset(0f, glowCenterY + canvasW * 0.35f)
-                            ),
-                            start = Offset(canvasW, glowCenterY - canvasW * 0.35f),
-                            end = Offset(0f, glowCenterY + canvasW * 0.35f),
-                            strokeWidth = strokeW
-                        )
-                    }
             )
 
             // 3. Main UI Content Layout (Compact authentic top-down spacing)
