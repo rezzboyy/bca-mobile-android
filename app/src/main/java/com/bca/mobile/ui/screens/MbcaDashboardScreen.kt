@@ -182,7 +182,7 @@ fun MbcaDashboardScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(2085f / 429f),
+                        .aspectRatio(636f / 84f),
                     contentAlignment = Alignment.Center
                 ) {
                     // Layer 1: Static background banner + merged locked button "Main & Dapatkan Hadiah >"
