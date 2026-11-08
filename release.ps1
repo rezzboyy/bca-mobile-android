@@ -72,7 +72,7 @@ Write-Host "      APK berhasil dibuat: $apkSizeMb MB" -ForegroundColor Green
 
 # 3. Commit version bump to Git
 Write-Host "`n[3/5] Melakukan Commit dan Push Versi ke Git..." -ForegroundColor Yellow
-git add app/build.gradle.kts
+git add -A
 git commit -m "chore(release): bump version to v$targetVersion (code $newCode)"
 git push origin master
 

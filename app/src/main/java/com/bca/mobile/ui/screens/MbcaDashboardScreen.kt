@@ -193,25 +193,19 @@ fun MbcaDashboardScreen(
                         contentScale = ContentScale.Fit
                     )
 
-                    // 2. Animated Foreground (Teks Iklan + Bola Sayap Biru & Hijau Zoom In / Zoom Out)
+                    // 2. Animated Foreground (Teks Iklan + Bola Sayap Biru & Hijau Crossfade Mulus)
                     AnimatedContent(
                         targetState = currentBannerIndex,
                         transitionSpec = {
-                            (scaleIn(
-                                initialScale = 0.82f,
-                                animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
-                            ) + fadeIn(
-                                animationSpec = tween(durationMillis = 650)
-                            )).togetherWith(
-                                scaleOut(
-                                    targetScale = 0.82f,
-                                    animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
-                                ) + fadeOut(
-                                    animationSpec = tween(durationMillis = 650)
+                            fadeIn(
+                                animationSpec = tween(durationMillis = 500)
+                            ).togetherWith(
+                                fadeOut(
+                                    animationSpec = tween(durationMillis = 500)
                                 )
                             )
                         },
-                        label = "BannerForegroundZoomAnimation",
+                        label = "BannerForegroundCrossfadeAnimation",
                         modifier = Modifier.fillMaxSize()
                     ) { targetIndex ->
                         Image(
