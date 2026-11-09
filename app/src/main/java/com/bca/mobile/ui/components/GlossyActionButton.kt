@@ -2,6 +2,7 @@ package com.bca.mobile.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -38,15 +39,16 @@ fun GlossyActionButton(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp)
+            .height(58.dp)
             .scale(scale)
             .shadow(
                 elevation = 8.dp,
-                shape = RoundedCornerShape(15.dp),
+                shape = RoundedCornerShape(16.dp),
                 ambientColor = Color(0x66001946),
                 spotColor = Color(0x66001946)
             )
-            .clip(RoundedCornerShape(15.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .border(width = 1.dp, color = Color(0x664FC3F7), shape = RoundedCornerShape(16.dp))
             .background(BcaColors.GlossyButtonGradient)
             .clickable(
                 interactionSource = interactionSource,
@@ -58,7 +60,7 @@ fun GlossyActionButton(
         Text(
             text = title,
             color = Color.White,
-            fontSize = 19.sp,
+            fontSize = 18.5.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.3.sp
         )

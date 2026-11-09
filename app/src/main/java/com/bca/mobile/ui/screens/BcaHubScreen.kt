@@ -78,12 +78,12 @@ fun BcaHubScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 10.dp, end = 16.dp),
+                        .padding(top = 8.dp, end = 20.dp),
                     contentAlignment = Alignment.TopEnd
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(24.dp)
                             .shadow(elevation = 4.dp, shape = CircleShape)
                             .clip(CircleShape)
                             .clickable(
@@ -102,23 +102,23 @@ fun BcaHubScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(50.dp))
 
                 // BCA mobile Brand Logo (Positioned directly over the radiant light center)
                 Image(
                     painter = painterResource(id = R.drawable.bca_mobile_logo),
                     contentDescription = "BCA mobile",
-                    modifier = Modifier
-                        .width(225.dp)
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.width(230.dp),
                     contentScale = ContentScale.Fit
                 )
 
-                // 3-Row Action Menu Container (m-BCA, KlikBCA, myBCA)
+                Spacer(modifier = Modifier.height(36.dp))
+
+                // 3-Row Action Menu Container (m-BCA, KlikBCA, myBCA) matching uploaded_media_1794227768198.jpg
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 18.dp)
+                        .padding(horizontal = 20.dp)
                         .shadow(
                             elevation = 20.dp,
                             shape = RoundedCornerShape(16.dp),
@@ -126,7 +126,17 @@ fun BcaHubScreen(
                             spotColor = Color(0x80000C28)
                         )
                         .clip(RoundedCornerShape(16.dp))
-                        .border(width = 2.dp, color = Color.White, shape = RoundedCornerShape(16.dp))
+                        .border(
+                            width = 2.dp,
+                            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFFE0F7FF),
+                                    Color(0xFF81D4FA),
+                                    Color(0xFF1E88E5)
+                                )
+                            ),
+                            shape = RoundedCornerShape(16.dp)
+                        )
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         // Row 1: m-BCA
@@ -156,14 +166,14 @@ fun BcaHubScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // 3 Action Buttons (Buka Rekening Baru, Ganti Kode Akses, Flazz)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 18.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                        .padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     GlossyActionButton(
                         title = "Buka Rekening Baru",
@@ -181,14 +191,14 @@ fun BcaHubScreen(
                     )
                 }
 
-                // Authentic spacious navy gap below Flazz down to disclaimer (19% of screen height)
+                // Authentic spacious navy gap below Flazz down to disclaimer
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Bottom Regulatory Disclaimer
+                // Bottom Regulatory Disclaimer matching uploaded_media_1794227768198.jpg
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 18.dp)
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 20.dp)
                         .navigationBarsPadding(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {

@@ -3,6 +3,7 @@ package com.bca.mobile.data.repository
 import com.bca.mobile.data.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,27 +33,29 @@ class BcaRepository private constructor() {
     private val _networkSignal = MutableStateFlow(NetworkSignalState.READY)
     val networkSignal: StateFlow<NetworkSignalState> = _networkSignal.asStateFlow()
 
-    // Authentic BCA Connection Indicator: alternates every 2 seconds (READY/Green <-> PROCESSING/Blue)
-    private val _indicatorSignal = MutableStateFlow(NetworkSignalState.READY)
+    // Authentic BCA Connection Indicator: biru saat baru masuk menu 1.5 detik, terus hijau terus (tidak looping)
+    private val _indicatorSignal = MutableStateFlow(NetworkSignalState.PROCESSING)
     val indicatorSignal: StateFlow<NetworkSignalState> = _indicatorSignal.asStateFlow()
 
     private val repositoryScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private var transitionJob: Job? = null
 
     init {
-        repositoryScope.launch {
-            while (isActive) {
-                delay(2000L)
-                if (_networkSignal.value == NetworkSignalState.OFFLINE) {
-                    _indicatorSignal.value = NetworkSignalState.OFFLINE
-                } else if (_networkSignal.value == NetworkSignalState.PROCESSING) {
-                    _indicatorSignal.value = NetworkSignalState.PROCESSING
-                } else {
-                    _indicatorSignal.value = if (_indicatorSignal.value == NetworkSignalState.READY) {
-                        NetworkSignalState.PROCESSING
-                    } else {
-                        NetworkSignalState.READY
-                    }
-                }
+        // Awal masuk aplikasi: biru 1.5 detik, lalu hijau terus
+        triggerMenuTransition(1500L)
+    }
+
+    fun triggerMenuTransition(durationMs: Long = 1500L) {
+        if (_networkSignal.value == NetworkSignalState.OFFLINE) {
+            _indicatorSignal.value = NetworkSignalState.OFFLINE
+            return
+        }
+        transitionJob?.cancel()
+        _indicatorSignal.value = NetworkSignalState.PROCESSING
+        transitionJob = repositoryScope.launch {
+            delay(durationMs)
+            if (_networkSignal.value != NetworkSignalState.OFFLINE) {
+                _indicatorSignal.value = NetworkSignalState.READY
             }
         }
     }
@@ -64,15 +67,8 @@ class BcaRepository private constructor() {
         }
     }
 
-    fun triggerProcessingPulse(durationMs: Long = 500) {
-        if (_networkSignal.value == NetworkSignalState.OFFLINE) return
-        _networkSignal.value = NetworkSignalState.PROCESSING
-        repositoryScope.launch {
-            kotlinx.coroutines.delay(durationMs)
-            if (_networkSignal.value == NetworkSignalState.PROCESSING) {
-                _networkSignal.value = NetworkSignalState.READY
-            }
-        }
+    fun triggerProcessingPulse(durationMs: Long = 1500L) {
+        triggerMenuTransition(durationMs)
     }
 
     suspend fun <T> runWithNetworkSimulation(block: suspend () -> T): T {
@@ -146,7 +142,8 @@ class BcaRepository private constructor() {
             TransferRecipient("REC-6", "1400012345678", "HENDRA WIJAYA", "BANK MANDIRI"),
             TransferRecipient("REC-7", "001201998877501", "DEWI LESTARI", "BRI"),
             TransferRecipient("REC-8", "0779876543", "SITI RAHMAWATI", "BNI"),
-            TransferRecipient("REC-9", "0112233445", "AHMAD FAUZI", "CIMB NIAGA")
+            TransferRecipient("REC-9", "0112233445", "AHMAD FAUZI", "CIMB NIAGA"),
+            TransferRecipient("REC-SEABANK", "901717125251", "BENI SURYAWAN", "SEABANK")
         )
     )
     val recipients: StateFlow<List<TransferRecipient>> = _recipients.asStateFlow()

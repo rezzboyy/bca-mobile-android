@@ -45,17 +45,17 @@ fun MenuRowCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(76.dp)
+                .height(89.dp)
                 .background(BcaColors.MenuRowGradient)
-                .padding(horizontal = 16.dp),
+                .padding(start = 12.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Rounded Tile Icon
+            // Rounded Tile Icon (Matching uploaded_media_1794227768198.jpg)
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .shadow(elevation = 3.dp, shape = RoundedCornerShape(13.dp))
-                    .clip(RoundedCornerShape(13.dp))
+                    .size(66.dp)
+                    .shadow(elevation = 3.dp, shape = RoundedCornerShape(14.dp))
+                    .clip(RoundedCornerShape(14.dp))
             ) {
                 Image(
                     painter = painterResource(id = iconRes),
@@ -65,7 +65,7 @@ fun MenuRowCard(
                 )
             }
 
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(32.dp))
 
             // Title
             Text(
@@ -78,7 +78,7 @@ fun MenuRowCard(
 
             // Optional Capsule Badge
             if (badgeText != null) {
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Box(
                     modifier = Modifier
                         .shadow(elevation = 2.dp, shape = RoundedCornerShape(12.dp))
@@ -88,7 +88,7 @@ fun MenuRowCard(
                     Text(
                         text = badgeText,
                         color = BcaColors.BadgeBlue,
-                        fontSize = 10.sp,
+                        fontSize = 10.5.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 0.8.sp
                     )
@@ -98,8 +98,8 @@ fun MenuRowCard(
 
         if (showDivider) {
             HorizontalDivider(
-                color = Color.White,
-                thickness = 2.dp
+                color = Color.White.copy(alpha = 0.65f),
+                thickness = 1.dp
             )
         }
     }

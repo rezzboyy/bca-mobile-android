@@ -99,6 +99,13 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val coroutineScope = rememberCoroutineScope()
 
+                // Setiap kali berpindah/masuk menu: indikator biru 1.5 detik lalu hijau terus
+                LaunchedEffect(currentScreen) {
+                    if (currentScreen != Screen.Hub) {
+                        repository.triggerMenuTransition(1500L)
+                    }
+                }
+
                 var availableUpdate by remember { mutableStateOf<UpdateInfo?>(null) }
                 var isDownloadingUpdate by remember { mutableStateOf(false) }
                 var updateDownloadProgress by remember { mutableFloatStateOf(0f) }

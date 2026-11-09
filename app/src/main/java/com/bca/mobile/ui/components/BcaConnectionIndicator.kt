@@ -42,6 +42,11 @@ fun BcaConnectionIndicator(
     val repoSignal by repository.indicatorSignal.collectAsState()
     val activeSignal = signalState ?: repoSignal
 
+    // Sesuai permintaan: biru ketika baru masuk menu 1.5 detik, terus hijau terus
+    LaunchedEffect(Unit) {
+        repository.triggerMenuTransition(1500L)
+    }
+
     var showDialog by remember { mutableStateOf(false) }
 
     val (solidColor, borderColor) = when (activeSignal) {
@@ -62,16 +67,16 @@ fun BcaConnectionIndicator(
         label = "indicatorBorder"
     )
 
-    // Outer touch area (36dp) with crisp inner indicator (16dp rounded 3dp)
+    // Outer touch area with crisp inner indicator (16dp rounded 3dp)
     Box(
         modifier = modifier
-            .size(36.dp)
+            .size(width = 24.dp, height = 36.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple(bounded = false, radius = 20.dp),
+                indication = rememberRipple(bounded = false, radius = 18.dp),
                 onClick = { showDialog = true }
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.CenterEnd
     ) {
         Box(
             modifier = Modifier

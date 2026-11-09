@@ -1,6 +1,7 @@
 package com.bca.mobile.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,15 +22,19 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bca.mobile.R
 
 @Composable
 fun BcaSubMenuTopBar(
@@ -50,7 +55,7 @@ fun BcaSubMenuTopBar(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp)
+                    .height(82.dp)
                     .padding(horizontal = 14.dp)
             ) {
                 // Left: Optional Back button
@@ -80,7 +85,7 @@ fun BcaSubMenuTopBar(
                 Text(
                     text = title,
                     color = Color(0xFF005CA9),
-                    fontSize = 18.sp,
+                    fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.Center),
                     textAlign = TextAlign.Center
@@ -128,8 +133,8 @@ fun BcaTopBarActionButton(
 
     Box(
         modifier = modifier
-            .height(36.dp)
-            .width(68.dp)
+            .height(40.dp)
+            .width(70.dp)
             .clip(RoundedCornerShape(6.dp))
             .border(1.dp, Color(0xFF1B324E), RoundedCornerShape(6.dp))
             .background(if (enabled) buttonBrush else androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xFF94A3B8), Color(0xFF64748B))))
@@ -144,38 +149,28 @@ fun BcaTopBarActionButton(
         Text(
             text = text,
             color = Color.White,
-            fontSize = 15.sp,
+            fontSize = 16.5.sp,
             fontWeight = FontWeight.Bold
         )
     }
 }
 
 /**
- * Authentic BCA Blue Chevron Right (>) matching WhatsApp screenshots
+ * Authentic BCA Vibrant Cyan-Blue Chevron Right (>) matching WhatsApp screenshots
  */
 @Composable
 fun BcaChevron(
     modifier: Modifier = Modifier,
-    color: Color = Color(0xFF005CA9),
+    color: Color? = null,
     size: Dp = 18.dp
 ) {
-    Canvas(modifier = modifier.size(size)) {
-        val strokePx = 2.4.dp.toPx()
-        val path = Path().apply {
-            moveTo(this@Canvas.size.width * 0.32f, this@Canvas.size.height * 0.18f)
-            lineTo(this@Canvas.size.width * 0.68f, this@Canvas.size.height * 0.50f)
-            lineTo(this@Canvas.size.width * 0.32f, this@Canvas.size.height * 0.82f)
-        }
-        drawPath(
-            path = path,
-            color = color,
-            style = Stroke(
-                width = strokePx,
-                cap = StrokeCap.Round,
-                join = StrokeJoin.Round
-            )
-        )
-    }
+    Image(
+        painter = painterResource(id = R.drawable.bca_chevron_cyan),
+        contentDescription = null,
+        modifier = modifier.size(width = 11.dp, height = 18.dp),
+        contentScale = ContentScale.Fit,
+        colorFilter = color?.let { ColorFilter.tint(it) }
+    )
 }
 
 /**

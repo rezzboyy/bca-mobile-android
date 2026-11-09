@@ -130,117 +130,123 @@ fun TransferAntarRekeningScreen(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                // 2. Gray Horizontal Spacing Band below Top Bar (matching Image 9d0ecc1e-d6a3-4e44-a349-30cd4daf8058.jpg)
+                val density = androidx.compose.ui.platform.LocalDensity.current
+                fun pxToDp(px: Float): androidx.compose.ui.unit.Dp = (px / density.density).dp
+
+                // 2. Gray Horizontal Spacing Band below Top Bar (matching uploaded_media_0_1794222646465.jpg)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(26.dp)
-                        .background(Color(0xFFD6D9DE))
+                        .height(pxToDp(47f))
+                        .background(Color(0xFFD9D9D9))
                         .drawBehind {
-                            val stroke = 0.8.dp.toPx()
-                            drawLine(Color(0xFFC4C8CE), Offset(0f, 0f), Offset(size.width, 0f), stroke)
-                            drawLine(Color(0xFFC4C8CE), Offset(0f, size.height), Offset(size.width, size.height), stroke)
+                            val stroke = pxToDp(1f).toPx()
+                            drawLine(Color(0xFFCCCCCC), Offset(0f, 0f), Offset(size.width, 0f), stroke)
+                            drawLine(Color(0xFFCCCCCC), Offset(0f, size.height), Offset(size.width, size.height), stroke)
                         }
                 )
 
-                // 3. White Form Section (Full width without floating card margins)
+                // 3. White Form Section (Full width 720px matching authentic BCA mobile)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
                 ) {
-                    // Row 1: Dari Rekening
+                    // Row 1: Dari Rekening (height: 113px, margin: 40px, start text: 55px, NO CHEVRON)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 14.dp)
+                            .height(pxToDp(113f))
+                            .padding(start = pxToDp(55f), end = pxToDp(40f)),
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "Dari Rekening",
-                            color = Color(0xFF005CA9),
-                            fontSize = 16.sp,
+                            color = Color(0xFF004B87),
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(pxToDp(12f)))
                         Text(
                             text = account.accountNumber,
-                            color = Color(0xFF555555),
-                            fontSize = 15.5.sp,
+                            color = Color(0xFF55606B),
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Normal
                         )
                     }
 
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 20.dp),
+                        modifier = Modifier.padding(horizontal = pxToDp(40f)),
                         color = Color(0xFFCBD5E1),
-                        thickness = 1.dp
+                        thickness = pxToDp(1f)
                     )
 
-                    // Row 2: Ke Rekening (- PILIH - or Selected Recipient >)
+                    // Row 2: Ke Rekening (height: 99px, start text: 55px, right chevron at x=641)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(pxToDp(99f))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = rememberRipple(bounded = true),
                                 onClick = { showRecipientPicker = true }
                             )
-                            .padding(horizontal = 20.dp, vertical = 14.dp),
+                            .padding(start = pxToDp(55f), end = pxToDp(40f)),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "Ke Rekening",
-                                color = Color(0xFF005CA9),
-                                fontSize = 16.sp,
+                                color = Color(0xFF004B87),
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(pxToDp(12f)))
                             Text(
                                 text = if (selectedRecipient != null)
                                     "${selectedRecipient?.accountNumber} - ${selectedRecipient?.name}"
                                 else
                                     "- PILIH -",
-                                color = if (selectedRecipient != null) Color(0xFF555555) else Color(0xFF707A8A),
-                                fontSize = 15.5.sp,
+                                color = if (selectedRecipient != null) Color(0xFF55606B) else Color(0xFF707A8A),
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Normal
                             )
                         }
 
-                        BcaChevron(size = 18.dp)
+                        Box(modifier = Modifier.padding(end = pxToDp(19f))) {
+                            BcaChevron(size = 18.dp)
+                        }
                     }
 
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 20.dp),
+                        modifier = Modifier.padding(horizontal = pxToDp(40f)),
                         color = Color(0xFFCBD5E1),
-                        thickness = 1.dp
+                        thickness = pxToDp(1f)
                     )
 
-                    // Row 3: Jumlah Uang (Split: [Rp > | Amount >])
+                    // Row 3: Jumlah Uang (Composite box height: 100px, left width: 180px)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 14.dp)
+                            .padding(top = pxToDp(22f), bottom = pxToDp(0f))
                     ) {
                         Text(
                             text = "Jumlah Uang",
-                            color = Color(0xFF005CA9),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            color = Color(0xFF004B87),
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = pxToDp(55f))
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(pxToDp(14f)))
 
                         // Composite Input Box
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp)
-                                .drawBehind {
-                                    val stroke = 1.dp.toPx()
-                                    drawLine(Color(0xFFCBD5E1), Offset(0f, 0f), Offset(size.width, 0f), stroke)
-                                    drawLine(Color(0xFFCBD5E1), Offset(0f, size.height), Offset(size.width, size.height), stroke)
-                                }
+                                .height(pxToDp(100f))
+                                .padding(horizontal = pxToDp(40f))
+                                .border(width = pxToDp(1f), color = Color(0xFFCBD5E1))
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = rememberRipple(bounded = true),
@@ -248,27 +254,27 @@ fun TransferAntarRekeningScreen(
                                 ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Left part: Light Gray Box with "Rp" and ">"
+                            // Left part: Light Gray Box with "Rp" and vibrant cyan chevron
                             Row(
                                 modifier = Modifier
-                                    .width(88.dp)
+                                    .width(pxToDp(180f))
                                     .fillMaxHeight()
-                                    .background(Color(0xFFE9ECEF))
-                                    .padding(horizontal = 12.dp),
+                                    .background(Color(0xFFE9E9E9))
+                                    .padding(start = pxToDp(15f), end = pxToDp(19f)),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
                                     text = "Rp",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
+                                    color = Color(0xFF004B87),
+                                    fontSize = 17.sp,
                                     fontWeight = FontWeight.Bold
                                 )
-                                BcaChevron(size = 16.dp)
+                                BcaChevron(size = 18.dp)
                             }
 
                             // Vertical divider
-                            VerticalDivider(color = Color(0xFFCBD5E1), thickness = 1.dp)
+                            VerticalDivider(color = Color(0xFFCBD5E1), thickness = pxToDp(1f))
 
                             // Right part: Amount value and right chevron
                             Row(
@@ -276,7 +282,7 @@ fun TransferAntarRekeningScreen(
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .background(Color.White)
-                                    .padding(horizontal = 12.dp),
+                                    .padding(start = pxToDp(14f), end = pxToDp(19f)),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -287,8 +293,8 @@ fun TransferAntarRekeningScreen(
                                     } else {
                                         ""
                                     },
-                                    color = Color(0xFF555555),
-                                    fontSize = 16.sp,
+                                    color = Color(0xFF55606B),
+                                    fontSize = 17.sp,
                                     fontWeight = FontWeight.Normal
                                 )
 
@@ -297,10 +303,17 @@ fun TransferAntarRekeningScreen(
                         }
                     }
 
-                    // Row 4: Berita (Berita >)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = pxToDp(40f)),
+                        color = Color(0xFFCBD5E1),
+                        thickness = pxToDp(1f)
+                    )
+
+                    // Row 4: Berita (height: 114px, start text: 55px, right chevron at x=640)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(pxToDp(114f))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = rememberRipple(bounded = true),
@@ -309,37 +322,37 @@ fun TransferAntarRekeningScreen(
                                     showNoteDialog = true
                                 }
                             )
-                            .padding(horizontal = 20.dp, vertical = 14.dp),
+                            .padding(start = pxToDp(55f), end = pxToDp(40f)),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "Berita",
-                                color = Color(0xFF005CA9),
-                                fontSize = 16.sp,
+                                color = Color(0xFF004B87),
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             if (noteText.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(pxToDp(8f)))
                                 Text(
                                     text = noteText,
-                                    color = Color(0xFF555555),
-                                    fontSize = 14.sp
+                                    color = Color(0xFF55606B),
+                                    fontSize = 15.sp
                                 )
                             }
                         }
 
-                        BcaChevron(size = 18.dp)
+                        Box(modifier = Modifier.padding(end = pxToDp(19f))) {
+                            BcaChevron(size = 18.dp)
+                        }
                     }
 
+                    // Bottom card border (full width across x=0..719)
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        color = Color(0xFFCBD5E1),
-                        thickness = 1.dp
+                        color = Color(0xFFDDDDDD),
+                        thickness = pxToDp(1f)
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
                 // 4. Remaining space showing authentic metallic upward-sloping facet
@@ -375,8 +388,11 @@ fun TransferAntarRekeningScreen(
         )
     }
 
-    // Confirmation Dialog before PIN matching 70b28587-900d-4216-82a6-04d7d28f6d41.jpg
+    // Confirmation Dialog before PIN matching uploaded_media_1_1794222646465.jpg
     if (showConfirmation) {
+        val density = androidx.compose.ui.platform.LocalDensity.current
+        fun pxToDp(px: Float): androidx.compose.ui.unit.Dp = (px / density.density).dp
+
         val rec = selectedRecipient
         val amt = amountText.toLongOrNull() ?: 0L
         val formattedAmt = String.format(Locale.GERMANY, "Rp %,d,00", amt)
@@ -394,74 +410,78 @@ fun TransferAntarRekeningScreen(
                 showPinDialog = true
             },
             onCancel = { showConfirmation = false },
-            dialogWidthFraction = 0.722f,
-            buttonSpacing = 8.dp,
-            buttonHeight = 40.dp,
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+            dialogWidthFraction = 512f / 720f,
+            dialogHeightFraction = 730f / 1600f,
+            buttonSpacing = pxToDp(8f),
+            buttonHeight = pxToDp(77f),
+            titleBottomSpacing = pxToDp(52f),
+            contentPadding = PaddingValues(horizontal = pxToDp(20f), vertical = pxToDp(14f)),
             contentAlignment = Alignment.Start
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = pxToDp(14f))
             ) {
                 Text(
                     text = "m-Transfer:",
                     color = Color(0xFF004B87),
-                    fontSize = 14.5.sp,
-                    lineHeight = 19.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Normal
                 )
                 Text(
                     text = currentTime,
                     color = Color(0xFF004B87),
-                    fontSize = 14.5.sp,
-                    lineHeight = 19.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Normal
                 )
                 Text(
                     text = "Dari ${account.accountNumber}",
                     color = Color(0xFF004B87),
-                    fontSize = 14.5.sp,
-                    lineHeight = 19.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Normal
                 )
                 Text(
                     text = "Ke ${rec?.accountNumber ?: ""}",
                     color = Color(0xFF004B87),
-                    fontSize = 14.5.sp,
-                    lineHeight = 19.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Normal
                 )
                 Text(
                     text = rec?.name ?: "",
                     color = Color(0xFF004B87),
-                    fontSize = 14.5.sp,
-                    lineHeight = 19.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Normal
                 )
                 Text(
                     text = formattedAmt,
                     color = Color(0xFF004B87),
-                    fontSize = 14.5.sp,
-                    lineHeight = 19.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Normal
                 )
                 if (noteText.isNotBlank()) {
                     Text(
                         text = "Berita: $noteText",
                         color = Color(0xFF004B87),
-                        fontSize = 14.5.sp,
-                        lineHeight = 19.sp,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
                         fontWeight = FontWeight.Normal
                     )
                 }
 
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(pxToDp(36f)))
 
                 Text(
                     text = "Pastikan nominal dan nomor rekening yang dimasukkan sudah sesuai.\nJika terdapat kesalahan data, maka sepenuhnya menjadi tanggung jawab nasabah.",
                     color = Color(0xFF004B87),
-                    fontSize = 13.5.sp,
-                    lineHeight = 18.5.sp,
+                    fontSize = 13.sp,
+                    lineHeight = 17.5.sp,
                     fontWeight = FontWeight.Normal
                 )
             }

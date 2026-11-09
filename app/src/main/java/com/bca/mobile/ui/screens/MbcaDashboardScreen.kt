@@ -3,7 +3,9 @@ package com.bca.mobile.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +38,10 @@ import com.bca.mobile.ui.components.BcaAlertResultDialog
 import com.bca.mobile.ui.components.BcaBottomNavBar
 import com.bca.mobile.ui.components.BcaConnectionIndicator
 import com.bca.mobile.ui.components.BcaNavTab
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 data class DashboardMenuItem(
     val id: String,
@@ -61,7 +67,7 @@ fun MbcaDashboardScreen(
         showLogoutConfirmation = true
     }
 
-    // Alternating promotional foreground content (3.5 seconds interval)
+    // Alternating promotional foreground content with steady 2-second display & smooth zoom in/out
     val bannerFgList = remember {
         listOf(
             R.drawable.banner_fg_gacha,
@@ -69,15 +75,48 @@ fun MbcaDashboardScreen(
         )
     }
     var currentBannerIndex by remember { mutableIntStateOf(0) }
+    val bannerScale = remember { Animatable(0.88f) }
+    val bannerAlpha = remember { Animatable(0.0f) }
 
     LaunchedEffect(Unit) {
-        while (true) {
-            delay(3500L)
+        while (isActive) {
+            // 1. Muncul halus & kalem (scale 0.88 -> 1.00, alpha 0.0 -> 1.0 dalam 500ms)
+            coroutineScope {
+                launch {
+                    bannerScale.snapTo(0.88f)
+                    bannerScale.animateTo(1.00f, tween(500, easing = FastOutSlowInEasing))
+                }
+                launch {
+                    bannerAlpha.snapTo(0.0f)
+                    bannerAlpha.animateTo(1.0f, tween(500, easing = FastOutSlowInEasing))
+                }
+            }
+
+            // 2. Berdenyut sangat halus & kalem selama 2 detik (2.000 ms)
+            // Zoom In lembut (+3.5%): 1.00 -> 1.035 dalam 1.000 ms
+            bannerScale.animateTo(1.035f, tween(1000, easing = FastOutSlowInEasing))
+            // Zoom Out lembut: 1.035 -> 1.00 dalam 1.000 ms
+            bannerScale.animateTo(1.00f, tween(1000, easing = FastOutSlowInEasing))
+
+            // 3. Menghilang halus & kalem untuk berganti iklan (scale 1.00 -> 0.88, alpha 1.0 -> 0.0 dalam 500ms)
+            coroutineScope {
+                launch {
+                    bannerScale.animateTo(0.88f, tween(500, easing = FastOutSlowInEasing))
+                }
+                launch {
+                    bannerAlpha.animateTo(0.0f, tween(500, easing = FastOutSlowInEasing))
+                }
+            }
+
+            // Jeda singkat yang elegan (150ms) sebelum iklan berikutnya muncul
+            delay(150L)
+
+            // 4. Gantian ke iklan promo berikutnya dan berulang terus menerus (looping)
             currentBannerIndex = (currentBannerIndex + 1) % bannerFgList.size
         }
     }
 
-    // 12 Core Menu Items matching the 4-column x 3-row layout from screenshot
+    // 11 Core Menu Items (menu logout di samping Financial Diary telah dihapus sesuai instruksi)
     val menuItems = listOf(
         // Row 1
         DashboardMenuItem("minfo", "m-Info", R.drawable.tile_minfo),
@@ -92,8 +131,7 @@ fun MbcaDashboardScreen(
         // Row 3
         DashboardMenuItem("bagibagi", "BagiBagi", R.drawable.tile_bagibagi),
         DashboardMenuItem("lifestyle", "Lifestyle", R.drawable.tile_lifestyle),
-        DashboardMenuItem("financialdiary", "Financial\nDiary", R.drawable.tile_financialdiary),
-        DashboardMenuItem("logout", "Logout", R.drawable.tile_logout)
+        DashboardMenuItem("financialdiary", "Financial\nDiary", R.drawable.tile_financialdiary)
     )
 
     Box(
@@ -202,34 +240,19 @@ fun MbcaDashboardScreen(
                         contentScale = ContentScale.Fit
                     )
 
-                    // Layer 2: Animated zoom in/out stickers
-                    AnimatedContent(
-                        targetState = currentBannerIndex,
-                        transitionSpec = {
-                            (scaleIn(
-                                initialScale = 0.82f,
-                                animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
-                            ) + fadeIn(
-                                animationSpec = tween(durationMillis = 650)
-                            )).togetherWith(
-                                scaleOut(
-                                    targetScale = 0.82f,
-                                    animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing)
-                                ) + fadeOut(
-                                    animationSpec = tween(durationMillis = 650)
-                                )
-                            )
-                        },
-                        label = "BannerForegroundZoomAnimation",
-                        modifier = Modifier.fillMaxSize()
-                    ) { targetIndex ->
-                        Image(
-                            painter = painterResource(id = bannerFgList[targetIndex]),
-                            contentDescription = if (targetIndex == 0) "The New Gacha Berhadiah" else "Total 600.000+ Hadiah Siap Dimenangkan",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
+                    // Layer 2: Zoom in/out animated foreground sticker (tetap 2 detik, zoom in/out, bergantian)
+                    Image(
+                        painter = painterResource(id = bannerFgList[currentBannerIndex]),
+                        contentDescription = if (currentBannerIndex == 0) "The New Gacha Berhadiah" else "Total 600.000+ Hadiah Siap Dimenangkan",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                scaleX = bannerScale.value
+                                scaleY = bannerScale.value
+                                alpha = bannerAlpha.value
+                            },
+                        contentScale = ContentScale.Fit
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(22.dp))
@@ -310,6 +333,7 @@ fun MbcaDashboardScreen(
         }
 
         if (showLogoutConfirmation) {
+            val logoutDensity = androidx.compose.ui.platform.LocalDensity.current
             BcaConfirmationDialog(
                 onDismissRequest = { showLogoutConfirmation = false },
                 title = "Logout",
@@ -320,21 +344,22 @@ fun MbcaDashboardScreen(
                     onLogout()
                 },
                 onCancel = { showLogoutConfirmation = false },
-                dialogWidthFraction = 0.776f, // Exactly 458px / 590px (77.6%) matching uploaded_media_0
-                buttonSpacing = 14.dp,
-                buttonHeight = 42.dp,
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
-                contentAlignment = Alignment.CenterHorizontally
+                dialogWidth = (560f / logoutDensity.density).dp, // Exactly 560px matching uploaded_media_1794211976818
+                dialogHeight = (640f / logoutDensity.density).dp, // Exactly 640px matching uploaded_media_1794211976818
+                buttonSpacing = 15.dp, // 28px gap matching authentic reference
+                buttonHeight = 40.dp, // 75px button height matching authentic reference
+                contentPadding = PaddingValues(start = 7.dp, end = 7.dp, top = 6.dp, bottom = 10.dp),
+                contentAlignment = Alignment.Start
             ) {
                 Text(
                     text = "Anda akan logout dari BCA mobile",
                     color = Color(0xFF004B87),
                     fontSize = 15.sp,
                     lineHeight = 22.sp,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp)
+                        .padding(start = 4.dp, top = 8.dp)
                 )
             }
         }

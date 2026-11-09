@@ -45,13 +45,16 @@ fun LayananTransferScreen(
                 }
             )
 
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            val marginHorizontalDp = (30f / density.density).dp // 660px card width matching crop_card1_bifast.png
+
             // Content Area
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 14.dp, vertical = 14.dp)
+                    .padding(horizontal = marginHorizontalDp, vertical = 14.dp)
             ) {
                 // Header: "Layanan Transfer"
                 Text(

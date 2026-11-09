@@ -46,10 +46,14 @@ fun BcaConfirmationDialog(
     cancelText: String? = "Cancel",
     onCancel: () -> Unit = onDismissRequest,
     dialogWidth: Dp? = null,
-    dialogWidthFraction: Float = 0.722f, // 72.2% default matching transfer dialog (426px / 590px)
-    buttonSpacing: Dp = 8.dp,
-    buttonHeight: Dp = 40.dp,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+    dialogWidthFraction: Float = 0.777f, // 560px / 720px matching authentic BCA Mobile reference (uploaded_media_0 & 1)
+    dialogHeight: Dp? = null,
+    dialogHeightFraction: Float = 0.894f, // 1430px / 1600px (~89.4% screen height) matching authentic BCA Mobile reference
+    minHeight: Dp? = null,
+    buttonSpacing: Dp = 6.dp,
+    buttonHeight: Dp = 42.dp,
+    titleBottomSpacing: Dp = 14.dp,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
     contentAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -62,24 +66,38 @@ fun BcaConfirmationDialog(
         1.0f to Color(0xFF1458A1)
     )
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val density = androidx.compose.ui.platform.LocalDensity.current
+
+    val (realScreenWidthDp, realScreenHeightDp) = remember(context, density) {
+        val windowManager = context.getSystemService(android.content.Context.WINDOW_SERVICE) as? android.view.WindowManager
+        val realMetrics = android.util.DisplayMetrics()
+        @Suppress("DEPRECATION")
+        windowManager?.defaultDisplay?.getRealMetrics(realMetrics)
+        val wDp = (realMetrics.widthPixels / density.density).dp
+        val hDp = (realMetrics.heightPixels / density.density).dp
+        Pair(wDp, hDp)
+    }
+
+    val computedWidth = if (dialogWidth != null) dialogWidth else (realScreenWidthDp * dialogWidthFraction)
+    val computedHeight = if (dialogHeight != null) dialogHeight else if (dialogHeightFraction > 0f) (realScreenHeightDp * dialogHeightFraction) else null
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(top = 4.dp, bottom = 6.dp),
+                .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxHeight()
+                    .width(computedWidth)
                     .then(
-                        if (dialogWidth != null) Modifier.width(dialogWidth)
-                        else Modifier.fillMaxWidth(dialogWidthFraction)
+                        if (computedHeight != null) Modifier.height(computedHeight)
+                        else if (minHeight != null) Modifier.defaultMinSize(minHeight = minHeight)
+                        else Modifier.wrapContentHeight()
                     )
                     .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
@@ -95,7 +113,11 @@ fun BcaConfirmationDialog(
 
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .then(
+                            if (computedHeight != null) Modifier.height(computedHeight)
+                            else Modifier.wrapContentHeight()
+                        )
                         .padding(contentPadding),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -103,25 +125,37 @@ fun BcaConfirmationDialog(
                         Text(
                             text = title,
                             color = Color(0xFF004B87),
-                            fontSize = 18.5.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(titleBottomSpacing))
                     }
 
                     // Dialog Content Slot
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        horizontalAlignment = contentAlignment
-                    ) {
-                        content()
+                    if (computedHeight != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            horizontalAlignment = contentAlignment
+                        ) {
+                            content()
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = contentAlignment
+                        ) {
+                            content()
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    if (computedHeight != null) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
 
                     // Bottom Action Buttons
                     Row(

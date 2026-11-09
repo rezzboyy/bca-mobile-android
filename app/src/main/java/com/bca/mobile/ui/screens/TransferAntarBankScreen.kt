@@ -21,7 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bca.mobile.data.model.Account
@@ -60,17 +63,17 @@ fun TransferAntarBankScreen(
     var amountText by remember { mutableStateOf("") }
     var showAmountDialog by remember { mutableStateOf(false) }
 
-    // Authentic BCA logic: Layanan Transfer & Biaya only appear after selecting Bank and inputting amount
-    val canShowTransferService = selectedBank != "- PILIH -" && amountText.isNotBlank() && (amountText.toLongOrNull() ?: 0L) > 0L
+    // Authentic BCA logic: Layanan Transfer & Biaya appear immediately when Bank and Ke Rekening Tujuan are selected
+    val canShowTransferService = selectedBank != "- PILIH -" && selectedRecipient != null
 
     var selectedService by remember { mutableStateOf("BI FAST") }
     var adminFee by remember { mutableLongStateOf(2500L) }
     var showLayananScreen by remember { mutableStateOf(false) }
 
     var noteText by remember { mutableStateOf("") }
-    var showNoteDialog by remember { mutableStateOf(false) }
+    var showBeritaDialog by remember { mutableStateOf(false) }
 
-    var selectedPurpose by remember { mutableStateOf("Lainnya") }
+    var selectedPurpose by remember { mutableStateOf("") }
     var showPurposeDialog by remember { mutableStateOf(false) }
 
     var showConfirmation by remember { mutableStateOf(false) }
@@ -166,14 +169,27 @@ fun TransferAntarBankScreen(
                 }
             )
 
-            // 2. Main Content Form Card matching uploaded_media_2_1794157095212.jpg
+            // 2. Main Content Form Card matching uploaded_media_1794213286323.jpg 100%
+            val formDensity = LocalDensity.current
+            val formCardMarginHorizontalDp = (32f / formDensity.density).dp // Exact 32px margin left & right (656px card width on 720px)
+            val formCardMarginTopDp = (32f / formDensity.density).dp // Exact 32px gap below top bar (matching authentic reference)
+            val rowHeightDp = (100f / formDensity.density).dp // Exact 100px uniform row height
+            val scrollState = rememberScrollState()
+
+            LaunchedEffect(showAmountDialog, showBankPicker, showRecipientPicker, showBeritaDialog, showPurposeDialog) {
+                if (!showAmountDialog && !showBankPicker && !showRecipientPicker && !showBeritaDialog && !showPurposeDialog) {
+                    scrollState.scrollTo(0)
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 14.dp, vertical = 14.dp)
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = formCardMarginHorizontalDp)
             ) {
+                Spacer(modifier = Modifier.height(formCardMarginTopDp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,116 +198,45 @@ fun TransferAntarBankScreen(
                         .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(8.dp))
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        // Row 1: Bank (- PILIH - >)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(bounded = true),
-                                    onClick = { showBankPicker = true }
-                                )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Bank",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = selectedBank,
-                                    color = if (selectedBank != "- PILIH -") Color(0xFF1E293B) else Color(0xFF707A8A),
-                                    fontSize = 15.sp,
-                                    fontWeight = if (selectedBank != "- PILIH -") FontWeight.SemiBold else FontWeight.Normal
-                                )
-                            }
+                        // Row 1: Bank (- PILIH - > / SEABANK >)
+                        FormCardRow(
+                            title = "Bank",
+                            subtitle = selectedBank,
+                            subtitleColor = if (selectedBank != "- PILIH -") Color(0xFF64748B) else Color(0xFF707A8A),
+                            hasChevron = true,
+                            rowHeight = rowHeightDp,
+                            onClick = { showBankPicker = true }
+                        )
 
-                            BcaChevron(size = 20.dp)
-                        }
+                        HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
 
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+                        // Row 2: Ke Rekening Tujuan (901717125251 - BENI SURYAWAN >)
+                        FormCardRow(
+                            title = "Ke Rekening Tujuan",
+                            subtitle = selectedRecipient?.let { "${it.accountNumber} - ${it.name}" },
+                            hasChevron = true,
+                            rowHeight = rowHeightDp,
+                            onClick = { showRecipientPicker = true }
+                        )
 
-                        // Row 2: Ke Rekening Tujuan
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(bounded = true),
-                                    onClick = { showRecipientPicker = true }
-                                )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Ke Rekening Tujuan",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                if (selectedRecipient != null) {
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = "${selectedRecipient?.accountNumber} - ${selectedRecipient?.name}",
-                                        color = Color(0xFF1E293B),
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                }
-                            }
+                        HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
 
-                            if (selectedRecipient != null) {
-                                BcaChevron(size = 20.dp)
-                            }
-                        }
+                        // Row 3: Jumlah Uang (200.000 >)
+                        FormCardRow(
+                            title = "Jumlah Uang",
+                            subtitle = if (amountText.isNotEmpty()) {
+                                val num = amountText.toLongOrNull() ?: 0L
+                                String.format(Locale.GERMANY, "%,d", num)
+                            } else null,
+                            hasChevron = true,
+                            rowHeight = rowHeightDp,
+                            onClick = { showAmountDialog = true }
+                        )
 
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+                        HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
 
-                        // Row 3: Jumlah Uang >
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(bounded = true),
-                                    onClick = { showAmountDialog = true }
-                                )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Jumlah Uang",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                if (amountText.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    val num = amountText.toLongOrNull() ?: 0L
-                                    Text(
-                                        text = String.format(Locale.GERMANY, "%,d,00", num),
-                                        color = Color(0xFF1E293B),
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                }
-                            }
-
-                            BcaChevron(size = 20.dp)
-                        }
-
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-
-                        // Rows 4 & 5: Layanan Transfer & Biaya (Muncul setelah Bank dan Nominal selesai diinput)
+                        // Rows 4, 5, 6, 7: Layanan Transfer, Biaya, Berita, Tujuan Transaksi
+                        // Muncul secara dinamis ("nyusul muncul") ketika Bank dan Ke Rekening Tujuan sudah dipilih
                         AnimatedVisibility(
                             visible = canShowTransferService,
                             enter = expandVertically() + fadeIn(),
@@ -299,154 +244,59 @@ fun TransferAntarBankScreen(
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 // Row 4: Layanan Transfer (BI FAST >)
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = rememberRipple(bounded = true),
-                                            onClick = { showLayananScreen = true }
-                                        )
-                                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = "Layanan Transfer",
-                                            color = Color(0xFF005CA9),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = selectedService,
-                                            color = Color(0xFF707A8A),
-                                            fontSize = 15.sp,
-                                            fontWeight = FontWeight.Normal
-                                        )
-                                    }
-
-                                    BcaChevron(size = 20.dp, color = Color(0xFF0081C6))
-                                }
-
-                                HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-
-                                // Row 5: Biaya (Format: 2.500)
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 14.dp)
-                                ) {
-                                    Text(
-                                        text = "Biaya",
-                                        color = Color(0xFF005CA9),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = String.format(Locale.GERMANY, "%,d", adminFee),
-                                        color = Color(0xFF707A8A),
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Normal
-                                    )
-                                }
-
-                                HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-                            }
-                        }
-
-                        // Row 6: Berita (optional note)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(bounded = true),
-                                    onClick = { showNoteDialog = true }
+                                FormCardRow(
+                                    title = "Layanan Transfer",
+                                    subtitle = selectedService,
+                                    hasChevron = true,
+                                    rowHeight = rowHeightDp,
+                                    onClick = { showLayananScreen = true }
                                 )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Berita",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
+
+                                HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
+
+                                // Row 5: Biaya (Format: 2.500 tanpa chevron)
+                                FormCardRow(
+                                    title = "Biaya",
+                                    subtitle = String.format(Locale.GERMANY, "%,d", adminFee),
+                                    hasChevron = false,
+                                    rowHeight = rowHeightDp,
+                                    onClick = null
                                 )
-                                if (noteText.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = noteText,
-                                        color = Color(0xFF1E293B),
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Normal
-                                    )
-                                }
-                            }
 
-                            BcaChevron(size = 20.dp)
-                        }
+                                HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
 
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+                                // Row 6: Berita (Opsi: Investasi, Pemindahan Dana, Pembelian, Lainnya)
+                                FormCardRow(
+                                    title = "Berita",
+                                    subtitle = if (noteText.isNotEmpty()) noteText else null,
+                                    hasChevron = true,
+                                    rowHeight = rowHeightDp,
+                                    onClick = { showBeritaDialog = true }
+                                )
 
-                        // Row 7: Tujuan Transaksi (default "Lainnya" >)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(bounded = true),
+                                HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
+
+                                // Row 7: Tujuan Transaksi
+                                FormCardRow(
+                                    title = "Tujuan Transaksi",
+                                    subtitle = if (selectedPurpose.isNotEmpty()) selectedPurpose else null,
+                                    hasChevron = true,
+                                    rowHeight = rowHeightDp,
                                     onClick = { showPurposeDialog = true }
                                 )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Tujuan Transaksi",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = selectedPurpose,
-                                    color = Color(0xFF1E293B),
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+
+                                HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
                             }
-
-                            BcaChevron(size = 20.dp)
                         }
 
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-
-                        // Row 8: Dari Rekening (0060387737)
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp)
-                        ) {
-                            Text(
-                                text = "Dari Rekening",
-                                color = Color(0xFF005CA9),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = account.accountNumber,
-                                color = Color(0xFF1E293B),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Normal
-                            )
-                        }
+                        // Row 8: Dari Rekening (0060387737 tanpa chevron)
+                        FormCardRow(
+                            title = "Dari Rekening",
+                            subtitle = account.accountNumber,
+                            hasChevron = false,
+                            rowHeight = rowHeightDp,
+                            onClick = null
+                        )
                     }
                 }
             }
@@ -468,7 +318,7 @@ fun TransferAntarBankScreen(
     // Amount Input Dialog
     if (showAmountDialog) {
         BcaAmountInputDialog(
-            initialValue = amountText,
+            initialValue = if (amountText.isEmpty()) "200000" else amountText,
             onDismiss = { showAmountDialog = false },
             onConfirm = { newAmount ->
                 amountText = newAmount
@@ -477,26 +327,26 @@ fun TransferAntarBankScreen(
         )
     }
 
-    // Note Input Dialog
-    if (showNoteDialog) {
-        BcaBlackInputDialog(
-            title = "Berita:",
-            initialValue = noteText,
-            isNumericOnly = false,
-            maxLength = 40,
-            onDismiss = { showNoteDialog = false },
-            onConfirm = { note ->
-                noteText = note
-                showNoteDialog = false
-            }
+    // Berita Selection Dialog matching uploaded_media_1794212355871 exactly
+    if (showBeritaDialog) {
+        val beritaOptions = listOf("Investasi", "Pemindahan Dana", "Pembelian", "Lainnya")
+        BcaSelectionDialog(
+            title = null,
+            options = beritaOptions,
+            selectedOption = noteText,
+            onSelect = { option ->
+                noteText = option
+                showBeritaDialog = false
+            },
+            onDismiss = { showBeritaDialog = false }
         )
     }
 
     // Purpose Selection Dialog
     if (showPurposeDialog) {
-        val purposeOptions = listOf("Lainnya", "Investasi", "Bisnis", "Pembelian", "Biaya Hidup / Keluarga")
+        val purposeOptions = listOf("Investasi", "Pemindahan Dana", "Pembelian", "Lainnya")
         BcaSelectionDialog(
-            title = "Tujuan Transaksi",
+            title = null,
             options = purposeOptions,
             selectedOption = selectedPurpose,
             onSelect = { purpose ->
@@ -524,10 +374,11 @@ fun TransferAntarBankScreen(
                 showPinDialog = true
             },
             onCancel = { showConfirmation = false },
-            dialogWidthFraction = 0.722f,
-            buttonSpacing = 8.dp,
-            buttonHeight = 40.dp,
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+            dialogWidthFraction = 0.777f,
+            dialogHeightFraction = 0.894f,
+            buttonSpacing = 6.dp,
+            buttonHeight = 42.dp,
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
             contentAlignment = Alignment.Start
         ) {
             Column(
@@ -546,7 +397,12 @@ fun TransferAntarBankScreen(
                 Text(text = formattedAmt, color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
                 Text(text = "BIAYA $formattedFee", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
                 Text(text = "LAYANAN $selectedService", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
-                Text(text = "TUJUAN TRANSAKSI $selectedPurpose", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                if (noteText.isNotBlank()) {
+                    Text(text = "BERITA $noteText", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                }
+                if (selectedPurpose.isNotBlank()) {
+                    Text(text = "TUJUAN TRANSAKSI $selectedPurpose", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                }
             }
         }
     }
@@ -582,5 +438,80 @@ fun TransferAntarBankScreen(
                 onBack()
             }
         )
+    }
+}
+
+/**
+ * Authentic BCA Transfer Form Row
+ * Matches uploaded_media_1794213286323.jpg:
+ * - Exactly 100px uniform row height on all rows
+ * - Exactly 12px left indent for title & subtitle
+ * - Exactly 14px right indent for chevron
+ * - Exactly 20px top indent for title text
+ * - Subtitle font 14sp #64748B
+ * - Chevron vertically centered in row
+ */
+@Composable
+private fun FormCardRow(
+    title: String,
+    subtitle: String?,
+    hasChevron: Boolean,
+    rowHeight: Dp,
+    subtitleColor: Color = Color(0xFF64748B),
+    onClick: (() -> Unit)? = null
+) {
+    val density = LocalDensity.current
+    val startPadding = (12f / density.density).dp
+    val endPadding = (14f / density.density).dp
+    val titleTopPadding = (11f / density.density).dp
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(rowHeight)
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple(bounded = true),
+                        onClick = onClick
+                    )
+                } else Modifier
+            )
+            .padding(start = startPadding, end = endPadding),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Top
+        ) {
+            Spacer(modifier = Modifier.height(titleTopPadding))
+            Text(
+                text = title,
+                color = Color(0xFF005CA9),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (!subtitle.isNullOrEmpty()) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    color = subtitleColor,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        if (hasChevron) {
+            BcaChevron(size = 20.dp, color = Color(0xFF0081C6))
+        }
     }
 }
