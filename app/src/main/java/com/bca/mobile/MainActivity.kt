@@ -52,9 +52,7 @@ class MainActivity : ComponentActivity() {
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
         val initialCapabilities = cm?.getNetworkCapabilities(cm.activeNetwork)
         val hasInternet = initialCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-        BcaRepository.getInstance().setNetworkSignal(
-            if (hasInternet) NetworkSignalState.READY else NetworkSignalState.OFFLINE
-        )
+        BcaRepository.getInstance().setNetworkSignal(NetworkSignalState.READY)
 
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {

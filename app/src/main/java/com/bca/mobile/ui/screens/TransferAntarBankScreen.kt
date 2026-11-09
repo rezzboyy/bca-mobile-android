@@ -81,10 +81,6 @@ fun TransferAntarBankScreen(
     val repository = remember { BcaRepository.getInstance() }
 
     fun onSendClicked() {
-        if (repository.networkSignal.value == NetworkSignalState.OFFLINE) {
-            errorMessage = "205 - Silakan tunggu beberapa saat sampai lampu indikator di pojok kanan atas berwarna hijau sebelum melanjutkan transaksi."
-            return
-        }
         if (selectedBank == "- PILIH -") {
             errorMessage = "Silakan pilih Bank tujuan terlebih dahulu."
             return
