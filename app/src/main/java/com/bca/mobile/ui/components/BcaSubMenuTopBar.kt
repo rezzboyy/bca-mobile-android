@@ -91,7 +91,7 @@ fun BcaSubMenuTopBar(
                     modifier = Modifier
                         .align(Alignment.CenterEnd),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     BcaConnectionIndicator()
 
@@ -119,8 +119,9 @@ fun BcaTopBarActionButton(
 ) {
     val buttonBrush = androidx.compose.ui.graphics.Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF5B7FA9),
-            Color(0xFF3B5D86),
+            Color(0xFF6F8FB8),
+            Color(0xFF4A6D9B),
+            Color(0xFF32537E),
             Color(0xFF223E62)
         )
     )
@@ -128,7 +129,7 @@ fun BcaTopBarActionButton(
     Box(
         modifier = modifier
             .height(36.dp)
-            .width(76.dp)
+            .width(68.dp)
             .clip(RoundedCornerShape(6.dp))
             .border(1.dp, Color(0xFF1B324E), RoundedCornerShape(6.dp))
             .background(if (enabled) buttonBrush else androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xFF94A3B8), Color(0xFF64748B))))

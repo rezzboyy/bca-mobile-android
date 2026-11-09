@@ -109,6 +109,7 @@ class BcaRepository private constructor() {
 
     private val _recipients = MutableStateFlow(
         listOf(
+            TransferRecipient("REC-FIQIH", "3741720467", "FIQIH NURAJIZAH", "BCA"),
             TransferRecipient("REC-1", "2181475538", "ABDILLAH", "BCA"),
             TransferRecipient("REC-2", "2481574694", "ACHMAD RIZAL", "BCA"),
             TransferRecipient("REC-3", "6520643140", "ADE FERY PERMANA", "BCA"),

@@ -44,18 +44,20 @@ fun BcaConfirmationDialog(
     onConfirm: () -> Unit,
     cancelText: String? = "Cancel",
     onCancel: () -> Unit = onDismissRequest,
-    dialogWidth: Dp = 280.dp,
-    minHeight: Dp? = 320.dp,
+    dialogWidth: Dp = 260.dp,
+    minHeight: Dp? = 365.dp,
+    buttonSpacing: Dp = 8.dp,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     contentAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Official BCA Action Button Gradient (verified from authentic screenshot telemetry)
     val buttonGradient = Brush.verticalGradient(
-        0.0f to Color(0xFF48A5E0),
-        0.25f to Color(0xFF3B9DDE),
-        0.55f to Color(0xFF277ABE),
-        0.85f to Color(0xFF1962A7),
-        1.0f to Color(0xFF0C4C93)
+        0.0f to Color(0xFF4DA8DD),
+        0.25f to Color(0xFF389FE0),
+        0.55f to Color(0xFF267FC5),
+        0.85f to Color(0xFF1565AC),
+        1.0f to Color(0xFF043C88)
     )
 
     Dialog(
@@ -77,6 +79,7 @@ fun BcaConfirmationDialog(
                     )
                     .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
+                    .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(8.dp))
             ) {
                 // Authentic Clean Gradient Gray Panel Background
                 Image(
@@ -93,7 +96,7 @@ fun BcaConfirmationDialog(
                             if (minHeight != null) Modifier.defaultMinSize(minHeight = minHeight)
                             else Modifier
                         )
-                        .padding(horizontal = 14.dp, vertical = 14.dp),
+                        .padding(contentPadding),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (!title.isNullOrBlank()) {
@@ -105,7 +108,7 @@ fun BcaConfirmationDialog(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     // Dialog Content Slot
@@ -118,14 +121,14 @@ fun BcaConfirmationDialog(
                         content()
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     // Bottom Action Buttons
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(42.dp),
-                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                            .height(40.dp),
+                        horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
                     ) {
                         if (cancelText != null) {
                             Box(

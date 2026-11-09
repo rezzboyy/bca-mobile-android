@@ -14,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -32,7 +34,8 @@ import java.util.Locale
 
 /**
  * Authentic BCA m-Transfer Antar Rekening Screen matching:
- * WhatsApp Image 2026-11-08 at 18.00.21 (1).jpeg
+ * Reference 1: 9d0ecc1e-d6a3-4e44-a349-30cd4daf8058.jpg (Formulir Transfer)
+ * Reference 2: 70b28587-900d-4216-82a6-04d7d28f6d41.jpg (Konfirmasi Dialog m-Transfer)
  */
 @Composable
 fun TransferAntarRekeningScreen(
@@ -42,10 +45,14 @@ fun TransferAntarRekeningScreen(
     modifier: Modifier = Modifier
 ) {
     val bcaRecipients = remember(recipients) { recipients.filter { it.bankName == "BCA" } }
-    var selectedRecipient by remember { mutableStateOf<TransferRecipient?>(null) }
+    var selectedRecipient by remember {
+        mutableStateOf<TransferRecipient?>(
+            bcaRecipients.find { it.accountNumber == "3741720467" } ?: bcaRecipients.firstOrNull()
+        )
+    }
     var showRecipientPicker by remember { mutableStateOf(false) }
 
-    var amountText by remember { mutableStateOf("") }
+    var amountText by remember { mutableStateOf("100000") }
     var showAmountDialog by remember { mutableStateOf(false) }
 
     var noteText by remember { mutableStateOf("") }
@@ -121,197 +128,226 @@ fun TransferAntarRekeningScreen(
                 }
             )
 
-            // 2. Main Content Form Card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 14.dp, vertical = 14.dp)
             ) {
+                // 2. Gray Horizontal Spacing Band below Top Bar (matching Image 9d0ecc1e-d6a3-4e44-a349-30cd4daf8058.jpg)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
+                        .height(26.dp)
+                        .background(Color(0xFFD6D9DE))
+                        .drawBehind {
+                            val stroke = 0.8.dp.toPx()
+                            drawLine(Color(0xFFC4C8CE), Offset(0f, 0f), Offset(size.width, 0f), stroke)
+                            drawLine(Color(0xFFC4C8CE), Offset(0f, size.height), Offset(size.width, size.height), stroke)
+                        }
+                )
+
+                // 3. White Form Section (Full width without floating card margins)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .background(Color.White)
-                        .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(8.dp))
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        // Row 1: Dari Rekening
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp)
-                        ) {
+                    // Row 1: Dari Rekening
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 14.dp)
+                    ) {
+                        Text(
+                            text = "Dari Rekening",
+                            color = Color(0xFF005CA9),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = account.accountNumber,
+                            color = Color(0xFF555555),
+                            fontSize = 15.5.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        color = Color(0xFFCBD5E1),
+                        thickness = 1.dp
+                    )
+
+                    // Row 2: Ke Rekening (- PILIH - or Selected Recipient >)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(bounded = true),
+                                onClick = { showRecipientPicker = true }
+                            )
+                            .padding(horizontal = 20.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Dari Rekening",
+                                text = "Ke Rekening",
                                 color = Color(0xFF005CA9),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = account.accountNumber,
-                                color = Color(0xFF1E293B),
-                                fontSize = 15.sp,
+                                text = if (selectedRecipient != null)
+                                    "${selectedRecipient?.accountNumber} - ${selectedRecipient?.name}"
+                                else
+                                    "- PILIH -",
+                                color = if (selectedRecipient != null) Color(0xFF555555) else Color(0xFF707A8A),
+                                fontSize = 15.5.sp,
                                 fontWeight = FontWeight.Normal
                             )
                         }
 
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+                        BcaChevron(size = 18.dp)
+                    }
 
-                        // Row 2: Ke Rekening (- PILIH - >)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        color = Color(0xFFCBD5E1),
+                        thickness = 1.dp
+                    )
+
+                    // Row 3: Jumlah Uang (Split: [Rp > | Amount >])
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 14.dp)
+                    ) {
+                        Text(
+                            text = "Jumlah Uang",
+                            color = Color(0xFF005CA9),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // Composite Input Box
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(48.dp)
+                                .drawBehind {
+                                    val stroke = 1.dp.toPx()
+                                    drawLine(Color(0xFFCBD5E1), Offset(0f, 0f), Offset(size.width, 0f), stroke)
+                                    drawLine(Color(0xFFCBD5E1), Offset(0f, size.height), Offset(size.width, size.height), stroke)
+                                }
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = rememberRipple(bounded = true),
-                                    onClick = { showRecipientPicker = true }
-                                )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                                    onClick = { showAmountDialog = true }
+                                ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            // Left part: Light Gray Box with "Rp" and ">"
+                            Row(
+                                modifier = Modifier
+                                    .width(88.dp)
+                                    .fillMaxHeight()
+                                    .background(Color(0xFFE9ECEF))
+                                    .padding(horizontal = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = "Ke Rekening",
+                                    text = "Rp",
                                     color = Color(0xFF005CA9),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = if (selectedRecipient != null)
-                                        "${selectedRecipient?.accountNumber} - ${selectedRecipient?.name}"
-                                    else
-                                        "- PILIH -",
-                                    color = if (selectedRecipient != null) Color(0xFF1E293B) else Color(0xFF707A8A),
-                                    fontSize = 15.sp,
-                                    fontWeight = if (selectedRecipient != null) FontWeight.SemiBold else FontWeight.Normal
-                                )
+                                BcaChevron(size = 16.dp)
                             }
 
-                            BcaChevron(size = 20.dp)
+                            // Vertical divider
+                            VerticalDivider(color = Color(0xFFCBD5E1), thickness = 1.dp)
+
+                            // Right part: Amount value and right chevron
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .background(Color.White)
+                                    .padding(horizontal = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (amountText.isNotEmpty()) {
+                                        val num = amountText.toLongOrNull() ?: 0L
+                                        BcaRepository.formatNumberOnly(num)
+                                    } else {
+                                        ""
+                                    },
+                                    color = Color(0xFF555555),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal
+                                )
+
+                                BcaChevron(size = 18.dp)
+                            }
                         }
+                    }
 
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-
-                        // Row 3: Jumlah Uang (Split: Rp > | >)
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp)
-                        ) {
+                    // Row 4: Berita (Berita >)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(bounded = true),
+                                onClick = {
+                                    tempNote = noteText
+                                    showNoteDialog = true
+                                }
+                            )
+                            .padding(horizontal = 20.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Jumlah Uang",
+                                text = "Berita",
                                 color = Color(0xFF005CA9),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Split Box matching WhatsApp Image 2026-11-08 at 18.00.21 (1).jpeg
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(44.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(4.dp))
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = rememberRipple(bounded = true),
-                                        onClick = { showAmountDialog = true }
-                                    ),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Left part: Gray Box with "Rp" and ">"
-                                Row(
-                                    modifier = Modifier
-                                        .width(90.dp)
-                                        .fillMaxHeight()
-                                        .background(Color(0xFFE5E7EB))
-                                        .padding(horizontal = 12.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Rp",
-                                        color = Color(0xFF005CA9),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    BcaChevron(size = 16.dp)
-                                }
-
-                                VerticalDivider(color = Color(0xFFCBD5E1), thickness = 1.dp)
-
-                                // Right part: Amount value and right chevron
-                                Row(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                        .background(Color.White)
-                                        .padding(horizontal = 12.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = if (amountText.isNotEmpty()) {
-                                            val num = amountText.toLongOrNull() ?: 0L
-                                            BcaRepository.formatNumberOnly(num)
-                                        } else {
-                                            ""
-                                        },
-                                        color = Color(0xFF1E293B),
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-
-                                    BcaChevron(size = 16.dp)
-                                }
-                            }
-                        }
-
-                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
-
-                        // Row 4: Berita (Berita >)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = rememberRipple(bounded = true),
-                                    onClick = {
-                                        tempNote = noteText
-                                        showNoteDialog = true
-                                    }
-                                )
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
+                            if (noteText.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Berita",
-                                    color = Color(0xFF005CA9),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
+                                    text = noteText,
+                                    color = Color(0xFF555555),
+                                    fontSize = 14.sp
                                 )
-                                if (noteText.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = noteText,
-                                        color = Color(0xFF1E293B),
-                                        fontSize = 14.sp
-                                    )
-                                }
                             }
-
-                            BcaChevron(size = 20.dp)
                         }
+
+                        BcaChevron(size = 18.dp)
                     }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        color = Color(0xFFCBD5E1),
+                        thickness = 1.dp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
+
+                // 4. Remaining space showing authentic metallic upward-sloping facet
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -343,7 +379,7 @@ fun TransferAntarRekeningScreen(
         )
     }
 
-    // Confirmation Dialog before PIN matching uploaded_media_3_1794157095212.jpg
+    // Confirmation Dialog before PIN matching 70b28587-900d-4216-82a6-04d7d28f6d41.jpg
     if (showConfirmation) {
         val rec = selectedRecipient
         val amt = amountText.toLongOrNull() ?: 0L
@@ -363,27 +399,72 @@ fun TransferAntarRekeningScreen(
             },
             onCancel = { showConfirmation = false },
             dialogWidth = 260.dp,
-            minHeight = 365.dp
+            minHeight = 365.dp,
+            buttonSpacing = 8.dp,
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "m-Transfer:", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
-                Text(text = currentTime, color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
-                Text(text = "Dari ${account.accountNumber}", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
-                Text(text = "Ke ${rec?.accountNumber ?: ""}", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
-                Text(text = rec?.name ?: "", color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
-                Text(text = formattedAmt, color = Color(0xFF004B87), fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                Text(
+                    text = "m-Transfer:",
+                    color = Color(0xFF004B87),
+                    fontSize = 14.5.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = currentTime,
+                    color = Color(0xFF004B87),
+                    fontSize = 14.5.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = "Dari ${account.accountNumber}",
+                    color = Color(0xFF004B87),
+                    fontSize = 14.5.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = "Ke ${rec?.accountNumber ?: ""}",
+                    color = Color(0xFF004B87),
+                    fontSize = 14.5.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = rec?.name ?: "",
+                    color = Color(0xFF004B87),
+                    fontSize = 14.5.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = formattedAmt,
+                    color = Color(0xFF004B87),
+                    fontSize = 14.5.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                if (noteText.isNotBlank()) {
+                    Text(
+                        text = "Berita: $noteText",
+                        color = Color(0xFF004B87),
+                        fontSize = 14.5.sp,
+                        lineHeight = 19.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(22.dp))
 
                 Text(
                     text = "Pastikan nominal dan nomor rekening yang dimasukkan sudah sesuai.\nJika terdapat kesalahan data, maka sepenuhnya menjadi tanggung jawab nasabah.",
                     color = Color(0xFF004B87),
                     fontSize = 13.5.sp,
-                    lineHeight = 18.sp,
+                    lineHeight = 18.5.sp,
                     fontWeight = FontWeight.Normal
                 )
             }
