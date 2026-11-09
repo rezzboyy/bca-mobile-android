@@ -4,9 +4,11 @@ import com.bca.mobile.data.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -30,10 +32,36 @@ class BcaRepository private constructor() {
     private val _networkSignal = MutableStateFlow(NetworkSignalState.READY)
     val networkSignal: StateFlow<NetworkSignalState> = _networkSignal.asStateFlow()
 
-    private val repositoryScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    // Authentic BCA Connection Indicator: alternates every 2 seconds (READY/Green <-> PROCESSING/Blue)
+    private val _indicatorSignal = MutableStateFlow(NetworkSignalState.READY)
+    val indicatorSignal: StateFlow<NetworkSignalState> = _indicatorSignal.asStateFlow()
+
+    private val repositoryScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
+    init {
+        repositoryScope.launch {
+            while (isActive) {
+                delay(2000L)
+                if (_networkSignal.value == NetworkSignalState.OFFLINE) {
+                    _indicatorSignal.value = NetworkSignalState.OFFLINE
+                } else if (_networkSignal.value == NetworkSignalState.PROCESSING) {
+                    _indicatorSignal.value = NetworkSignalState.PROCESSING
+                } else {
+                    _indicatorSignal.value = if (_indicatorSignal.value == NetworkSignalState.READY) {
+                        NetworkSignalState.PROCESSING
+                    } else {
+                        NetworkSignalState.READY
+                    }
+                }
+            }
+        }
+    }
 
     fun setNetworkSignal(state: NetworkSignalState) {
         _networkSignal.value = state
+        if (state == NetworkSignalState.OFFLINE) {
+            _indicatorSignal.value = NetworkSignalState.OFFLINE
+        }
     }
 
     fun triggerProcessingPulse(durationMs: Long = 500) {

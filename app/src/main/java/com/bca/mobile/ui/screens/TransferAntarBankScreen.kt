@@ -520,7 +520,7 @@ fun TransferAntarBankScreen(
 
         BcaConfirmationDialog(
             onDismissRequest = { showConfirmation = false },
-            title = null,
+            title = "m-Transfer",
             confirmText = "OK",
             cancelText = "Cancel",
             onConfirm = {
@@ -528,27 +528,29 @@ fun TransferAntarBankScreen(
                 showPinDialog = true
             },
             onCancel = { showConfirmation = false },
-            dialogWidth = 280.dp
+            dialogWidthFraction = 0.722f,
+            buttonSpacing = 8.dp,
+            buttonHeight = 40.dp,
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+            contentAlignment = Alignment.Start
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "m-Transfer:", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = "Dari ${account.accountNumber}", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = "Ke Rekening Tujuan", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = selectedBank, color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = rec?.accountNumber ?: "", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = rec?.name ?: "", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                Text(text = "m-Transfer:", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = "Dari ${account.accountNumber}", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = "Ke Rekening Tujuan", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = selectedBank, color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = rec?.accountNumber ?: "", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = rec?.name ?: "", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Text(text = "NOMINAL TRANSFER Rp", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = formattedAmt, color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = "BIAYA $formattedFee", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = "LAYANAN $selectedService", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                Text(text = "TUJUAN TRANSAKSI $selectedPurpose", color = Color(0xFF004B87), fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                Text(text = "NOMINAL TRANSFER Rp", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = formattedAmt, color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = "BIAYA $formattedFee", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = "LAYANAN $selectedService", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
+                Text(text = "TUJUAN TRANSAKSI $selectedPurpose", color = Color(0xFF004B87), fontSize = 14.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal)
             }
         }
     }

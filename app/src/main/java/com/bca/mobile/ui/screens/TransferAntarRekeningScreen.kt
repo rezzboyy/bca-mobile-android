@@ -398,10 +398,11 @@ fun TransferAntarRekeningScreen(
                 showPinDialog = true
             },
             onCancel = { showConfirmation = false },
-            dialogWidth = 260.dp,
-            minHeight = 365.dp,
+            dialogWidthFraction = 0.722f,
             buttonSpacing = 8.dp,
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp)
+            buttonHeight = 40.dp,
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+            contentAlignment = Alignment.Start
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()

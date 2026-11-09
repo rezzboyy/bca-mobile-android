@@ -1,5 +1,6 @@
 package com.bca.mobile.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,22 +39,10 @@ fun BcaConnectionIndicator(
     signalState: NetworkSignalState? = null
 ) {
     val repository = remember { BcaRepository.getInstance() }
-    val repoSignal by repository.networkSignal.collectAsState()
+    val repoSignal by repository.indicatorSignal.collectAsState()
     val activeSignal = signalState ?: repoSignal
 
     var showDialog by remember { mutableStateOf(false) }
-
-    // Pulsing alpha animation for BLUE (Processing) state
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val processingAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.55f,
-        targetValue = 1.0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "bluePulse"
-    )
 
     val (solidColor, borderColor) = when (activeSignal) {
         NetworkSignalState.READY -> Color(0xFF8CC63E) to Color(0xFF75A932)      // Authentic BCA Lime Green #8CC63E
@@ -61,11 +50,17 @@ fun BcaConnectionIndicator(
         NetworkSignalState.OFFLINE -> Color(0xFFE53935) to Color(0xFFC62828)    // Authentic BCA Red #E53935
     }
 
-    val finalColor = if (activeSignal == NetworkSignalState.PROCESSING) {
-        solidColor.copy(alpha = processingAlpha)
-    } else {
-        solidColor
-    }
+    val animatedColor by animateColorAsState(
+        targetValue = solidColor,
+        animationSpec = tween(durationMillis = 250),
+        label = "indicatorColor"
+    )
+
+    val animatedBorder by animateColorAsState(
+        targetValue = borderColor,
+        animationSpec = tween(durationMillis = 250),
+        label = "indicatorBorder"
+    )
 
     // Outer touch area (36dp) with crisp inner indicator (16dp rounded 3dp)
     Box(
@@ -83,8 +78,8 @@ fun BcaConnectionIndicator(
                 .size(16.dp)
                 .shadow(elevation = 2.dp, shape = RoundedCornerShape(3.dp))
                 .clip(RoundedCornerShape(3.dp))
-                .background(finalColor)
-                .border(width = 0.8.dp, color = borderColor, shape = RoundedCornerShape(3.dp))
+                .background(animatedColor)
+                .border(width = 0.8.dp, color = animatedBorder, shape = RoundedCornerShape(3.dp))
         )
     }
 

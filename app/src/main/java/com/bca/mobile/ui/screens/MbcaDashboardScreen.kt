@@ -320,18 +320,21 @@ fun MbcaDashboardScreen(
                     onLogout()
                 },
                 onCancel = { showLogoutConfirmation = false },
-                dialogWidth = 280.dp,
-                minHeight = 320.dp
+                dialogWidthFraction = 0.776f, // Exactly 458px / 590px (77.6%) matching uploaded_media_0
+                buttonSpacing = 14.dp,
+                buttonHeight = 42.dp,
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+                contentAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Anda akan logout dari BCA mobile",
                     color = Color(0xFF004B87),
-                    fontSize = 14.5.sp,
-                    lineHeight = 20.sp,
+                    fontSize = 15.sp,
+                    lineHeight = 22.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 6.dp)
+                        .padding(top = 4.dp)
                 )
             }
         }

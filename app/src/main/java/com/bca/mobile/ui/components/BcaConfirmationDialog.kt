@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -31,10 +30,12 @@ import com.bca.mobile.R
 
 /**
  * Authentic BCA Confirmation Modal Dialog
+ * 100% visual parity with authentic BCA Mobile Android client.
  * Features:
- * - Clean white card with subtle grey border
- * - Blue typography matching official BCA client
- * - Dual glossy blue action buttons for both Cancel and Confirm/OK/Logout
+ * - Full safe-height vertical card between status bar and navigation bar (~90% screen height)
+ * - Clean white card with subtle grey border (#CBD5E1) and 8dp rounded corners
+ * - Header title and content at top, expansive authentic empty area in the middle
+ * - Dual glossy blue action buttons (Cancel & Confirm/Logout/OK) pinned to bottom
  */
 @Composable
 fun BcaConfirmationDialog(
@@ -44,20 +45,21 @@ fun BcaConfirmationDialog(
     onConfirm: () -> Unit,
     cancelText: String? = "Cancel",
     onCancel: () -> Unit = onDismissRequest,
-    dialogWidth: Dp = 260.dp,
-    minHeight: Dp? = 365.dp,
+    dialogWidth: Dp? = null,
+    dialogWidthFraction: Float = 0.722f, // 72.2% default matching transfer dialog (426px / 590px)
     buttonSpacing: Dp = 8.dp,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-    contentAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    buttonHeight: Dp = 40.dp,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+    contentAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Official BCA Action Button Gradient (verified from authentic screenshot telemetry)
     val buttonGradient = Brush.verticalGradient(
-        0.0f to Color(0xFF4DA8DD),
-        0.25f to Color(0xFF389FE0),
-        0.55f to Color(0xFF267FC5),
-        0.85f to Color(0xFF1565AC),
-        1.0f to Color(0xFF043C88)
+        0.0f to Color(0xFF49A4DD),
+        0.20f to Color(0xFF389EDC),
+        0.50f to Color(0xFF257DBD),
+        0.80f to Color(0xFF1970B7),
+        1.0f to Color(0xFF1458A1)
     )
 
     Dialog(
@@ -66,16 +68,18 @@ fun BcaConfirmationDialog(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .padding(top = 4.dp, bottom = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
-                    .width(dialogWidth)
+                    .fillMaxHeight()
                     .then(
-                        if (minHeight != null) Modifier.defaultMinSize(minHeight = minHeight)
-                        else Modifier
+                        if (dialogWidth != null) Modifier.width(dialogWidth)
+                        else Modifier.fillMaxWidth(dialogWidthFraction)
                     )
                     .shadow(elevation = 16.dp, shape = RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
@@ -91,11 +95,7 @@ fun BcaConfirmationDialog(
 
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (minHeight != null) Modifier.defaultMinSize(minHeight = minHeight)
-                            else Modifier
-                        )
+                        .fillMaxSize()
                         .padding(contentPadding),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -103,19 +103,19 @@ fun BcaConfirmationDialog(
                         Text(
                             text = title,
                             color = Color(0xFF004B87),
-                            fontSize = 18.sp,
+                            fontSize = 18.5.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(18.dp))
                     }
 
                     // Dialog Content Slot
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f, fill = true),
+                            .weight(1f),
                         horizontalAlignment = contentAlignment
                     ) {
                         content()
@@ -127,7 +127,7 @@ fun BcaConfirmationDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(40.dp),
+                            .height(buttonHeight),
                         horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
                     ) {
                         if (cancelText != null) {
@@ -135,8 +135,8 @@ fun BcaConfirmationDialog(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(6.dp))
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(4.dp))
                                     .background(buttonGradient)
                                     .clickable(
                                         interactionSource = remember { MutableInteractionSource() },
@@ -158,8 +158,8 @@ fun BcaConfirmationDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
-                                .clip(RoundedCornerShape(6.dp))
-                                .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(6.dp))
+                                .clip(RoundedCornerShape(4.dp))
+                                .border(1.dp, Color(0xFF0C4C93), RoundedCornerShape(4.dp))
                                 .background(buttonGradient)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
