@@ -45,8 +45,7 @@ fun LayananTransferScreen(
                 }
             )
 
-            val density = androidx.compose.ui.platform.LocalDensity.current
-            val marginHorizontalDp = (30f / density.density).dp // 660px card width matching crop_card1_bifast.png
+            val marginHorizontalDp = 15.dp // 30px on 720px baseline (660px card width matching crop_card1_bifast.png)
 
             // Content Area
             Column(

@@ -170,10 +170,9 @@ fun TransferAntarBankScreen(
             )
 
             // 2. Main Content Form Card matching uploaded_media_1794213286323.jpg 100%
-            val formDensity = LocalDensity.current
-            val formCardMarginHorizontalDp = (32f / formDensity.density).dp // Exact 32px margin left & right (656px card width on 720px)
-            val formCardMarginTopDp = (32f / formDensity.density).dp // Exact 32px gap below top bar (matching authentic reference)
-            val rowHeightDp = (100f / formDensity.density).dp // Exact 100px uniform row height
+            val formCardMarginHorizontalDp = 16.dp // Exact 32px on 720px baseline (656px card width on 720px)
+            val formCardMarginTopDp = 16.dp // Exact 32px gap below top bar
+            val rowHeightDp = 50.dp // Exact 100px uniform row height
             val scrollState = rememberScrollState()
 
             LaunchedEffect(showAmountDialog, showBankPicker, showRecipientPicker, showBeritaDialog, showPurposeDialog) {
@@ -214,9 +213,9 @@ fun TransferAntarBankScreen(
                         FormCardRow(
                             title = "Ke Rekening Tujuan",
                             subtitle = selectedRecipient?.let { "${it.accountNumber} - ${it.name}" },
-                            hasChevron = true,
+                            hasChevron = selectedBank != "- PILIH -" || selectedRecipient != null,
                             rowHeight = rowHeightDp,
-                            onClick = { showRecipientPicker = true }
+                            onClick = if (selectedBank != "- PILIH -") { { showRecipientPicker = true } } else null
                         )
 
                         HorizontalDivider(color = Color(0xFFCBD5E1), thickness = 0.8.dp)
@@ -374,8 +373,9 @@ fun TransferAntarBankScreen(
                 showPinDialog = true
             },
             onCancel = { showConfirmation = false },
-            dialogWidthFraction = 0.777f,
-            dialogHeightFraction = 0.894f,
+            dialogWidth = 280.dp,
+            dialogHeightFraction = 0f,
+            minHeight = 440.dp,
             buttonSpacing = 6.dp,
             buttonHeight = 42.dp,
             contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
@@ -460,10 +460,8 @@ private fun FormCardRow(
     subtitleColor: Color = Color(0xFF64748B),
     onClick: (() -> Unit)? = null
 ) {
-    val density = LocalDensity.current
-    val startPadding = (12f / density.density).dp
-    val endPadding = (14f / density.density).dp
-    val titleTopPadding = (11f / density.density).dp
+    val startPadding = 8.dp
+    val endPadding = 14.dp
 
     Row(
         modifier = Modifier
@@ -486,14 +484,13 @@ private fun FormCardRow(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight(),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(titleTopPadding))
             Text(
                 text = title,
                 color = Color(0xFF005CA9),
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -511,7 +508,7 @@ private fun FormCardRow(
         }
 
         if (hasChevron) {
-            BcaChevron(size = 20.dp, color = Color(0xFF0081C6))
+            BcaChevron(size = 18.dp, color = Color(0xFF0081C6))
         }
     }
 }

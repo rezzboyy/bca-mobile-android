@@ -35,13 +35,10 @@ fun BcaSelectionDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val density = androidx.compose.ui.platform.LocalDensity.current
-
-    // Exact 560px on 720px screen (77.78%), 278px total height (4 items of ~69.5px each) matching uploaded_media_1794212355871
-    val dialogWidth = (560f / density.density).dp
-    val itemHeight = (278f / 4f / density.density).dp
-    val itemPaddingStart = (18f / density.density).dp
+    // Exact 560px on 720px baseline (280dp), 278px total height (4 items of ~69.5px -> ~35dp each) matching uploaded_media_1794212355871
+    val dialogWidth = 280.dp
+    val itemHeight = 35.dp
+    val itemPaddingStart = 9.dp
 
     Dialog(
         onDismissRequest = onDismiss,

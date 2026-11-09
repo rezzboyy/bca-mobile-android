@@ -102,17 +102,17 @@ fun BcaHubScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.weight(0.7f))
 
                 // BCA mobile Brand Logo (Positioned directly over the radiant light center)
                 Image(
                     painter = painterResource(id = R.drawable.bca_mobile_logo),
                     contentDescription = "BCA mobile",
-                    modifier = Modifier.width(230.dp),
+                    modifier = Modifier.width(220.dp),
                     contentScale = ContentScale.Fit
                 )
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
                 // 3-Row Action Menu Container (m-BCA, KlikBCA, myBCA) matching uploaded_media_1794227768198.jpg
                 Box(
@@ -166,14 +166,14 @@ fun BcaHubScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 // 3 Action Buttons (Buka Rekening Baru, Ganti Kode Akses, Flazz)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     GlossyActionButton(
                         title = "Buka Rekening Baru",
@@ -191,34 +191,34 @@ fun BcaHubScreen(
                     )
                 }
 
-                // Authentic spacious navy gap below Flazz down to disclaimer
-                Spacer(modifier = Modifier.weight(1f))
+                // Authentic balanced navy gap below Flazz down to disclaimer
+                Spacer(modifier = Modifier.weight(1.0f))
 
                 // Bottom Regulatory Disclaimer matching uploaded_media_1794227768198.jpg
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 20.dp)
-                        .navigationBarsPadding(),
+                        .navigationBarsPadding()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = stringResource(id = R.string.disclaimer_line1),
-                        color = BcaColors.TextDisclaimer,
+                        color = Color(0xCCFFFFFF),
                         fontSize = 11.sp,
                         lineHeight = 15.sp,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = stringResource(id = R.string.disclaimer_line2),
-                        color = BcaColors.TextDisclaimer,
+                        color = Color(0xCCFFFFFF),
                         fontSize = 11.sp,
                         lineHeight = 15.sp,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = stringResource(id = R.string.disclaimer_line3),
-                        color = BcaColors.TextDisclaimer,
+                        color = Color(0xCCFFFFFF),
                         fontSize = 11.sp,
                         lineHeight = 15.sp,
                         textAlign = TextAlign.Center

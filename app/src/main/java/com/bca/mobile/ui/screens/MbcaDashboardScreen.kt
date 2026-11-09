@@ -333,7 +333,6 @@ fun MbcaDashboardScreen(
         }
 
         if (showLogoutConfirmation) {
-            val logoutDensity = androidx.compose.ui.platform.LocalDensity.current
             BcaConfirmationDialog(
                 onDismissRequest = { showLogoutConfirmation = false },
                 title = "Logout",
@@ -344,10 +343,10 @@ fun MbcaDashboardScreen(
                     onLogout()
                 },
                 onCancel = { showLogoutConfirmation = false },
-                dialogWidth = (560f / logoutDensity.density).dp, // Exactly 560px matching uploaded_media_1794211976818
-                dialogHeight = (640f / logoutDensity.density).dp, // Exactly 640px matching uploaded_media_1794211976818
-                buttonSpacing = 15.dp, // 28px gap matching authentic reference
-                buttonHeight = 40.dp, // 75px button height matching authentic reference
+                dialogWidth = 280.dp, // Exactly 560px on 720px baseline
+                dialogHeight = 320.dp, // Exactly 640px on 720px baseline
+                buttonSpacing = 16.dp, // 32px gap matching authentic reference
+                buttonHeight = 42.dp, // 84px button height matching authentic reference
                 contentPadding = PaddingValues(start = 7.dp, end = 7.dp, top = 6.dp, bottom = 10.dp),
                 contentAlignment = Alignment.Start
             ) {

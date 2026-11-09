@@ -45,17 +45,17 @@ fun MenuRowCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(89.dp)
+                .height(76.dp)
                 .background(BcaColors.MenuRowGradient)
-                .padding(start = 12.dp, end = 16.dp),
+                .padding(start = 14.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Rounded Tile Icon (Matching uploaded_media_1794227768198.jpg)
             Box(
                 modifier = Modifier
-                    .size(66.dp)
-                    .shadow(elevation = 3.dp, shape = RoundedCornerShape(14.dp))
-                    .clip(RoundedCornerShape(14.dp))
+                    .size(58.dp)
+                    .shadow(elevation = 3.dp, shape = RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
             ) {
                 Image(
                     painter = painterResource(id = iconRes),
@@ -65,13 +65,13 @@ fun MenuRowCard(
                 )
             }
 
-            Spacer(modifier = Modifier.width(32.dp))
+            Spacer(modifier = Modifier.width(24.dp))
 
             // Title
             Text(
                 text = title,
                 color = Color.White,
-                fontSize = 21.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.5.sp
             )

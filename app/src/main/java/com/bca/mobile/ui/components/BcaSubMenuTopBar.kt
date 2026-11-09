@@ -55,8 +55,8 @@ fun BcaSubMenuTopBar(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(82.dp)
-                    .padding(horizontal = 14.dp)
+                    .height(76.dp)
+                    .padding(start = 12.dp, end = 6.dp)
             ) {
                 // Left: Optional Back button
                 if (showBackButton && onBackClick != null) {
@@ -85,8 +85,8 @@ fun BcaSubMenuTopBar(
                 Text(
                     text = title,
                     color = Color(0xFF005CA9),
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.align(Alignment.Center),
                     textAlign = TextAlign.Center
                 )
@@ -133,10 +133,10 @@ fun BcaTopBarActionButton(
 
     Box(
         modifier = modifier
-            .height(40.dp)
-            .width(70.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .border(1.dp, Color(0xFF1B324E), RoundedCornerShape(6.dp))
+            .height(38.dp)
+            .width(66.dp)
+            .clip(RoundedCornerShape(5.dp))
+            .border(1.dp, Color(0xFF1B324E), RoundedCornerShape(5.dp))
             .background(if (enabled) buttonBrush else androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xFF94A3B8), Color(0xFF64748B))))
             .clickable(
                 enabled = enabled,
@@ -149,8 +149,8 @@ fun BcaTopBarActionButton(
         Text(
             text = text,
             color = Color.White,
-            fontSize = 16.5.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }

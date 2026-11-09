@@ -39,16 +39,16 @@ fun GlossyActionButton(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(58.dp)
+            .height(48.dp)
             .scale(scale)
             .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(16.dp),
+                elevation = 6.dp,
+                shape = RoundedCornerShape(14.dp),
                 ambientColor = Color(0x66001946),
                 spotColor = Color(0x66001946)
             )
-            .clip(RoundedCornerShape(16.dp))
-            .border(width = 1.dp, color = Color(0x664FC3F7), shape = RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(14.dp))
+            .border(width = 1.dp, color = Color(0x664FC3F7), shape = RoundedCornerShape(14.dp))
             .background(BcaColors.GlossyButtonGradient)
             .clickable(
                 interactionSource = interactionSource,
@@ -60,7 +60,7 @@ fun GlossyActionButton(
         Text(
             text = title,
             color = Color.White,
-            fontSize = 18.5.sp,
+            fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.3.sp
         )

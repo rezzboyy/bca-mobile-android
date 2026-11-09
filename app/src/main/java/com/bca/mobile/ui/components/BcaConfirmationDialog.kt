@@ -48,8 +48,8 @@ fun BcaConfirmationDialog(
     dialogWidth: Dp? = null,
     dialogWidthFraction: Float = 0.777f, // 560px / 720px matching authentic BCA Mobile reference (uploaded_media_0 & 1)
     dialogHeight: Dp? = null,
-    dialogHeightFraction: Float = 0.894f, // 1430px / 1600px (~89.4% screen height) matching authentic BCA Mobile reference
-    minHeight: Dp? = null,
+    dialogHeightFraction: Float = 0f, // Use wrapContentHeight / minHeight unless fraction explicitly specified
+    minHeight: Dp? = 320.dp,
     buttonSpacing: Dp = 6.dp,
     buttonHeight: Dp = 42.dp,
     titleBottomSpacing: Dp = 14.dp,
