@@ -171,7 +171,8 @@ fun TransferInboxScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 18.dp, end = 15.dp, top = 10.dp, bottom = 10.dp),
+                                .defaultMinSize(minHeight = if (item.line2 != null) 66.dp else 47.5.dp)
+                                .padding(start = 18.dp, end = 13.dp, top = 4.dp, bottom = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Official cropped SVG/PNG envelope icon (56x53px at 720p = 28x26.5dp)
@@ -180,7 +181,7 @@ fun TransferInboxScreen(
                                     id = if (item.isYellow) R.drawable.ic_inbox_envelope_yellow else R.drawable.ic_inbox_envelope_blue
                                 ),
                                 contentDescription = "Inbox Status",
-                                modifier = Modifier.size(width = 28.dp, height = 26.dp),
+                                modifier = Modifier.size(width = 28.dp, height = 27.dp),
                                 contentScale = ContentScale.Fit
                             )
 
@@ -194,9 +195,9 @@ fun TransferInboxScreen(
                                     text = item.typeTitle,
                                     color = Color(0xFF0C557F),
                                     fontSize = 15.sp,
-                                    lineHeight = 22.sp,
+                                    lineHeight = 20.sp,
                                     fontFamily = FontFamily.SansSerif,
-                                    fontWeight = FontWeight.Normal,
+                                    fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -204,7 +205,7 @@ fun TransferInboxScreen(
                                     text = item.line1,
                                     color = Color(0xFF0C557F),
                                     fontSize = 15.sp,
-                                    lineHeight = 22.sp,
+                                    lineHeight = 20.sp,
                                     fontFamily = FontFamily.SansSerif,
                                     fontWeight = FontWeight.Normal,
                                     maxLines = 1,
@@ -215,7 +216,7 @@ fun TransferInboxScreen(
                                         text = item.line2,
                                         color = Color(0xFF0C557F),
                                         fontSize = 15.sp,
-                                        lineHeight = 22.sp,
+                                        lineHeight = 20.sp,
                                         fontFamily = FontFamily.SansSerif,
                                         fontWeight = FontWeight.Normal,
                                         maxLines = 1,
@@ -246,9 +247,7 @@ fun TransferInboxScreen(
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_inbox_chevron),
                                     contentDescription = "Open item",
-                                    modifier = Modifier
-                                        .padding(start = 6.dp)
-                                        .size(width = 6.dp, height = 11.dp),
+                                    modifier = Modifier.size(width = 11.5.dp, height = 14.dp),
                                     contentScale = ContentScale.Fit
                                 )
                             }

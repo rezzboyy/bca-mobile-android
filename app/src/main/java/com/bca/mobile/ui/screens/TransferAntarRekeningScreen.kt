@@ -46,13 +46,11 @@ fun TransferAntarRekeningScreen(
 ) {
     val bcaRecipients = remember(recipients) { recipients.filter { it.bankName == "BCA" } }
     var selectedRecipient by remember {
-        mutableStateOf<TransferRecipient?>(
-            bcaRecipients.find { it.accountNumber == "3741720467" } ?: bcaRecipients.firstOrNull()
-        )
+        mutableStateOf<TransferRecipient?>(null)
     }
     var showRecipientPicker by remember { mutableStateOf(false) }
 
-    var amountText by remember { mutableStateOf("100000") }
+    var amountText by remember { mutableStateOf("") }
     var showAmountDialog by remember { mutableStateOf(false) }
 
     var noteText by remember { mutableStateOf("") }
