@@ -413,6 +413,27 @@ class BcaRepositoryTest {
     }
 
     @Test
+    fun testAllInboxItemsHaveLongReference35Chars() {
+        val items = repository.getOfficialDefaultInboxItems()
+        assertEquals(13, items.size)
+        for ((index, item) in items.withIndex()) {
+            assertNotNull("Item $index receipt must not be null", item.receipt)
+            val refNo = item.receipt?.referenceNo ?: ""
+            assertEquals("Item $index referenceNo must be exactly 35 characters: $refNo", 35, refNo.length)
+            assertTrue("Item $index referenceNo must start with 95031: $refNo", refNo.startsWith("95031"))
+
+            val (part1, part2) = com.bca.mobile.ui.components.formatBcaReceiptRef(
+                refNo,
+                item.receipt?.timestamp ?: "",
+                item.receipt?.destinationAccount ?: ""
+            )
+            assertEquals("Item $index part1 must be exactly 27 characters", 27, part1.length)
+            assertEquals("Item $index part2 must be exactly 8 characters", 8, part2.length)
+            assertEquals("Item $index ref string must be exact concatenation of part1 and part2", refNo, part1 + part2)
+        }
+    }
+
+    @Test
     fun testMarkInboxItemAsRead() {
         val recBca = repository.recipients.value.first { it.bankName == "BCA" }
         repository.transferAntarRekening(recBca, 50_000L, "Uji Baca")

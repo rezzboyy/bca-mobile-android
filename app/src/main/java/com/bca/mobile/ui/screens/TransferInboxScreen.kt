@@ -262,8 +262,20 @@ fun TransferInboxScreen(
 
     // Receipt Detail Alert
     selectedItemForDetail?.let { item ->
-        val receipt = item.receipt ?: remember(item) {
+        val rawReceipt = item.receipt ?: remember(item) {
             parseInboxToReceipt(item)
+        }
+        val receipt = remember(rawReceipt) {
+            if (rawReceipt.referenceNo.length == 35 && rawReceipt.referenceNo.startsWith("95031")) {
+                rawReceipt
+            } else {
+                val (p1, p2) = com.bca.mobile.ui.components.formatBcaReceiptRef(
+                    rawReceipt.referenceNo,
+                    rawReceipt.timestamp,
+                    rawReceipt.destinationAccount
+                )
+                rawReceipt.copy(referenceNo = "$p1$p2")
+            }
         }
         BcaReceiptDialog(
             receipt = receipt,

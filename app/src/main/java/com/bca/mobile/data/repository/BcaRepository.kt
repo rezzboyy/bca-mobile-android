@@ -554,8 +554,19 @@ class BcaRepository private constructor(context: Context? = null) {
             adminFee: Long = 0L,
             service: String = if (destBank == "BCA") "" else "BI FAST"
         ): Pair<TransferReceipt, String> {
-            val dateClean = dateStr.replace("/", "").replace(":", "").replace(" ", "")
-            val refNo = "95031${dateClean}${refSeq}"
+            val digits = dateStr.filter { it.isDigit() }
+            val ts14 = if (digits.length >= 14) {
+                val dd = digits.substring(0, 2)
+                val mm = digits.substring(2, 4)
+                val yyyy = digits.substring(4, 8)
+                val time = digits.substring(8, 14)
+                "$yyyy$mm$dd$time"
+            } else {
+                "20261109060457"
+            }
+            val cleanSeq = refSeq.filter { it.isLetterOrDigit() }.uppercase(Locale.US)
+            val full16 = cleanSeq.padEnd(16, 'F').take(16)
+            val refNo = "95031$ts14$full16"
             val r = TransferReceipt(
                 referenceNo = refNo,
                 timestamp = dateStr,
@@ -595,55 +606,55 @@ class BcaRepository private constructor(context: Context? = null) {
         val list = mutableListOf<BcaInboxItem>()
 
         // 1. 09/11/2026 06:04:57 FIQIH NURAJIZAH (Antar Rekening, Blue)
-        val (r1, m1) = makeReceipt("Transfer Antar Rekening", "09/11/2026 06:04:57", "114002875A81", "2181475538", "FIQIH NURAJIZAH", "BCA", 150_000L)
+        val (r1, m1) = makeReceipt("Transfer Antar Rekening", "09/11/2026 06:04:57", "114002875A81C11F", "2181475538", "FIQIH NURAJIZAH", "BCA", 150_000L)
         list.add(BcaInboxItem("INB-20261109-060457", "Transfer Antar Rekening", "09/11/2026 06:04:57 FIQIH NURAJIZAH", null, m1, false, r1, 1794265497000L))
 
         // 2. 08/11/2026 21:17:36 BENI S... (Antar Bank, Blue)
-        val (r2, m2) = makeReceipt("Transfer Antar Bank", "08/11/2026 21:17:36", "118224982B33", "901717125251", "BENI SURYAWAN", "SEABANK", 200_000L, 2500L, "BI FAST")
+        val (r2, m2) = makeReceipt("Transfer Antar Bank", "08/11/2026 21:17:36", "118224982B33D22A", "901717125251", "BENI SURYAWAN", "SEABANK", 200_000L, 2500L, "BI FAST")
         list.add(BcaInboxItem("INB-20261108-211736", "Transfer Antar Bank", "08/11/2026 21:17:36 BENI S...", null, m2, false, r2, 1794233856000L))
 
         // 3. 08/11/2026 18:57:10 AGUS S... (Antar Bank, Blue)
-        val (r3, m3) = makeReceipt("Transfer Antar Bank", "08/11/2026 18:57:10", "119033481C44", "1400012345678", "AGUS SETIAWAN", "MANDIRI", 350_000L, 6500L, "REALTIME ONLINE")
+        val (r3, m3) = makeReceipt("Transfer Antar Bank", "08/11/2026 18:57:10", "119033481C44E33B", "1400012345678", "AGUS SETIAWAN", "MANDIRI", 350_000L, 6500L, "REALTIME ONLINE")
         list.add(BcaInboxItem("INB-20261108-185710", "Transfer Antar Bank", "08/11/2026 18:57:10 AGUS S...", null, m3, false, r3, 1794225430000L))
 
         // 4. 08/11/2026 11:40:35 AGUS S... (Antar Bank, Blue)
-        val (r4, m4) = makeReceipt("Transfer Antar Bank", "08/11/2026 11:40:35", "117822904D55", "1400012345678", "AGUS SETIAWAN", "MANDIRI", 500_000L, 6500L, "REALTIME ONLINE")
+        val (r4, m4) = makeReceipt("Transfer Antar Bank", "08/11/2026 11:40:35", "117822904D55F44C", "1400012345678", "AGUS SETIAWAN", "MANDIRI", 500_000L, 6500L, "REALTIME ONLINE")
         list.add(BcaInboxItem("INB-20261108-114035", "Transfer Antar Bank", "08/11/2026 11:40:35 AGUS S...", null, m4, false, r4, 1794199235000L))
 
         // 5. 08/11/2026 07:42:35 AHMAD FAUZI (Antar Rekening, Blue)
-        val (r5, m5) = makeReceipt("Transfer Antar Rekening", "08/11/2026 07:42:35", "113400192E66", "2481574694", "AHMAD FAUZI", "BCA", 100_000L)
+        val (r5, m5) = makeReceipt("Transfer Antar Rekening", "08/11/2026 07:42:35", "113400192E66A55D", "2481574694", "AHMAD FAUZI", "BCA", 100_000L)
         list.add(BcaInboxItem("INB-20261108-074235", "Transfer Antar Rekening", "08/11/2026 07:42:35 AHMAD FAUZI", null, m5, false, r5, 1794184955000L))
 
         // 6. 06/11/2026 23:43:00 ANDHIKA RAMADHONA (Antar Rekening, 2 Lines, Blue)
-        val (r6, m6) = makeReceipt("Transfer Antar Rekening", "06/11/2026 23:43:00", "114789975A81", "6520643140", "ANDHIKA RAMADHONA", "BCA", 250_000L)
+        val (r6, m6) = makeReceipt("Transfer Antar Rekening", "06/11/2026 23:43:00", "114789975A81B66E", "6520643140", "ANDHIKA RAMADHONA", "BCA", 250_000L)
         list.add(BcaInboxItem("INB-20261106-234300", "Transfer Antar Rekening", "06/11/2026 23:43:00 ANDHIKA", "RAMADHONA", m6, false, r6, 1794069780000L))
 
         // 7. 06/11/2026 06:40:55 FIQIH NURAJIZAH (Antar Rekening, Blue)
-        val (r7, m7) = makeReceipt("Transfer Antar Rekening", "06/11/2026 06:40:55", "116544321F88", "2181475538", "FIQIH NURAJIZAH", "BCA", 75_000L)
+        val (r7, m7) = makeReceipt("Transfer Antar Rekening", "06/11/2026 06:40:55", "116544321F88C77F", "2181475538", "FIQIH NURAJIZAH", "BCA", 75_000L)
         list.add(BcaInboxItem("INB-20261106-064055", "Transfer Antar Rekening", "06/11/2026 06:40:55 FIQIH NURAJIZAH", null, m7, false, r7, 1794008455000L))
 
         // 8. 05/11/2026 23:09:34 AHMAD FAUZI (Antar Rekening, Yellow - SUDAH DIBACA / READ!)
-        val (r8, m8) = makeReceipt("Transfer Antar Rekening", "05/11/2026 23:09:34", "119877443A99", "2481574694", "AHMAD FAUZI", "BCA", 300_000L)
+        val (r8, m8) = makeReceipt("Transfer Antar Rekening", "05/11/2026 23:09:34", "119877443A99D88A", "2481574694", "AHMAD FAUZI", "BCA", 300_000L)
         list.add(BcaInboxItem("INB-20261105-230934", "Transfer Antar Rekening", "05/11/2026 23:09:34 AHMAD FAUZI", null, m8, true, r8, 1793981374000L))
 
         // 9. 05/11/2026 23:08:46 BENI S... (Antar Bank, Blue)
-        val (r9, m9) = makeReceipt("Transfer Antar Bank", "05/11/2026 23:08:46", "117655432B01", "901717125251", "BENI SURYAWAN", "SEABANK", 120_000L, 2500L, "BI FAST")
+        val (r9, m9) = makeReceipt("Transfer Antar Bank", "05/11/2026 23:08:46", "117655432B01E99B", "901717125251", "BENI SURYAWAN", "SEABANK", 120_000L, 2500L, "BI FAST")
         list.add(BcaInboxItem("INB-20261105-230846", "Transfer Antar Bank", "05/11/2026 23:08:46 BENI S...", null, m9, false, r9, 1793981326000L))
 
         // 10. 05/11/2026 22:45:59 DANA (BCA Virtual Account, Blue)
-        val (r10, m10) = makeReceipt("Transfer BCA Virtual Account", "05/11/2026 22:45:59", "115433219C12", "390108812345678", "DANA TOPUP", "BCA VA", 50_000L, 0L, "BCA VIRTUAL ACCOUNT")
+        val (r10, m10) = makeReceipt("Transfer BCA Virtual Account", "05/11/2026 22:45:59", "115433219C12FAAC", "390108812345678", "DANA TOPUP", "BCA VA", 50_000L, 0L, "BCA VIRTUAL ACCOUNT")
         list.add(BcaInboxItem("INB-20261105-224559", "Transfer BCA Virtual Account", "05/11/2026 22:45:59 DANA", null, m10, false, r10, 1793979959000L))
 
         // 11. 04/11/2026 23:38:32 MERRY ... (Antar Bank, Blue)
-        val (r11, m11) = makeReceipt("Transfer Antar Bank", "04/11/2026 23:38:32", "113211098D23", "001201998877501", "MERRY ANGGRAINI", "BRI", 1_000_000L, 2500L, "BI FAST")
+        val (r11, m11) = makeReceipt("Transfer Antar Bank", "04/11/2026 23:38:32", "113211098D23ABBD", "001201998877501", "MERRY ANGGRAINI", "BRI", 1_000_000L, 2500L, "BI FAST")
         list.add(BcaInboxItem("INB-20261104-233832", "Transfer Antar Bank", "04/11/2026 23:38:32 MERRY ...", null, m11, false, r11, 1793896712000L))
 
         // 12. 04/11/2026 22:43:11 ANDHIKA RAMADHONA (Antar Rekening, 2 Lines, Blue)
-        val (r12, m12) = makeReceipt("Transfer Antar Rekening", "04/11/2026 22:43:11", "119800765E34", "6520643140", "ANDHIKA RAMADHONA", "BCA", 400_000L)
+        val (r12, m12) = makeReceipt("Transfer Antar Rekening", "04/11/2026 22:43:11", "119800765E34BCCE", "6520643140", "ANDHIKA RAMADHONA", "BCA", 400_000L)
         list.add(BcaInboxItem("INB-20261104-224311", "Transfer Antar Rekening", "04/11/2026 22:43:11 ANDHIKA", "RAMADHONA", m12, false, r12, 1793893391000L))
 
         // 13. 04/11/2026 16:19:26 AHMAD FAUZI (Antar Rekening, Blue)
-        val (r13, m13) = makeReceipt("Transfer Antar Rekening", "04/11/2026 16:19:26", "117654321F45", "2481574694", "AHMAD FAUZI", "BCA", 80_000L)
+        val (r13, m13) = makeReceipt("Transfer Antar Rekening", "04/11/2026 16:19:26", "117654321F45CDDF", "2481574694", "AHMAD FAUZI", "BCA", 80_000L)
         list.add(BcaInboxItem("INB-20261104-161926", "Transfer Antar Rekening", "04/11/2026 16:19:26 AHMAD FAUZI", null, m13, false, r13, 1793870366000L))
 
         return list

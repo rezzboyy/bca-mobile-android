@@ -162,9 +162,9 @@ fun BcaReceiptDialog(
                         if (showReference) {
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Baris Ref otentik BCA (hanya tampil saat dibuka dari Inbox)
-                            ReceiptTextLine("Ref $refPart1", receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
-                            ReceiptTextLine(refPart2, receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
+                            // Baris Ref otentik BCA (hanya tampil saat dibuka dari Inbox, 100% selalu panjang 35 karakter)
+                            ReceiptTextLine("Ref $refPart1", receiptTextColor, 14.5.sp, 20.sp)
+                            ReceiptTextLine(refPart2, receiptTextColor, 14.5.sp, 20.sp)
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))

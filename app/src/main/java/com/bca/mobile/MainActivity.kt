@@ -25,6 +25,7 @@ import com.bca.mobile.ui.theme.BcaMobileTheme
 import kotlinx.coroutines.launch
 
 sealed interface Screen {
+    data object Splash : Screen
     data object Hub : Screen
     data object Dashboard : Screen
     data object MInfoMenu : Screen
@@ -92,8 +93,8 @@ class MainActivity : ComponentActivity() {
                 val flazzCard by repository.flazzCard.collectAsState()
                 val exchangeRates by repository.exchangeRates.collectAsState()
 
-                val backStack = remember { mutableStateListOf<Screen>(Screen.Hub) }
-                val currentScreen = backStack.lastOrNull() ?: Screen.Hub
+                val backStack = remember { mutableStateListOf<Screen>(Screen.Splash) }
+                val currentScreen = backStack.lastOrNull() ?: Screen.Splash
 
                 var bottomNavAlertMessage by remember { mutableStateOf<String?>(null) }
 
@@ -102,7 +103,7 @@ class MainActivity : ComponentActivity() {
 
                 // Setiap kali berpindah/masuk menu: indikator biru 1.5 detik lalu hijau terus
                 LaunchedEffect(currentScreen) {
-                    if (currentScreen != Screen.Hub) {
+                    if (currentScreen != Screen.Hub && currentScreen != Screen.Splash) {
                         repository.triggerMenuTransition(1500L)
                     }
                 }
@@ -175,6 +176,13 @@ class MainActivity : ComponentActivity() {
 
                 Crossfade(targetState = currentScreen, label = "screen_transition") { screen ->
                     when (screen) {
+                        Screen.Splash -> BcaSplashScreen(
+                            onTimeout = {
+                                backStack.clear()
+                                backStack.add(Screen.Hub)
+                            }
+                        )
+
                         Screen.Hub -> BcaHubScreen(
                             onLoginSuccess = {
                                 navigateTo(Screen.Dashboard)
