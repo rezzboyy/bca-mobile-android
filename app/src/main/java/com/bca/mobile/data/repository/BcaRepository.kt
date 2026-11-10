@@ -455,6 +455,22 @@ class BcaRepository private constructor(context: Context? = null) {
         preferences?.saveInbox(updated)
     }
 
+    /**
+     * Menandai pesan di Inbox sebagai telah dibuka/dibaca (isYellow = true).
+     * Ikon amplop akan berubah menjadi amplop terbuka dengan kertas kuning (paritas 100% BCA Mobile).
+     * Perubahan disimpan secara permanen ke SharedPreferences sehingga tidak kembali tertutup.
+     */
+    fun markInboxItemAsRead(id: String) {
+        val currentList = _inboxItems.value
+        val index = currentList.indexOfFirst { it.id == id }
+        if (index != -1 && !currentList[index].isYellow) {
+            val updated = currentList.toMutableList()
+            updated[index] = currentList[index].copy(isYellow = true)
+            _inboxItems.value = updated
+            preferences?.saveInbox(updated)
+        }
+    }
+
     fun deleteInboxItem(id: String) {
         val updated = _inboxItems.value.filterNot { it.id == id }
         _inboxItems.value = updated

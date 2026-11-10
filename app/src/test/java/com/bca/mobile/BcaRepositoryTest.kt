@@ -411,4 +411,19 @@ class BcaRepositoryTest {
         assertEquals(8, part2.length)
         assertEquals(receipt.referenceNo, part1 + part2)
     }
+
+    @Test
+    fun testMarkInboxItemAsRead() {
+        val recBca = repository.recipients.value.first { it.bankName == "BCA" }
+        repository.transferAntarRekening(recBca, 50_000L, "Uji Baca")
+        val inbox = repository.inboxItems.value
+        assertEquals(1, inbox.size)
+        assertFalse("Transaksi baru harus berstatus belum dibaca (isYellow = false)", inbox[0].isYellow)
+
+        // Simulasi pengguna mengklik item di Inbox
+        repository.markInboxItemAsRead(inbox[0].id)
+        val updated = repository.inboxItems.value
+        assertEquals(1, updated.size)
+        assertTrue("Setelah diklik, amplop harus terbuka dengan kertas kuning (isYellow = true)", updated[0].isYellow)
+    }
 }

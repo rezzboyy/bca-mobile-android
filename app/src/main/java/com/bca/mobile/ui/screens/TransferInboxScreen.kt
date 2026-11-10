@@ -162,7 +162,8 @@ fun TransferInboxScreen(
                                     if (isEditMode) {
                                         repository.deleteInboxItem(item.id)
                                     } else {
-                                        selectedItemForDetail = item
+                                        repository.markInboxItemAsRead(item.id)
+                                        selectedItemForDetail = item.copy(isYellow = true)
                                     }
                                 }
                             )

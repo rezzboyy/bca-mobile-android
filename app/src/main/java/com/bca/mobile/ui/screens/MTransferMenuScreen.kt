@@ -38,7 +38,6 @@ fun MTransferMenuScreen(
     repository: BcaRepository = remember { BcaRepository.getInstance() }
 ) {
     var alertMessage by remember { mutableStateOf<String?>(null) }
-    val inboxItems by repository.inboxItems.collectAsState()
 
     Box(
         modifier = modifier
@@ -149,7 +148,7 @@ fun MTransferMenuScreen(
                     HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
-                        title = if (inboxItems.isEmpty()) "Inbox" else "Inbox (${inboxItems.size})",
+                        title = "Inbox",
                         onClick = onNavigateToInbox
                     )
                 }
