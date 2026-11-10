@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -25,12 +26,13 @@ import com.bca.mobile.R
 import com.bca.mobile.data.model.Account
 import com.bca.mobile.data.model.NetworkSignalState
 import com.bca.mobile.data.repository.BcaRepository
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import com.bca.mobile.ui.components.BcaAlertResultDialog
 import com.bca.mobile.ui.components.BcaBottomNavBar
+import com.bca.mobile.ui.components.BcaChevron
 import com.bca.mobile.ui.components.BcaNavTab
 import com.bca.mobile.ui.components.BcaSubMenuTopBar
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MInfoMenuScreen(
@@ -50,7 +52,7 @@ fun MInfoMenuScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF002245)) // Deep Navy matching BCA screenshot
+            .background(Color(0xFF002446)) // Authentic Deep Navy matching BCA screenshots
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -68,29 +70,38 @@ fun MInfoMenuScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 14.dp, vertical = 12.dp)
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
-                // Outer Rounded Card Container
+                // Outer Rounded Card Container (14dp corner radius, 656px on 720p / 1312px on 1440p)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
                         .background(Color.White)
                 ) {
-                    // Card Header with m-Info Tile & Title
+                    // Card Header with m-Info Tile & Title (authentic vertical gradient)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFF6F8FA))
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                            .height(68.dp)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFFFCFDFE),
+                                        Color(0xFFF1F4F7),
+                                        Color(0xFFE8ECEF)
+                                    )
+                                )
+                            )
+                            .padding(horizontal = 14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.tile_minfo),
                             contentDescription = "m-Info",
                             modifier = Modifier
-                                .size(48.dp)
-                                .clip(RoundedCornerShape(12.dp)),
+                                .size(56.dp)
+                                .clip(RoundedCornerShape(13.dp)),
                             contentScale = ContentScale.Fit
                         )
                         Spacer(modifier = Modifier.width(14.dp))
@@ -102,9 +113,9 @@ fun MInfoMenuScreen(
                         )
                     }
 
-                    HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 0.8.dp)
+                    HorizontalDivider(color = Color(0xFFD2D8DF), thickness = 0.8.dp)
 
-                    // Group 1: General Info (Directly under Header)
+                    // Group 1: General Info (Directly under Header, no section banner)
                     BcaMenuItemRow(
                         title = "Info Saldo",
                         onClick = {
@@ -116,13 +127,13 @@ fun MInfoMenuScreen(
                             }
                         }
                     )
-                    HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
                         title = "Mutasi Rekening",
                         onClick = onNavigateToMutasi
                     )
-                    HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
                         title = "Rekening Deposito",
@@ -130,7 +141,7 @@ fun MInfoMenuScreen(
                             alertInfoMessage = "Layanan Rekening Deposito BCA: Anda memiliki 1 bilyet deposito berjangka aktif."
                         }
                     )
-                    HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
                         title = "Info Reward BCA",
@@ -148,7 +159,7 @@ fun MInfoMenuScreen(
                             alertInfoMessage = "Informasi Nilai Aktiva Bersih (NAB) Reksadana dapat diakses lengkap via Welma by BCA."
                         }
                     )
-                    HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
                         title = "Saldo Reksadana",
@@ -156,7 +167,7 @@ fun MInfoMenuScreen(
                             alertInfoMessage = "Portofolio Saldo Reksadana: Tidak ada transaksi aktif."
                         }
                     )
-                    HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
                         title = "Info Kurs",
@@ -172,7 +183,7 @@ fun MInfoMenuScreen(
                             alertInfoMessage = "Info Saldo RDN (Rekening Dana Nasabah): Rp 0,00."
                         }
                     )
-                    HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
                         title = "Mutasi Rekening",
@@ -191,7 +202,7 @@ fun MInfoMenuScreen(
                         }
                     )
 
-                    // Group 5: Info Kartu Kredit
+                    // Group 5: Info Kartu Kredit (Semua 4 Item Lengkap Sesuai Referensi Asli)
                     BcaMenuSectionBanner(title = "Info Kartu Kredit")
 
                     BcaMenuItemRow(
@@ -200,12 +211,36 @@ fun MInfoMenuScreen(
                             alertInfoMessage = "Kartu Kredit BCA Everyday Card: Sisa limit Rp 18.500.000,00."
                         }
                     )
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                    BcaMenuItemRow(
+                        title = "Transaksi dan Tagihan",
+                        onClick = {
+                            alertInfoMessage = "Tagihan Kartu Kredit BCA: Tidak ada tagihan baru yang jatuh tempo."
+                        }
+                    )
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                    BcaMenuItemRow(
+                        title = "Lainnya",
+                        onClick = {
+                            alertInfoMessage = "Layanan Kartu Kredit Lainnya: Informasi aktivasi PIN dan e-Statement dapat diakses via Halo BCA."
+                        }
+                    )
+                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                    BcaMenuItemRow(
+                        title = "Inbox",
+                        onClick = {
+                            alertInfoMessage = "Inbox Kartu Kredit: Tidak ada pesan baru."
+                        }
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
             }
 
-            // 3. Bottom Navigation Bar
+            // 3. Unified Bottom Navigation Bar with Floating Elevated QRIS Button
             BcaBottomNavBar(
                 selectedTab = BcaNavTab.NONE,
                 onTabSelected = onTabSelected
@@ -243,8 +278,10 @@ fun BcaMenuSectionBanner(title: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF595959))
-            .padding(horizontal = 14.dp, vertical = 6.dp)
+            .height(24.dp)
+            .background(Color(0xFF555555))
+            .padding(horizontal = 14.dp),
+        contentAlignment = Alignment.CenterStart
     ) {
         Text(
             text = title,
@@ -263,13 +300,14 @@ fun BcaMenuItemRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(42.dp)
             .background(Color.White)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(bounded = true),
                 onClick = onClick
             )
-            .padding(horizontal = 14.dp, vertical = 13.dp),
+            .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -279,11 +317,8 @@ fun BcaMenuItemRow(
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal
         )
-        Text(
-            text = ">",
-            color = Color(0xFF008DD2),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+        BcaChevron(
+            size = 18.dp
         )
     }
 }

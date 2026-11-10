@@ -38,6 +38,7 @@ import com.bca.mobile.ui.components.BcaAlertResultDialog
 import com.bca.mobile.ui.components.BcaBottomNavBar
 import com.bca.mobile.ui.components.BcaConnectionIndicator
 import com.bca.mobile.ui.components.BcaNavTab
+import com.bca.mobile.ui.components.BcaPromoBanner
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -65,55 +66,6 @@ fun MbcaDashboardScreen(
     // Intercept back button on Dashboard to display official Logout confirmation
     BackHandler {
         showLogoutConfirmation = true
-    }
-
-    // Alternating promotional foreground content with steady 2-second display & smooth zoom in/out
-    val bannerFgList = remember {
-        listOf(
-            R.drawable.banner_fg_gacha,
-            R.drawable.banner_fg_600k
-        )
-    }
-    var currentBannerIndex by remember { mutableIntStateOf(0) }
-    val bannerScale = remember { Animatable(0.88f) }
-    val bannerAlpha = remember { Animatable(0.0f) }
-
-    LaunchedEffect(Unit) {
-        while (isActive) {
-            // 1. Muncul halus & kalem (scale 0.88 -> 1.00, alpha 0.0 -> 1.0 dalam 500ms)
-            coroutineScope {
-                launch {
-                    bannerScale.snapTo(0.88f)
-                    bannerScale.animateTo(1.00f, tween(500, easing = FastOutSlowInEasing))
-                }
-                launch {
-                    bannerAlpha.snapTo(0.0f)
-                    bannerAlpha.animateTo(1.0f, tween(500, easing = FastOutSlowInEasing))
-                }
-            }
-
-            // 2. Berdenyut sangat halus & kalem selama 2 detik (2.000 ms)
-            // Zoom In lembut (+3.5%): 1.00 -> 1.035 dalam 1.000 ms
-            bannerScale.animateTo(1.035f, tween(1000, easing = FastOutSlowInEasing))
-            // Zoom Out lembut: 1.035 -> 1.00 dalam 1.000 ms
-            bannerScale.animateTo(1.00f, tween(1000, easing = FastOutSlowInEasing))
-
-            // 3. Menghilang halus & kalem untuk berganti iklan (scale 1.00 -> 0.88, alpha 1.0 -> 0.0 dalam 500ms)
-            coroutineScope {
-                launch {
-                    bannerScale.animateTo(0.88f, tween(500, easing = FastOutSlowInEasing))
-                }
-                launch {
-                    bannerAlpha.animateTo(0.0f, tween(500, easing = FastOutSlowInEasing))
-                }
-            }
-
-            // Jeda singkat yang elegan (150ms) sebelum iklan berikutnya muncul
-            delay(150L)
-
-            // 4. Gantian ke iklan promo berikutnya dan berulang terus menerus (looping)
-            currentBannerIndex = (currentBannerIndex + 1) % bannerFgList.size
-        }
     }
 
     // 11 Core Menu Items (menu logout di samping Financial Diary telah dihapus sesuai instruksi)
@@ -225,35 +177,13 @@ fun MbcaDashboardScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Promotional Banner Container (Static Base + Zoom In/Out Animated Foreground)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(636f / 84f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Layer 1: Static background banner + merged locked button "Main & Dapatkan Hadiah >"
-                    Image(
-                        painter = painterResource(id = R.drawable.banner_base_static),
-                        contentDescription = "Promotional Banner Background",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
-
-                    // Layer 2: Zoom in/out animated foreground sticker (tetap 2 detik, zoom in/out, bergantian)
-                    Image(
-                        painter = painterResource(id = bannerFgList[currentBannerIndex]),
-                        contentDescription = if (currentBannerIndex == 0) "The New Gacha Berhadiah" else "Total 600.000+ Hadiah Siap Dimenangkan",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer {
-                                scaleX = bannerScale.value
-                                scaleY = bannerScale.value
-                                alpha = bannerAlpha.value
-                            },
-                        contentScale = ContentScale.Fit
-                    )
-                }
+                // Promotional Banner (BcaPromoBanner with authentic 2-pulse & zoom transitions)
+                BcaPromoBanner(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        placeholderAlert = "Program promo berhadiah sedang berlangsung. Kunjungi bca.co.id/promo untuk informasi syarat dan ketentuan lengkap."
+                    }
+                )
 
                 Spacer(modifier = Modifier.height(22.dp))
 

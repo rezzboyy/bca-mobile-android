@@ -462,7 +462,8 @@ fun AkunSayaScreen(
                     accountNumber = updatedAccount.accountNumber,
                     balance = updatedAccount.balance,
                     cardType = updatedAccount.cardType,
-                    cardNumber = updatedAccount.cardNumber
+                    cardNumber = updatedAccount.cardNumber,
+                    accountType = updatedAccount.accountType
                 )
                 repository.triggerProcessingPulse(400)
                 editDialogField = null
@@ -926,7 +927,7 @@ private fun AccountFieldEditorDialog(
                                                 onSave(currentAccount.copy(cardNumber = rawText))
                                             }
                                             EditFieldType.JENIS_REKENING -> {
-                                                onSave(currentAccount.copy(cardType = rawText))
+                                                onSave(currentAccount.copy(cardType = rawText, accountType = rawText))
                                             }
                                         }
                                     }

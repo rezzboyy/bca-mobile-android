@@ -51,13 +51,17 @@ class BcaRepositoryTest {
             accountHolder = "BUDI SANTOSO",
             accountNumber = "9988776655",
             balance = 50_000_000.0,
-            cardType = "Paspor BCA Platinum"
+            cardType = "Paspor BCA Platinum",
+            cardNumber = "1234 5678 9012 3456",
+            accountType = "TABUNGAN TAHAPAN"
         )
         val acc = repository.account.value
         assertEquals("BUDI SANTOSO", acc.accountHolder)
         assertEquals("9988776655", acc.accountNumber)
         assertEquals(50_000_000.0, acc.balance, 0.001)
         assertEquals("Paspor BCA Platinum", acc.cardType)
+        assertEquals("1234 5678 9012 3456", acc.cardNumber)
+        assertEquals("TABUNGAN TAHAPAN", acc.accountType)
     }
 
     @Test
@@ -261,5 +265,116 @@ class BcaRepositoryTest {
         val generatedName = repository.lookupBcaAccountHolder("1234567890")
         assertNotNull(generatedName)
         assertTrue(generatedName.isNotEmpty())
+    }
+
+    @Test
+    fun testInitialInboxIsEmpty() {
+        // User request: Default Inbox must be clean/empty
+        assertTrue("Initial inbox should be empty", repository.inboxItems.value.isEmpty())
+        assertEquals(0, repository.inboxItems.value.size)
+    }
+
+    @Test
+    fun testTransferAntarRekeningAutoRecordsToInbox() {
+        val recipient = repository.recipients.value.first { it.bankName == "BCA" }
+        val amount = 100_000L
+
+        val result = repository.transferAntarRekening(
+            recipient = recipient,
+            amount = amount,
+            note = "Bayar invoice"
+        )
+
+        assertTrue(result.isSuccess)
+        val receipt = result.getOrNull()
+        assertNotNull(receipt)
+
+        // Verify inbox auto-recording
+        val inbox = repository.inboxItems.value
+        assertEquals(1, inbox.size)
+
+        val item = inbox.first()
+        assertEquals("Transfer Antar Rekening", item.typeTitle)
+        val combinedText = "${item.line1} ${item.line2.orEmpty()}"
+        recipient.name.split(" ").forEach { namePart ->
+            assertTrue("Combined line text should contain $namePart", combinedText.contains(namePart))
+        }
+        assertTrue(item.fullReceiptMessage.contains(recipient.accountNumber))
+        assertTrue(item.fullReceiptMessage.contains("STATUS: BERHASIL"))
+        assertEquals(receipt, item.receipt)
+        assertFalse(item.isYellow)
+    }
+
+    @Test
+    fun testTransferAntarBankAutoRecordsToInbox() {
+        val amount = 75_000L
+        val result = repository.transferAntarBank(
+            recipientBank = "BANK MANDIRI",
+            recipientAccount = "1400012345678",
+            recipientName = "HENDRA WIJAYA",
+            amount = amount,
+            service = "BI-FAST",
+            note = "Cicilan"
+        )
+
+        assertTrue(result.isSuccess)
+        val receipt = result.getOrNull()
+        assertNotNull(receipt)
+
+        val inbox = repository.inboxItems.value
+        assertEquals(1, inbox.size)
+
+        val item = inbox.first()
+        assertEquals("Transfer Antar Bank", item.typeTitle)
+        assertTrue(item.line1.contains("HENDRA") || item.line2?.contains("WIJAYA") == true)
+        assertTrue(item.fullReceiptMessage.contains("BANK MANDIRI"))
+        assertTrue(item.fullReceiptMessage.contains("1400012345678"))
+        assertTrue(item.fullReceiptMessage.contains("HENDRA WIJAYA"))
+        assertEquals(receipt, item.receipt)
+    }
+
+    @Test
+    fun testDeleteInboxItem() {
+        val recBca = repository.recipients.value.first { it.bankName == "BCA" }
+        repository.transferAntarRekening(recBca, 50_000L, "Trx 1")
+        repository.transferAntarBank("BRI", "001201998877501", "DEWI LESTARI", 50_000L, "BI-FAST", "Trx 2")
+
+        assertEquals(2, repository.inboxItems.value.size)
+        val firstId = repository.inboxItems.value[0].id
+        val secondId = repository.inboxItems.value[1].id
+
+        // Delete first item
+        repository.deleteInboxItem(firstId)
+        assertEquals(1, repository.inboxItems.value.size)
+        assertEquals(secondId, repository.inboxItems.value[0].id)
+
+        // Delete remaining item
+        repository.deleteInboxItem(secondId)
+        assertTrue(repository.inboxItems.value.isEmpty())
+    }
+
+    @Test
+    fun testClearInbox() {
+        val recBca = repository.recipients.value.first { it.bankName == "BCA" }
+        repository.transferAntarRekening(recBca, 25_000L, "Trx A")
+        repository.transferAntarRekening(recBca, 35_000L, "Trx B")
+        assertEquals(2, repository.inboxItems.value.size)
+
+        repository.clearInbox()
+        assertTrue("Inbox should be completely empty after clearInbox()", repository.inboxItems.value.isEmpty())
+        assertEquals(0, repository.inboxItems.value.size)
+    }
+
+    @Test
+    fun testInboxNewestFirstOrdering() {
+        val recBca = repository.recipients.value.first { it.bankName == "BCA" }
+        repository.transferAntarRekening(recBca, 10_000L, "First")
+        repository.transferAntarBank("SEABANK", "901717125251", "BENI SURYAWAN", 20_000L, "BI FAST", "Second")
+
+        val inbox = repository.inboxItems.value
+        assertEquals(2, inbox.size)
+        // Second transaction must be on top (index 0)
+        assertEquals("Transfer Antar Bank", inbox[0].typeTitle)
+        assertEquals("Transfer Antar Rekening", inbox[1].typeTitle)
     }
 }

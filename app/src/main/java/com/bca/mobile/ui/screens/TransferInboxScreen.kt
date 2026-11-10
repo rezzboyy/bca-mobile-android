@@ -18,119 +18,34 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bca.mobile.R
+import com.bca.mobile.data.model.BcaInboxItem
 import com.bca.mobile.data.model.TransferReceipt
+import com.bca.mobile.data.repository.BcaRepository
 import com.bca.mobile.ui.components.BcaAlertResultDialog
 import com.bca.mobile.ui.components.BcaReceiptDialog
 import com.bca.mobile.ui.components.BcaSubMenuTopBar
 import com.bca.mobile.ui.components.BcaTopBarActionButton
 
-data class BcaInboxItem(
-    val id: String,
-    val typeTitle: String,
-    val line1: String,
-    val line2: String? = null,
-    val fullReceiptMessage: String,
-    val isYellow: Boolean = false
-)
-
 /**
  * Authentic BCA m-Transfer Inbox Screen matching Screenshot_2026-10-28-09-13-41-915_com.bca.jpg.jpeg
+ * Connected to BcaRepository: automatically records transactions, supports item deletion and clear all.
  */
 @Composable
 fun TransferInboxScreen(
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    repository: BcaRepository = remember { BcaRepository.getInstance() }
 ) {
     var isEditMode by remember { mutableStateOf(false) }
     var selectedItemForDetail by remember { mutableStateOf<BcaInboxItem?>(null) }
     var alertMessage by remember { mutableStateOf<String?>(null) }
 
-    val inboxItems = remember {
-        mutableStateListOf(
-            BcaInboxItem(
-                id = "1",
-                typeTitle = "Transfer BCA Virtual Account",
-                line1 = "16/10/2026 16.44.06 SHOPEE...",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER BCA VIRTUAL ACCOUNT\nTanggal: 16/10/2026 16:44:06\nNo. VA: 12208123456789\nNama: SHOPEEPAY\nJumlah: Rp 85.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "2",
-                typeTitle = "Transfer Antar Rekening",
-                line1 = "16/10/2026 12.51:44 SINDI",
-                line2 = "APRILIA",
-                fullReceiptMessage = "TRANSFER ANTAR REKENING\nTanggal: 16/10/2026 12:51:44\nKe: 5371829012\nNama: SINDI APRILIA\nJumlah: Rp 45.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "3",
-                typeTitle = "Transfer BCA Virtual Account",
-                line1 = "15/10/2026 15.44.56 TIKET....",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER BCA VIRTUAL ACCOUNT\nTanggal: 15/10/2026 15:44:56\nNo. VA: 010293847561\nNama: TIKET.COM\nJumlah: Rp 220.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "4",
-                typeTitle = "Transfer BCA Virtual Account",
-                line1 = "14/10/2026 18.03.04 TRAVEL...",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER BCA VIRTUAL ACCOUNT\nTanggal: 14/10/2026 18:03:04\nNo. VA: 081293847562\nNama: TRAVELOKA\nJumlah: Rp 120.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "5",
-                typeTitle = "Transfer BCA Virtual Account",
-                line1 = "11/10/2026 17.13.30 TRIP.C...",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER BCA VIRTUAL ACCOUNT\nTanggal: 11/10/2026 17:13:30\nNo. VA: 098123456781\nNama: TRIP.COM\nJumlah: Rp 350.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "6",
-                typeTitle = "Transfer Antar Bank",
-                line1 = "11/10/2026 15.19.51 SONY P...",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER ANTAR BANK\nTanggal: 11/10/2026 15:19:51\nBank: BANK MANDIRI\nKe: 1370018294012\nNama: SONY PRATAMA\nJumlah: Rp 500.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "7",
-                typeTitle = "Transfer BCA Virtual Account",
-                line1 = "10/10/2026 03.34.37 DANA",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER BCA VIRTUAL ACCOUNT\nTanggal: 10/10/2026 03:34:37\nNo. VA: 39010812345678\nNama: DANA TOPUP\nJumlah: Rp 50.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "8",
-                typeTitle = "Transfer BCA Virtual Account",
-                line1 = "09/10/2026 23.30.49 DANA",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER BCA VIRTUAL ACCOUNT\nTanggal: 09/10/2026 23:30:49\nNo. VA: 39010812345678\nNama: DANA TOPUP\nJumlah: Rp 25.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "9",
-                typeTitle = "Transfer Antar Bank",
-                line1 = "09/10/2026 21.45.49 RESTU ...",
-                line2 = null,
-                fullReceiptMessage = "TRANSFER ANTAR BANK\nTanggal: 09/10/2026 21:45:49\nBank: BANK BRI\nKe: 020601058392501\nNama: RESTU ADI\nJumlah: Rp 150.000\nSTATUS: BERHASIL",
-                isYellow = true
-            ),
-            BcaInboxItem(
-                id = "10",
-                typeTitle = "Transfer Antar Rekening",
-                line1 = "09/10/2026 21.38.48 RISKI",
-                line2 = "NASRULLOH",
-                fullReceiptMessage = "TRANSFER ANTAR REKENING\nTanggal: 09/10/2026 21:38:48\nKe: 2891047123\nNama: RISKI NASRULLOH\nJumlah: Rp 100.000\nSTATUS: BERHASIL"
-            ),
-            BcaInboxItem(
-                id = "11",
-                typeTitle = "Transfer Antar Rekening",
-                line1 = "03/10/2026 21.22.26",
-                line2 = "MUHAMMAD KHOIRUL ANWAR",
-                fullReceiptMessage = "TRANSFER ANTAR REKENING\nTanggal: 03/10/2026 21:22:26\nKe: 8492018374\nNama: MUHAMMAD KHOIRUL ANWAR\nJumlah: Rp 200.000\nSTATUS: BERHASIL"
-            )
-        )
-    }
+    val inboxItems by repository.inboxItems.collectAsState()
 
     Column(
         modifier = modifier
@@ -168,73 +83,114 @@ fun TransferInboxScreen(
             }
         )
 
-        // 2. Transaction Records List matching Screenshot_2026-10-28-09-13-41-915_com.bca.jpg.jpeg
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            items(inboxItems, key = { it.id }) { item ->
+        // Banner Hapus Semua saat Edit Mode
+        if (isEditMode && inboxItems.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFFFF1F0))
+                    .clickable {
+                        repository.clearInbox()
+                        isEditMode = false
+                        alertMessage = "Semua bukti transaksi di Inbox telah dihapus."
+                    }
+                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Hapus Semua (${inboxItems.size} item)",
+                    color = Color(0xFFD32F2F),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Hapus",
+                    color = Color(0xFFD32F2F),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            HorizontalDivider(color = Color(0xFFFFCDD2), thickness = 0.8.dp)
+        }
+
+        // 2. Main Content: Empty State vs Transaction Records List
+        if (inboxItems.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(bounded = true),
-                            onClick = {
-                                if (isEditMode) {
-                                    inboxItems.remove(item)
-                                } else {
-                                    selectedItemForDetail = item
-                                }
-                            }
-                        )
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(horizontal = 32.dp)
                 ) {
-                    Row(
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_inbox_envelope_blue),
+                        contentDescription = null,
+                        modifier = Modifier.size(width = 44.dp, height = 40.dp),
+                        alpha = 0.4f,
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Text(
+                        text = "Belum ada bukti transaksi di Inbox",
+                        color = Color(0xFF6B8096),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            // Transaction Records List matching Screenshot_2026-10-28-09-13-41-915_com.bca.jpg.jpeg
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(inboxItems, key = { it.id }) { item ->
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 18.dp, end = 15.dp, top = 10.dp, bottom = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(bounded = true),
+                                onClick = {
+                                    if (isEditMode) {
+                                        repository.deleteInboxItem(item.id)
+                                    } else {
+                                        selectedItemForDetail = item
+                                    }
+                                }
+                            )
                     ) {
-                        // Official cropped SVG/PNG envelope icon (56x53px at 720p = 28x26.5dp)
-                        Image(
-                            painter = painterResource(
-                                id = if (item.isYellow) R.drawable.ic_inbox_envelope_yellow else R.drawable.ic_inbox_envelope_blue
-                            ),
-                            contentDescription = "Inbox Status",
-                            modifier = Modifier.size(width = 28.dp, height = 26.dp),
-                            contentScale = ContentScale.Fit
-                        )
-
-                        Spacer(modifier = Modifier.width(6.dp))
-
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.Center
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 18.dp, end = 15.dp, top = 10.dp, bottom = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = item.typeTitle,
-                                color = Color(0xFF0C557F),
-                                fontSize = 15.sp,
-                                lineHeight = 22.sp,
-                                fontFamily = FontFamily.SansSerif,
-                                fontWeight = FontWeight.Normal,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                            // Official cropped SVG/PNG envelope icon (56x53px at 720p = 28x26.5dp)
+                            Image(
+                                painter = painterResource(
+                                    id = if (item.isYellow) R.drawable.ic_inbox_envelope_yellow else R.drawable.ic_inbox_envelope_blue
+                                ),
+                                contentDescription = "Inbox Status",
+                                modifier = Modifier.size(width = 28.dp, height = 26.dp),
+                                contentScale = ContentScale.Fit
                             )
-                            Text(
-                                text = item.line1,
-                                color = Color(0xFF0C557F),
-                                fontSize = 15.sp,
-                                lineHeight = 22.sp,
-                                fontFamily = FontFamily.SansSerif,
-                                fontWeight = FontWeight.Normal,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            if (item.line2 != null) {
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.Center
+                            ) {
                                 Text(
-                                    text = item.line2,
+                                    text = item.typeTitle,
                                     color = Color(0xFF0C557F),
                                     fontSize = 15.sp,
                                     lineHeight = 22.sp,
@@ -243,30 +199,62 @@ fun TransferInboxScreen(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
+                                Text(
+                                    text = item.line1,
+                                    color = Color(0xFF0C557F),
+                                    fontSize = 15.sp,
+                                    lineHeight = 22.sp,
+                                    fontFamily = FontFamily.SansSerif,
+                                    fontWeight = FontWeight.Normal,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                if (item.line2 != null) {
+                                    Text(
+                                        text = item.line2,
+                                        color = Color(0xFF0C557F),
+                                        fontSize = 15.sp,
+                                        lineHeight = 22.sp,
+                                        fontFamily = FontFamily.SansSerif,
+                                        fontWeight = FontWeight.Normal,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+
+                            if (isEditMode) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = rememberRipple(bounded = false, radius = 18.dp),
+                                            onClick = { repository.deleteInboxItem(item.id) }
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "✕",
+                                        color = Color(0xFFE53935),
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_inbox_chevron),
+                                    contentDescription = "Open item",
+                                    modifier = Modifier
+                                        .padding(start = 6.dp)
+                                        .size(width = 6.dp, height = 11.dp),
+                                    contentScale = ContentScale.Fit
+                                )
                             }
                         }
 
-                        if (isEditMode) {
-                            Text(
-                                text = "✕",
-                                color = Color(0xFFE53935),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        } else {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_inbox_chevron),
-                                contentDescription = "Open item",
-                                modifier = Modifier
-                                    .padding(start = 6.dp)
-                                    .size(width = 6.dp, height = 11.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
+                        HorizontalDivider(color = Color(0xFFD1D1D1), thickness = 0.8.dp)
                     }
-
-                    HorizontalDivider(color = Color(0xFFD1D1D1), thickness = 0.8.dp)
                 }
             }
         }
@@ -274,7 +262,7 @@ fun TransferInboxScreen(
 
     // Receipt Detail Alert
     selectedItemForDetail?.let { item ->
-        val receipt = remember(item) {
+        val receipt = item.receipt ?: remember(item) {
             parseInboxToReceipt(item)
         }
         BcaReceiptDialog(

@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        BcaRepository.initialize(this)
         enableEdgeToEdge()
 
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
@@ -244,7 +245,8 @@ class MainActivity : ComponentActivity() {
                             onNavigateToInbox = {
                                 navigateTo(Screen.TransferInbox)
                             },
-                            onTabSelected = ::handleBottomNavTab
+                            onTabSelected = ::handleBottomNavTab,
+                            repository = repository
                         )
 
                         Screen.DaftarTransferAntarRekening -> DaftarTransferAntarRekeningScreen(
@@ -268,7 +270,8 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Screen.TransferInbox -> TransferInboxScreen(
-                            onBack = { popBack() }
+                            onBack = { popBack() },
+                            repository = repository
                         )
 
                         Screen.FlazzScreen -> FlazzScreen(

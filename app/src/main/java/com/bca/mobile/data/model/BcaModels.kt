@@ -45,6 +45,17 @@ data class TransferReceipt(
     val service: String = "Realtime Online"
 )
 
+data class BcaInboxItem(
+    val id: String,
+    val typeTitle: String,
+    val line1: String,
+    val line2: String? = null,
+    val fullReceiptMessage: String,
+    val isYellow: Boolean = false,
+    val receipt: TransferReceipt? = null,
+    val timestamp: Long = System.currentTimeMillis()
+)
+
 data class FlazzTransaction(
     val date: String,
     val merchant: String,

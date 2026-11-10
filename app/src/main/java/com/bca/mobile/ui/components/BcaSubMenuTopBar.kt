@@ -100,7 +100,12 @@ fun BcaSubMenuTopBar(
                 ) {
                     BcaConnectionIndicator()
 
-                    trailingAction?.invoke()
+                    if (trailingAction != null) {
+                        trailingAction()
+                    } else {
+                        // Keeps network lamp in the authentic fixed column position when action button is absent
+                        Spacer(modifier = Modifier.width(54.dp))
+                    }
                 }
             }
 
@@ -162,12 +167,12 @@ fun BcaTopBarActionButton(
 fun BcaChevron(
     modifier: Modifier = Modifier,
     color: Color? = null,
-    size: Dp = 18.dp
+    size: androidx.compose.ui.unit.Dp = 18.dp
 ) {
     Image(
         painter = painterResource(id = R.drawable.bca_chevron_cyan),
         contentDescription = null,
-        modifier = modifier.size(width = 11.dp, height = 18.dp),
+        modifier = modifier.size(width = size * (11f / 18f), height = size),
         contentScale = ContentScale.Fit,
         colorFilter = color?.let { ColorFilter.tint(it) }
     )

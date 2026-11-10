@@ -1,0 +1,28 @@
+========================================================================
+PANDUAN CEPAT MEMASANG IKLAN BANNER PROMO BCA KE APLIKASI LAIN
+========================================================================
+
+Cukup 3 langkah mudah:
+
+1. COPY 3 GAMBAR:
+   Copy semua file dari folder 'drawable':
+   - banner_base_static.png
+   - banner_fg_gacha.png
+   - banner_fg_600k.png
+   Paste ke dalam folder proyek baru Anda di:
+   --> app/src/main/res/drawable/
+
+2. COPY KODE KOMPONEN:
+   Copy file 'BcaPromoBanner.kt'
+   Paste ke folder kode UI Compose Anda (misal: ui/components/).
+   *Pastikan baris 'import com.bca.mobile.R' disesuaikan dengan package R proyek baru Anda.
+
+3. PANGGIL DI LAYAR:
+   BcaPromoBanner(
+       modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+       onClick = { /* aksi klik banner */ }
+   )
+
+SELESAI! Banner akan otomatis beranimasi 2x sembulan denyut, mundur menciut
+ke belakang, dan iklan berikutnya mengembang menyembul ke depan tanpa perlu setting apa pun lagi.
+========================================================================
