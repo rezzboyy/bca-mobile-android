@@ -295,8 +295,14 @@ private fun parseInboxToReceipt(item: BcaInboxItem): TransferReceipt {
     val amtRaw = amtRegex.find(msg)?.groupValues?.get(1)?.replace(".", "")?.toLongOrNull() ?: 50000L
     val bank = bankRegex.find(msg)?.groupValues?.get(1)?.trim() ?: if (item.typeTitle.contains("BANK", ignoreCase = true)) "BANK LAIN" else "BCA"
 
+    val refNo = if (item.id.length >= 35 && item.id.startsWith("95031")) {
+        item.id
+    } else {
+        BcaRepository.getInstance().generateBcaReferenceNumber(accountNum = acc)
+    }
+
     return TransferReceipt(
-        referenceNo = "INB" + System.currentTimeMillis().toString().takeLast(8),
+        referenceNo = refNo,
         timestamp = timestamp,
         sourceAccount = "2270216440",
         destinationAccount = acc,

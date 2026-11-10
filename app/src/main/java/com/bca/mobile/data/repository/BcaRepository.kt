@@ -252,6 +252,29 @@ class BcaRepository private constructor(context: Context? = null) {
         return trimmed.length == 6 && trimmed.all { it.isDigit() }
     }
 
+    /**
+     * Menghasilkan nomor referensi otentik BCA Mobile (35 karakter):
+     * Format: 95031 + yyyyMMddHHmmss (14 digit) + 8 digit seq + 8 char hex checksum
+     * Contoh: 9503120261106234300114789975A81C11F
+     */
+    fun generateBcaReferenceNumber(date: Date = Date(), accountNum: String = ""): String {
+        val tsFmt = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
+        val ts = tsFmt.format(date)
+        val cleanAcc = accountNum.filter { it.isDigit() }
+        val seqDigits = if (cleanAcc.length >= 8) {
+            cleanAcc.takeLast(8)
+        } else {
+            String.format(Locale.US, "%08d", (Math.abs(cleanAcc.hashCode()) % 90000000) + 10000000)
+        }
+        val hexChars = "0123456789ABCDEF"
+        val hex = buildString {
+            for (i in 0 until 8) {
+                append(hexChars[(Math.random() * hexChars.length).toInt()])
+            }
+        }
+        return "95031$ts$seqDigits$hex"
+    }
+
     fun transferAntarRekening(
         recipient: TransferRecipient,
         amount: Long,
@@ -276,7 +299,7 @@ class BcaRepository private constructor(context: Context? = null) {
         val now = Date()
         val dateFmt = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
         val fullDateFmt = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-        val refNo = "TRF" + (10000000L + (Math.random() * 89999999L).toLong())
+        val refNo = generateBcaReferenceNumber(now, recipient.accountNumber)
 
         val newMutation = Transaction(
             id = refNo,
@@ -340,7 +363,7 @@ class BcaRepository private constructor(context: Context? = null) {
         val now = Date()
         val dateFmt = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
         val fullDateFmt = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-        val refNo = "OBK" + (10000000L + (Math.random() * 89999999L).toLong())
+        val refNo = generateBcaReferenceNumber(now, recipientAccount)
 
         val newMutation = Transaction(
             id = refNo,

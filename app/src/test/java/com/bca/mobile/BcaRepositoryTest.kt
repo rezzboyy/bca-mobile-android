@@ -6,6 +6,7 @@ import com.bca.mobile.data.repository.BcaRepository
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.util.Date
 
 class BcaRepositoryTest {
 
@@ -376,5 +377,38 @@ class BcaRepositoryTest {
         // Second transaction must be on top (index 0)
         assertEquals("Transfer Antar Bank", inbox[0].typeTitle)
         assertEquals("Transfer Antar Rekening", inbox[1].typeTitle)
+    }
+
+    @Test
+    fun testAuthenticBcaReferenceGeneration() {
+        val ref = repository.generateBcaReferenceNumber(Date(), "1171450646")
+        assertEquals(35, ref.length)
+        assertTrue("Ref must start with channel prefix 95031", ref.startsWith("95031"))
+        // First 27 characters must be digits
+        val first27 = ref.substring(0, 27)
+        assertTrue("First 27 characters must be digits", first27.all { it.isDigit() })
+        // Remaining 8 characters must be hex digits
+        val last8 = ref.substring(27)
+        assertEquals(8, last8.length)
+        assertTrue("Last 8 characters must be uppercase hex chars", last8.all { it.isDigit() || it in 'A'..'F' })
+    }
+
+    @Test
+    fun testTransferReceiptContainsAuthenticRef() {
+        val recBca = repository.recipients.value.first { it.bankName == "BCA" }
+        val result = repository.transferAntarRekening(recBca, 50_000L, "Uji Ref")
+        assertTrue(result.isSuccess)
+        val receipt = result.getOrNull()!!
+        assertEquals(35, receipt.referenceNo.length)
+        assertTrue(receipt.referenceNo.startsWith("95031"))
+
+        val (part1, part2) = com.bca.mobile.ui.components.formatBcaReceiptRef(
+            receipt.referenceNo,
+            receipt.timestamp,
+            receipt.destinationAccount
+        )
+        assertEquals(27, part1.length)
+        assertEquals(8, part2.length)
+        assertEquals(receipt.referenceNo, part1 + part2)
     }
 }
