@@ -51,7 +51,8 @@ import java.util.Locale
 @Composable
 fun BcaReceiptDialog(
     receipt: TransferReceipt,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    showReference: Boolean = false
 ) {
     val context = LocalContext.current
     val isSesamaBca = receipt.destinationBank.isBlank() || receipt.destinationBank.equals("BCA", ignoreCase = true)
@@ -66,8 +67,8 @@ fun BcaReceiptDialog(
     )
 
     // Build plain text summary for Android system share sheet
-    val shareText = remember(receipt, isSesamaBca) {
-        buildReceiptShareText(receipt, isSesamaBca)
+    val shareText = remember(receipt, isSesamaBca, showReference) {
+        buildReceiptShareText(receipt, isSesamaBca, showReference)
     }
 
     Dialog(
@@ -127,12 +128,14 @@ fun BcaReceiptDialog(
                             ReceiptTextLine("BERITA: ${receipt.note}", receiptTextColor, 14.5.sp, 20.sp)
                         }
 
-                        // Jarak antara nominal/berita dan baris Ref (57px = ~28dp)
-                        Spacer(modifier = Modifier.height(28.dp))
+                        if (showReference) {
+                            // Jarak antara nominal/berita dan baris Ref (57px = ~28dp)
+                            Spacer(modifier = Modifier.height(28.dp))
 
-                        // Baris Ref otentik BCA (2 baris persis seperti di screenshot asli)
-                        ReceiptTextLine("Ref $refPart1", receiptTextColor, 14.5.sp, 20.sp)
-                        ReceiptTextLine(refPart2, receiptTextColor, 14.5.sp, 20.sp)
+                            // Baris Ref otentik BCA (hanya tampil saat dibuka dari Inbox)
+                            ReceiptTextLine("Ref $refPart1", receiptTextColor, 14.5.sp, 20.sp)
+                            ReceiptTextLine(refPart2, receiptTextColor, 14.5.sp, 20.sp)
+                        }
                     } else {
                         // --- Bukti Transfer Bank Lain ---
                         ReceiptTextLine("m-Transfer:", receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
@@ -156,10 +159,13 @@ fun BcaReceiptDialog(
                             ReceiptTextLine("BERITA: ${receipt.note}", receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        if (showReference) {
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        ReceiptTextLine("Ref $refPart1", receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
-                        ReceiptTextLine(refPart2, receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
+                            // Baris Ref otentik BCA (hanya tampil saat dibuka dari Inbox)
+                            ReceiptTextLine("Ref $refPart1", receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
+                            ReceiptTextLine(refPart2, receiptTextColor, 13.8.sp, 20.sp, (-0.1).sp)
+                        }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
@@ -346,22 +352,23 @@ private fun formatBankLainRupiah(amount: Long): String {
     return "Rp " + df.format(amount)
 }
 
-private fun buildReceiptShareText(receipt: TransferReceipt, isSesamaBca: Boolean): String {
+private fun buildReceiptShareText(receipt: TransferReceipt, isSesamaBca: Boolean, showReference: Boolean = false): String {
     val (refPart1, refPart2) = formatBcaReceiptRef(receipt.referenceNo, receipt.timestamp, receipt.destinationAccount)
+    val refText = if (showReference) "\n\nRef $refPart1\n$refPart2" else ""
+
     return if (isSesamaBca) {
+        val beritaText = if (receipt.note.isNotBlank() && receipt.note != "-") "\nBERITA: " + receipt.note else ""
         """
         m-Transfer:
         BERHASIL
         ${receipt.timestamp}
         Ke ${cleanAccount(receipt.destinationAccount)}
         ${receipt.destinationName.uppercase()}
-        ${formatSesamaRupiah(receipt.amount)}
-        ${if (receipt.note.isNotBlank() && receipt.note != "-") "BERITA: " + receipt.note else ""}
-
-        Ref $refPart1
-        $refPart2
+        ${formatSesamaRupiah(receipt.amount)}$beritaText$refText
         """.trimIndent()
     } else {
+        val beritaText = if (receipt.note.isNotBlank() && receipt.note != "-") "\nBERITA: " + receipt.note else ""
+        val refBlock = if (showReference) "\nRef $refPart1\n$refPart2\n" else ""
         """
         m-Transfer:
         BERHASIL
@@ -374,12 +381,7 @@ private fun buildReceiptShareText(receipt: TransferReceipt, isSesamaBca: Boolean
 
         NOMINAL TRANSFER ${formatBankLainRupiah(receipt.amount)}
         BIAYA ${formatBankLainRupiah(receipt.adminFee)}
-        LAYANAN ${receipt.service.ifBlank { "Realtime Online" }}
-        ${if (receipt.note.isNotBlank() && receipt.note != "-") "BERITA: " + receipt.note else ""}
-
-        Ref $refPart1
-        $refPart2
-
+        LAYANAN ${receipt.service.ifBlank { "Realtime Online" }}$beritaText$refBlock
         Biaya Termasuk PPN (Bila ada)
         PT. BANK CENTRAL ASIA TBK.
         """.trimIndent()

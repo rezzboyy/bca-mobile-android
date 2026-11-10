@@ -506,14 +506,15 @@ fun TransferAntarRekeningScreen(
         )
     }
 
-    // Digital Receipt Dialog
+    // Digital Receipt Dialog (Tanpa Nomor Referensi saat transaksi langsung)
     receiptResult?.let { receipt ->
         BcaReceiptDialog(
             receipt = receipt,
             onDismiss = {
                 receiptResult = null
                 onBack()
-            }
+            },
+            showReference = false
         )
     }
 }

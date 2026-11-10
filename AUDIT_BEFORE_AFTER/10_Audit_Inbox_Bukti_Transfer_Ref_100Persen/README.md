@@ -33,6 +33,11 @@ Berdasarkan analisis piksel komparatif terhadap gambar referensi pengguna (`uplo
    - **Jarak Tombol 2 ke OK:** **20 dp** (40 px).
    - **Tombol OK:** Tinggi **43 dp** (87 px), lebar **145.5 dp** (291 px), background gradient vertikal `#3594D4` s.d. `#11559C`, corner radius 6 dp, teks "OK" putih 15.5 sp Medium.
 
+4. **Logika Kondisional Tampilan Ref (Inbox vs Transaksi Langsung):**
+   - **HANYA DARI INBOX:** Baris Ref 2-baris (`Ref $refPart1 \n $refPart2`) hanya ditampilkan ketika pengguna mencet bukti transfer dari menu **Inbox m-Transfer**.
+   - **TRANSAKSI LANGSUNG:** Pada saat transfer antar rekening maupun transfer antar bank baru saja diselesaikan secara langsung, bukti transfer **TIDAK MENAMPILKAN** nomor Ref (`showReference = false`).
+   - Teks share (`buildReceiptShareText`) secara otomatis menyesuaikan (hanya menyertakan nomor Ref bila dibuka dari Inbox).
+
 ---
 
 ## 2. Perubahan Kode Sumber
@@ -40,17 +45,20 @@ Berdasarkan analisis piksel komparatif terhadap gambar referensi pengguna (`uplo
    - Menambahkan fungsi `generateBcaReferenceNumber(date: Date, accountNum: String): String` yang menghasilkan string 35-karakter resmi BCA.
    - Mengintegrasikan generator ini ke `transferAntarRekening` dan `transferAntarBank`.
 2. `BcaReceiptDialog.kt`:
+   - Menambahkan parameter `showReference: Boolean = false`.
+   - Mengondisikan baris Ref dan Spacer di atasnya agar hanya dirender jika `showReference == true`.
    - Menambahkan fungsi `formatBcaReceiptRef(...)` yang memecah nomor referensi secara presisi ke 2 baris (27 karakter + 8 karakter checksum).
-   - Menambahkan baris Ref pada bukti transfer sesama BCA dan antar bank dengan spacer 28 dp.
    - Memperbarui ukuran tombol bulat Share dan Download menjadi 48 dp (sebelumnya 38 dp).
    - Memperbarui jarak spacer antar tombol menjadi 15 dp dan 20 dp.
    - Memperbarui tinggi tombol OK menjadi 43 dp dengan sudut 6 dp.
-   - Menambahkan nomor Ref ke teks bagikan (`buildReceiptShareText`).
+   - Mengondisikan teks bagikan (`buildReceiptShareText`) agar nomor Ref hanya disertakan jika `showReference == true`.
 3. `TransferInboxScreen.kt`:
-   - Memastikan saat item di Inbox dibuka, parser membangkitkan/mempertahankan nomor referensi otentik 35-karakter.
-4. `BcaRepositoryTest.kt`:
+   - Memberikan parameter `showReference = true` saat membuka bukti transfer dari item Inbox.
+4. `TransferAntarRekeningScreen.kt` & `TransferAntarBankScreen.kt`:
+   - Memberikan parameter `showReference = false` saat menampilkan bukti transaksi langsung.
+5. `BcaRepositoryTest.kt`:
    - Menambahkan unit test `testAuthenticBcaReferenceGeneration` dan `testTransferReceiptContainsAuthenticRef`.
-   - Seluruh 24 unit test lulus 100% tanpa kendala.
+   - Seluruh unit test lulus 100% tanpa kendala.
 
 ---
 
@@ -59,3 +67,4 @@ Berdasarkan analisis piksel komparatif terhadap gambar referensi pengguna (`uplo
 - `02_Audit_Before_After_Parity_Comparison.png`: Perbandingan side-by-side Before (tanpa Ref) vs Target Asli vs After (Paritas 100%).
 - `03_Audit_Microscopic_Pixel_Alignment.png`: Pemeriksaan mikroskopik tipografi Ref 2-baris, radius tombol, dan jarak tombol.
 - `04_Audit_Authentic_Ref_Generation_Matrix.png`: Matriks anatomi nomor referensi 35-karakter dan integrasi share sheet.
+- `05_Audit_Ref_Hanya_Di_Inbox_Vs_Transaksi_Langsung.png`: Papan perbandingan visual Bukti Transfer Transaksi Langsung (Tanpa Ref) vs Bukti Transfer Inbox (Dengan Ref 2-Baris).

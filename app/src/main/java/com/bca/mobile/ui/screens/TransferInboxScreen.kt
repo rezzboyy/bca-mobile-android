@@ -267,7 +267,8 @@ fun TransferInboxScreen(
         }
         BcaReceiptDialog(
             receipt = receipt,
-            onDismiss = { selectedItemForDetail = null }
+            onDismiss = { selectedItemForDetail = null },
+            showReference = true
         )
     }
 
