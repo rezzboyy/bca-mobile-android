@@ -38,6 +38,8 @@ fun MTransferMenuScreen(
     repository: BcaRepository = remember { BcaRepository.getInstance() }
 ) {
     var alertMessage by remember { mutableStateOf<String?>(null) }
+    val inboxUnreadCount by repository.inboxUnreadCount.collectAsState()
+    val inboxTitle = if (inboxUnreadCount > 0) "Inbox ($inboxUnreadCount)" else "Inbox"
 
     Box(
         modifier = modifier
@@ -148,7 +150,7 @@ fun MTransferMenuScreen(
                     HorizontalDivider(color = Color(0xFFF0F2F5), thickness = 0.8.dp)
 
                     BcaMenuItemRow(
-                        title = "Inbox",
+                        title = inboxTitle,
                         onClick = onNavigateToInbox
                     )
                 }

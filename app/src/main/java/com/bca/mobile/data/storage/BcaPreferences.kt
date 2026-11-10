@@ -218,6 +218,16 @@ class BcaPreferences(context: Context) {
         }
     }
 
+    fun saveInboxUnreadCount(count: Int) {
+        prefs.edit().putInt(KEY_INBOX_UNREAD_COUNT, count).apply()
+    }
+
+    fun loadInboxUnreadCount(): Int? {
+        return if (prefs.contains(KEY_INBOX_UNREAD_COUNT)) {
+            prefs.getInt(KEY_INBOX_UNREAD_COUNT, 1652)
+        } else null
+    }
+
     fun clearAll() {
         prefs.edit().clear().apply()
     }
@@ -233,6 +243,7 @@ class BcaPreferences(context: Context) {
         private const val KEY_CURRENCY = "currency"
         private const val KEY_ACCESS_CODE = "access_code"
         private const val KEY_INBOX_ITEMS = "inbox_items"
+        private const val KEY_INBOX_UNREAD_COUNT = "inbox_unread_count"
         private const val KEY_RECIPIENTS = "recipients"
         private const val KEY_MUTATIONS = "mutations"
     }

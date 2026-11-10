@@ -426,4 +426,62 @@ class BcaRepositoryTest {
         assertEquals(1, updated.size)
         assertTrue("Setelah diklik, amplop harus terbuka dengan kertas kuning (isYellow = true)", updated[0].isYellow)
     }
+
+    @Test
+    fun testInboxUnreadCounterLifecycle() {
+        // Baseline di repository tanpa preferences adalah 0
+        assertEquals(0, repository.getInboxUnreadCount())
+
+        // 1. Inisialisasi counter ke baseline otentik BCA 1652 (persis screenshot referensi user)
+        repository.setInboxUnreadCount(1652)
+        assertEquals(1652, repository.getInboxUnreadCount())
+        assertEquals(1652, repository.inboxUnreadCount.value)
+
+        // 2. Transaksi 1: Transfer Antar Rekening -> counter bertambah (+1) menjadi 1653
+        val recBca = repository.recipients.value.first { it.bankName == "BCA" }
+        val res1 = repository.transferAntarRekening(recBca, 150_000L, "Uji Nambah 1")
+        assertTrue(res1.isSuccess)
+        assertEquals("Unread counter harus bertambah 1 setelah transfer", 1653, repository.getInboxUnreadCount())
+
+        // 3. Transaksi 2: Transfer Antar Bank -> counter bertambah (+1) menjadi 1654
+        val recBank = repository.recipients.value.first { it.bankName != "BCA" }
+        val res2 = repository.transferAntarBank(recBank.bankName, recBank.accountNumber, recBank.name, 200_000L, "BI-FAST", "Uji Nambah 2")
+        assertTrue(res2.isSuccess)
+        assertEquals("Unread counter harus bertambah 1 lagi setelah transfer kedua", 1654, repository.getInboxUnreadCount())
+
+        val inbox = repository.inboxItems.value
+        assertEquals(2, inbox.size)
+        val newestItem = inbox[0]
+        val olderItem = inbox[1]
+
+        // 4. Buka pesan pertama di Inbox -> counter berkurang (-1) menjadi 1653
+        repository.markInboxItemAsRead(newestItem.id)
+        assertEquals("Unread counter harus berkurang 1 saat item dibuka", 1653, repository.getInboxUnreadCount())
+        assertTrue("Item pertama harus sudah dibaca", repository.inboxItems.value[0].isYellow)
+
+        // 5. Buka kembali pesan yang sama (sudah dibaca) -> counter TIDAK boleh berkurang lagi (idempotent)
+        repository.markInboxItemAsRead(newestItem.id)
+        assertEquals("Buka ulang item yang sudah dibaca tidak boleh mengurangi counter lagi", 1653, repository.getInboxUnreadCount())
+
+        // 6. Buka pesan kedua di Inbox -> counter berkurang (-1) menjadi 1652
+        repository.markInboxItemAsRead(olderItem.id)
+        assertEquals("Unread counter harus berkurang 1 lagi saat item kedua dibuka", 1652, repository.getInboxUnreadCount())
+
+        // 7. Hapus item unread di Inbox -> jika ada unread item dihapus, counter berkurang 1
+        repository.transferAntarRekening(recBca, 50_000L, "Item Hapus")
+        assertEquals(1653, repository.getInboxUnreadCount())
+        val unreadItem = repository.inboxItems.value[0]
+        assertFalse(unreadItem.isYellow)
+        repository.deleteInboxItem(unreadItem.id)
+        assertEquals("Hapus item unread harus mengurangi counter", 1652, repository.getInboxUnreadCount())
+
+        // 8. Clear Inbox -> counter reset ke 0
+        repository.clearInbox()
+        assertEquals(0, repository.getInboxUnreadCount())
+        assertTrue(repository.inboxItems.value.isEmpty())
+
+        // 9. Reset Inbox ke target resmi -> counter kembali ke 1652
+        repository.resetInboxToOfficialTarget()
+        assertEquals(1652, repository.getInboxUnreadCount())
+    }
 }

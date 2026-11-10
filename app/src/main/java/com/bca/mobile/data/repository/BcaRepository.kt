@@ -49,6 +49,9 @@ class BcaRepository private constructor(context: Context? = null) {
     init {
         // Awal masuk aplikasi: biru 1.5 detik, lalu hijau terus
         triggerMenuTransition(1500L)
+        if (preferences != null && preferences?.loadInboxUnreadCount() == null) {
+            preferences?.saveInboxUnreadCount(1652)
+        }
     }
 
     fun attachContext(context: Context) {
@@ -60,6 +63,10 @@ class BcaRepository private constructor(context: Context? = null) {
             prefs.loadInbox()?.let { _inboxItems.value = it }
             prefs.loadRecipients()?.let { _recipients.value = it }
             prefs.loadMutations()?.let { _mutations.value = it }
+            prefs.loadInboxUnreadCount()?.let { _inboxUnreadCount.value = it } ?: run {
+                _inboxUnreadCount.value = 1652
+                prefs.saveInboxUnreadCount(1652)
+            }
         }
     }
 
@@ -208,6 +215,19 @@ class BcaRepository private constructor(context: Context? = null) {
         } ?: emptyList()
     )
     val inboxItems: StateFlow<List<BcaInboxItem>> = _inboxItems.asStateFlow()
+
+    private val _inboxUnreadCount = MutableStateFlow(
+        preferences?.loadInboxUnreadCount() ?: if (preferences != null) 1652 else 0
+    )
+    val inboxUnreadCount: StateFlow<Int> = _inboxUnreadCount.asStateFlow()
+
+    fun getInboxUnreadCount(): Int = _inboxUnreadCount.value
+
+    fun setInboxUnreadCount(count: Int) {
+        val clamped = count.coerceAtLeast(0)
+        _inboxUnreadCount.value = clamped
+        preferences?.saveInboxUnreadCount(clamped)
+    }
 
     private val _accessCode = MutableStateFlow(
         preferences?.loadAccessCode() ?: "123456"
@@ -456,18 +476,29 @@ class BcaRepository private constructor(context: Context? = null) {
         val updatedInbox = listOf(inboxItem) + _inboxItems.value
         _inboxItems.value = updatedInbox
         preferences?.saveInbox(updatedInbox)
+
+        val newCount = _inboxUnreadCount.value + 1
+        _inboxUnreadCount.value = newCount
+        preferences?.saveInboxUnreadCount(newCount)
     }
 
     fun addInboxItem(item: BcaInboxItem) {
         val updated = listOf(item) + _inboxItems.value
         _inboxItems.value = updated
         preferences?.saveInbox(updated)
+
+        if (!item.isYellow) {
+            val newCount = _inboxUnreadCount.value + 1
+            _inboxUnreadCount.value = newCount
+            preferences?.saveInboxUnreadCount(newCount)
+        }
     }
 
     /**
      * Menandai pesan di Inbox sebagai telah dibuka/dibaca (isYellow = true).
      * Ikon amplop akan berubah menjadi amplop terbuka dengan kertas kuning (paritas 100% BCA Mobile).
      * Perubahan disimpan secara permanen ke SharedPreferences sehingga tidak kembali tertutup.
+     * Mengurangi unread counter (-1) saat pesan pertama kali dibuka.
      */
     fun markInboxItemAsRead(id: String) {
         val currentList = _inboxItems.value
@@ -477,18 +508,34 @@ class BcaRepository private constructor(context: Context? = null) {
             updated[index] = currentList[index].copy(isYellow = true)
             _inboxItems.value = updated
             preferences?.saveInbox(updated)
+
+            if (_inboxUnreadCount.value > 0) {
+                val newCount = _inboxUnreadCount.value - 1
+                _inboxUnreadCount.value = newCount
+                preferences?.saveInboxUnreadCount(newCount)
+            }
         }
     }
 
     fun deleteInboxItem(id: String) {
-        val updated = _inboxItems.value.filterNot { it.id == id }
+        val currentList = _inboxItems.value
+        val itemToDelete = currentList.firstOrNull { it.id == id }
+        val updated = currentList.filterNot { it.id == id }
         _inboxItems.value = updated
         preferences?.saveInbox(updated)
+
+        if (itemToDelete != null && !itemToDelete.isYellow && _inboxUnreadCount.value > 0) {
+            val newCount = _inboxUnreadCount.value - 1
+            _inboxUnreadCount.value = newCount
+            preferences?.saveInboxUnreadCount(newCount)
+        }
     }
 
     fun clearInbox() {
         _inboxItems.value = emptyList()
         preferences?.saveInbox(emptyList())
+        _inboxUnreadCount.value = 0
+        preferences?.saveInboxUnreadCount(0)
     }
 
     /**
@@ -606,6 +653,8 @@ class BcaRepository private constructor(context: Context? = null) {
         val target = getOfficialDefaultInboxItems()
         _inboxItems.value = target
         preferences?.saveInbox(target)
+        _inboxUnreadCount.value = 1652
+        preferences?.saveInboxUnreadCount(1652)
     }
 
     fun lookupBcaAccountHolder(accountNumber: String): String {
