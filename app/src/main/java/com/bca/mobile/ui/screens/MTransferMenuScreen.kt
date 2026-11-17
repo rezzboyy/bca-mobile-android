@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -64,7 +65,7 @@ fun MTransferMenuScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 14.dp, vertical = 12.dp)
             ) {
-                // Outer Rounded Card Container
+                // Outer Rounded Card Container (Calibrated natural height ~468dp)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -75,16 +76,25 @@ fun MTransferMenuScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFF6F8FA))
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                            .height(68.dp)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFFFCFDFE),
+                                        Color(0xFFF1F4F7),
+                                        Color(0xFFE8ECEF)
+                                    )
+                                )
+                            )
+                            .padding(horizontal = 14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.tile_mtransfer),
                             contentDescription = "m-Transfer",
                             modifier = Modifier
-                                .size(48.dp)
-                                .clip(RoundedCornerShape(12.dp)),
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(13.dp)),
                             contentScale = ContentScale.Fit
                         )
                         Spacer(modifier = Modifier.width(14.dp))
@@ -153,6 +163,9 @@ fun MTransferMenuScreen(
                         title = inboxTitle,
                         onClick = onNavigateToInbox
                     )
+
+                    // Calibrated bottom spacer inside card ("panjangin lagi dikit" - 52dp extra extension)
+                    Spacer(modifier = Modifier.height(52.dp))
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

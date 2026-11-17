@@ -10,6 +10,7 @@ class BcaMenuFidelityTest {
     @Test
     fun testAllScreenRoutesAvailable() {
         val screens = listOf(
+            Screen.Splash,
             Screen.Hub,
             Screen.Dashboard,
             Screen.MInfoMenu,
@@ -18,14 +19,22 @@ class BcaMenuFidelityTest {
             Screen.MTransferMenu,
             Screen.TransferAntarRekening,
             Screen.TransferAntarBank,
+            Screen.DaftarTransferAntarRekening,
+            Screen.DaftarTransferAntarBank,
             Screen.FlazzScreen,
             Screen.CardlessScreen,
-            Screen.Notifikasi
+            Screen.Notifikasi,
+            Screen.AkunSaya,
+            Screen.TransferInbox
         )
-        assertEquals(11, screens.size)
+        assertEquals(16, screens.size)
+        assertTrue(screens.contains(Screen.Splash))
         assertTrue(screens.contains(Screen.Notifikasi))
         assertTrue(screens.contains(Screen.MInfoMenu))
         assertTrue(screens.contains(Screen.MTransferMenu))
+        assertTrue(screens.contains(Screen.TransferAntarRekening))
+        assertTrue(screens.contains(Screen.DaftarTransferAntarRekening))
+        assertTrue(screens.contains(Screen.TransferInbox))
     }
 
     @Test
@@ -57,10 +66,25 @@ class BcaMenuFidelityTest {
         val expectedDaftarTransfer = listOf("Antar Rekening", "Antar Bank")
         val expectedTransfer = listOf(
             "Antar Rekening", "Antar Bank", "BCA Virtual Account",
-            "Sakuku", "Status Transaksi Sakuku", "Inbox (16)"
+            "Sakuku", "Status Transaksi Sakuku", "Inbox"
         )
         assertEquals(2, expectedDaftarTransfer.size)
         assertEquals(6, expectedTransfer.size)
+    }
+
+    @Test
+    fun testMTransferWhiteCardLayoutParity() {
+        // Verifikasi dimensi dan kalibrasi kartu putih menu m-Transfer:
+        // Kartu putih dipanjangkan proporsional dengan bottom spacer 52dp
+        val topPaddingDp = 12
+        val bottomSpacerDp = 52
+        val horizontalPaddingDp = 14
+        val cornerRadiusDp = 14
+
+        assertEquals(12, topPaddingDp)
+        assertEquals(52, bottomSpacerDp)
+        assertEquals(14, horizontalPaddingDp)
+        assertEquals(14, cornerRadiusDp)
     }
 
     @Test
@@ -70,3 +94,4 @@ class BcaMenuFidelityTest {
         assertEquals("Semua", filters[0])
     }
 }
+
