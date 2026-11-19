@@ -54,6 +54,26 @@ Dokumen ini mencatat ringkasan aturan permanen yang dipelajari dan disepakati be
   - GitHub Release: Publikasi otomatis ke `https://github.com/rezzboyy/bca-mobile-android/releases/tag/v1.0.32`.
   - OTA Update: Aktif via `GitHubUpdateManager.kt` di semua HP nasabah.
 
+### 5. Kalibrasi Kartu Putih Bawah Menempel Mulus (Seamless White Touch) ke Kubah QRIS & Scroll Persistence
+- **Tugas**: Menyamakan badge bawah kartu putih pada `m-Info` agar menempel mulus langsung (*nempel putih tanpa celah*) ke kubah tombol QRIS seperti contoh video asli BCA, dan saat di-scroll ke bawah badge bawah tetap menempel stasioner di QRIS.
+- **Implementasi Teknis**:
+  - `BcaBottomNavBar.kt`:
+    - Menambahkan `tightDome: Boolean = false`.
+    - Saat `tightDome = true`: Box menggunakan `aspectRatio(720f / 174f)` untuk memangkas 26px area transparan di atas kubah.
+    - `Image` menggunakan `alignment = Alignment.BottomCenter` dan `contentScale = ContentScale.FillWidth`. Puncak kubah QRIS kini tepat berada di batas $y = 0$ dari navbar.
+  - `MInfoMenuScreen.kt`:
+    - Menggunakan arsitektur `Column(modifier = Modifier.fillMaxSize())`:
+      1. `BcaSubMenuTopBar` (Header putih m-Info dengan sinyal hijau)
+      2. Kontainer Kartu Putih:
+         `Modifier.fillMaxWidth().weight(1f).offset(y = 5.dp).padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 0.dp).clip(RoundedCornerShape(14.dp)).background(Color.White)`
+      3. Di dalam kartu: Fixed Sticky Header 68dp + Divider Putih Solid 1dp + `Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()))`
+      4. `BcaBottomNavBar(selectedTab = BcaNavTab.NONE, onTabSelected = onTabSelected, tightDome = true, modifier = Modifier.zIndex(1f))`
+  - **Hasil & Verifikasi Live (OnePlus 7 Pro)**:
+    - Putih kartu menyatu mulus ke bibir kubah QRIS ($y = 2612\text{ px}$) dengan ZERO DARK GAP.
+    - Sisi kiri dan kanan tetap menampilkan navy background selebar 17dp (68 px).
+    - Saat di-scroll ke bawah sampai *Info KPR -> Inquiry Pinjaman*, kontainer kartu dan badge bawah TETAP DIAM NEMPEL PUTIH KE QRIS tanpa bergeser 1 piksel pun.
+- **Audit & Bukti Visual**: `AUDIT_BEFORE_AFTER/20_Audit_Presisi_Badge_Bawah_Sampai_Nyentuh_QRIS/`.
+
 ---
 
 ## 📐 Aturan Baku & Invarian Desain (Memory Rules)
@@ -91,14 +111,43 @@ Dokumen ini mencatat ringkasan aturan permanen yang dipelajari dan disepakati be
   - **Tahap 2**: Implementasi state scrolling independen dan styling garis pemisah.
   - **Tahap 3**: Pengujian unit test, verifikasi render visual, dan pembuatan papan komparasi side-by-side di direktori `AUDIT_BEFORE_AFTER/`.
 
-### 6. Aturan Kontak Presisi Kartu Bawah vs Kubah QRIS (Card Bottom Touches QRIS Dome)
+### 6. Aturan Kontak Presisi Kartu Bawah vs Kubah QRIS (Seamless White Touch)
 - Pada layar kartu mengambang berlatar navy (`m-Info`, `m-Transfer`):
-  - Container kartu putih tidak boleh dibiarkan mengambang dengan celah kosong di atas tombol QRIS.
-  - Tepi bawah kartu putih harus memanjang ke bawah sampai **menyentuh puncak kubah QRIS** secara presisi matematis.
-  - Rumus elevasi puncak kubah QRIS pada rasio navbar 720:200:
-    ```kotlin
-    val qrisDomePeakElevation = maxWidth * (174f / 720f)
-    // Padding bawah kartu untuk kontak fisik langsung:
-    bottom = qrisDomePeakElevation - 2.dp
-    ```
-  - `BcaBottomNavBar` ditempatkan pada `Alignment.BottomCenter` di layer teratas `BoxWithConstraints` sehingga tombol elevated QRIS tetap interaktif dan menyatu alami dengan dasar kartu.
+  - Container kartu putih tidak boleh dibiarkan mengambang dengan celah kosong di atas tombol QRIS, dan tidak boleh ada garis gelap yang memisahkan putih kartu dengan kubah QRIS.
+  - Tepi bawah kartu putih harus memanjang ke bawah sampai **menempel putih secara mulus (*seamless white touch*)** dengan kubah tombol QRIS.
+  - **Arsitektur Wajib**:
+    1. Di `BcaBottomNavBar`:
+       ```kotlin
+       Box(modifier = Modifier.fillMaxWidth().aspectRatio(if (tightDome) 720f / 174f else 720f / 200f)) {
+           Image(
+               painter = painterResource(id = navImageRes),
+               contentDescription = "BCA Navigation Bar",
+               alignment = if (tightDome) Alignment.BottomCenter else Alignment.Center,
+               modifier = Modifier.fillMaxSize(),
+               contentScale = ContentScale.FillWidth
+           )
+           // 5 Clickable zones
+       }
+       ```
+    2. Di Layar Menu Kartu (`MInfoMenuScreen.kt`):
+       ```kotlin
+       Column(modifier = Modifier.fillMaxSize()) {
+           BcaSubMenuTopBar(...)
+           Column(
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .weight(1f)
+                   .offset(y = 5.dp)
+                   .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 0.dp)
+                   .clip(RoundedCornerShape(14.dp))
+                   .background(Color.White)
+           ) {
+               // Fixed Sticky Header (68dp) + Divider Putih (1dp) + Scrollable Items (weight(1f))
+           }
+           BcaBottomNavBar(selectedTab = BcaNavTab.NONE, onTabSelected = onTabSelected, tightDome = true, modifier = Modifier.zIndex(1f))
+       }
+       ```
+    3. Formula ini menjamin:
+       - Putih kartu menyatu mulus ke bibir kubah QRIS tanpa celah gelap di tengah.
+       - Sisi kiri dan kanan tetap mengekspos lengkungan sudut kartu 14dp dan navy background 17dp di atas flat navbar.
+       - Saat konten di-scroll, batas kartu putih dan badge bawah **TETAP DIAM MENEMPEL PADA QRIS** tanpa bergerak atau tenggelam ke belakang navbar.
