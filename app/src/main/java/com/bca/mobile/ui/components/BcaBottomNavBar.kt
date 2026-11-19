@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -28,7 +29,8 @@ enum class BcaNavTab {
 fun BcaBottomNavBar(
     selectedTab: BcaNavTab,
     onTabSelected: (BcaNavTab) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tightDome: Boolean = false
 ) {
     val navImageRes = when (selectedTab) {
         BcaNavTab.HOME -> R.drawable.bca_nav_bar_home
@@ -44,15 +46,17 @@ fun BcaBottomNavBar(
             .background(Color.Transparent)
     ) {
         // Main Navigation Bar matching bca_nav_exact.png 1:1 with elevated QRIS button
+        // When tightDome = true, top 26px empty space is excluded so top edge aligns with QRIS dome peak
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(720f / 200f)
+                .aspectRatio(if (tightDome) 720f / 174f else 720f / 200f)
         ) {
             // Pixel-Perfect Navbar Image (exact match to bca_nav_exact.png)
             Image(
                 painter = painterResource(id = navImageRes),
                 contentDescription = "BCA Navigation Bar",
+                alignment = if (tightDome) Alignment.BottomCenter else Alignment.Center,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.FillWidth
             )

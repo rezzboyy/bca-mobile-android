@@ -49,15 +49,11 @@ fun MInfoMenuScreen(
 
     val repository = remember { BcaRepository.getInstance() }
 
-    BoxWithConstraints(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFF002446)) // Authentic Deep Navy matching BCA screenshots
     ) {
-        // Calculate exact elevation of QRIS dome peak from bottom of screen based on 720:200 navbar aspect ratio
-        // Peak of QRIS dome is at y=26 in 720x200 canvas -> elevation from bottom = (200 - 26) / 720 * width = 174 / 720 * width
-        val qrisDomePeakElevation = maxWidth * (174f / 720f)
-
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -69,17 +65,12 @@ fun MInfoMenuScreen(
             )
 
             // 2. Main Content: Floating White Card with Locked m-Info Header Badge
-            // Card bottom extends down until it touches the QRIS dome directly!
+            // Card bottom extends down until it touches QRIS dome directly ("nempel dikit qris", 2dp clearance)!
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 14.dp,
-                        bottom = qrisDomePeakElevation - 2.dp // Exactly touches top blue rim of QRIS dome!
-                    )
+                    .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 2.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(Color.White)
             ) {
@@ -250,14 +241,14 @@ fun MInfoMenuScreen(
                     Spacer(modifier = Modifier.height(18.dp))
                 }
             }
-        }
 
-        // 3. Unified Bottom Navigation Bar with Floating Elevated QRIS Button (Placed at BottomCenter)
-        BcaBottomNavBar(
-            selectedTab = BcaNavTab.NONE,
-            onTabSelected = onTabSelected,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+            // 3. Unified Bottom Navigation Bar with Floating Elevated QRIS Button (tightDome = true aligns top with QRIS peak)
+            BcaBottomNavBar(
+                selectedTab = BcaNavTab.NONE,
+                onTabSelected = onTabSelected,
+                tightDome = true
+            )
+        }
 
         // Official Saldo Result Alert
         if (showSaldoDialog) {
