@@ -65,12 +65,12 @@ fun MInfoMenuScreen(
             )
 
             // 2. Main Content: Floating White Card with Locked m-Info Header Badge
-            // Card bottom extends down until it touches QRIS dome directly ("nempel dikit qris", 2dp clearance)!
+            // Card bottom extends down until it touches QRIS dome directly ("tempelin aja itu", 0dp clearance)!
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 2.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 0.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(Color.White)
             ) {

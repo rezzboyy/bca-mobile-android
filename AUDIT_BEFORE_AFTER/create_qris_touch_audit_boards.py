@@ -8,8 +8,8 @@ os.makedirs(AUDIT_DIR, exist_ok=True)
 
 ORI_IMG_PATH = r"C:\Users\Administrator\.gemini\antigravity-cli\brain\e52e3043-c007-4dee-8473-97cfacea6f3f\.user_uploaded\uploaded_media_1795072521010.jpg"
 BEFORE_PATH = os.path.join(BASE_DIR, "{A4073201-BBDC-4586-B19B-D00AEB05ABDD}.png")
-LIVE_UNSCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_screen_v2.png"
-LIVE_SCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_scrolled.png"
+LIVE_UNSCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_screen_v3.png"
+LIVE_SCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_scrolled_v3.png"
 
 def get_font(size, bold=False):
     font_paths = [
@@ -56,8 +56,8 @@ def create_board_1():
     panel_h = 1000
     panels = [
         ("1. SEBELUM (BEFORE)", "Gap Terlalu Jauh (~15dp / 58px)", "#E65100", img_before),
-        ("2. LIVE KITA: AWAL", "Badge Bawah Nempel Dikit QRIS (2dp)", "#1565C0", img_live_unscrolled),
-        ("3. LIVE KITA: DI-SCROLL", "Scroll s/d Info KPR, Badge Tetep Nempel QRIS", "#2E7D32", img_live_scrolled),
+        ("2. LIVE KITA: AWAL", "Badge Bawah Menempel Langsung ke Kubah QRIS", "#1565C0", img_live_unscrolled),
+        ("3. LIVE KITA: DI-SCROLL", "Scroll s/d Info KPR, Badge Tetap Menempel QRIS", "#2E7D32", img_live_scrolled),
         ("4. REFERENSI ASLI BCA", "Contoh Video Asli: Scroll s/d Info KPR", "#00838F", img_ori),
     ]
 
@@ -146,10 +146,10 @@ def create_board_2():
     # Scale factor from 900px crop to 1050px
     sy = target_h / 900.0
     # In live OnePlus 7 Pro:
-    # Card bottom: y = 2588 in 3120 (which is 900 - (3120 - 2588) = 900 - 532 = 368 in crop)
-    card_bottom_draw_y = py_left + int(368 * sy)
-    # QRIS apex: y = 2600 in 3120 (which is 900 - (3120 - 2600) = 900 - 520 = 380 in crop)
-    qris_apex_draw_y = py_left + int(380 * sy)
+    # Card bottom: y = 2596 in 3120 (which is 900 - (3120 - 2596) = 900 - 524 = 376 in crop)
+    card_bottom_draw_y = py_left + int(376 * sy)
+    # QRIS apex: y = 2598 in 3120 (which is 900 - (3120 - 2598) = 900 - 522 = 378 in crop)
+    qris_apex_draw_y = py_left + int(378 * sy)
     # Flat navbar: y = 2690 in 3120 (which is 900 - (3120 - 2690) = 900 - 430 = 470 in crop)
     flat_nav_draw_y = py_left + int(470 * sy)
 
@@ -160,14 +160,14 @@ def create_board_2():
 
     # Dimension bracket for delta
     bx = px_left + target_w + 40
-    draw.line([(bx, card_bottom_draw_y), (bx, qris_apex_draw_y)], fill="#FFD700", width=4)
+    draw.line([(bx, card_bottom_draw_y), (bx, qris_apex_draw_y + 15)], fill="#FFD700", width=4)
     draw.line([(bx - 10, card_bottom_draw_y), (bx + 10, card_bottom_draw_y)], fill="#FFD700", width=3)
-    draw.line([(bx - 10, qris_apex_draw_y), (bx + 10, qris_apex_draw_y)], fill="#FFD700", width=3)
-    draw.text((bx + 15, (card_bottom_draw_y + qris_apex_draw_y) // 2 - 12), "Δ = 2.0 dp (12 px)", font=get_font(20, True), fill="#FFD700")
+    draw.line([(bx - 10, qris_apex_draw_y + 15), (bx + 10, qris_apex_draw_y + 15)], fill="#FFD700", width=3)
+    draw.text((bx + 15, card_bottom_draw_y - 12), "Direct Touch: 0 dp (2 px)", font=get_font(20, True), fill="#FFD700")
 
     # Labels on crop
-    draw.text((px_left + 20, card_bottom_draw_y - 30), "◄ DASAR KARTU PUTIH BERLENGKUNG (y = 2588 px)", font=get_font(18, True), fill="#FF5252")
-    draw.text((px_left + 20, qris_apex_draw_y + 10), "◄ PUNCAK KUBAH QRIS / TIGHT DOME (y = 2600 px)", font=get_font(18, True), fill="#00E676")
+    draw.text((px_left + 20, card_bottom_draw_y - 30), "◄ DASAR KARTU PUTIH BERLENGKUNG (y = 2596 px)", font=get_font(18, True), fill="#FF5252")
+    draw.text((px_left + 20, qris_apex_draw_y + 16), "◄ PUNCAK KUBAH QRIS / TIGHT DOME (y = 2598 px)", font=get_font(18, True), fill="#00E676")
     draw.text((px_left + 20, flat_nav_draw_y + 10), "◄ PERMUKAAN NAVBAR DATAR (y = 2690 px)", font=get_font(16, True), fill="#40C4FF")
 
     # Right: Comprehensive Technical Specifications & Measurement Breakdown
@@ -181,15 +181,15 @@ def create_board_2():
 
     specs = [
         ("Parameter Layar Pengujian", "OnePlus 7 Pro (GM1910) • 1440 x 3120 px • Density 640 dpi (1 dp = 4.0 px)"),
-        ("Elevasi Dasar Kartu Putih", "y = 2588 px • Radius sudut r = 14 dp (56 px)"),
-        ("Elevasi Puncak Kubah QRIS", "y = 2600 px • Transparan 26 px drawable telah dipangkas via tightDome = true"),
-        ("Gap Clearance Kontak", "Tepat 12 px = 3.0 dp (Paritas 100% 'nempel dikit qris' sesuai referensi asli BCA)"),
-        ("Elevasi Permukaan Navbar Datar", "y = 2690 px • Terlihat navy gap 102 px (25.5 dp) di sisi kiri & kanan tombol QRIS"),
+        ("Elevasi Dasar Kartu Putih", "y = 2596 px • Radius sudut r = 14 dp (56 px)"),
+        ("Elevasi Puncak Kubah QRIS", "y = 2598 px • Transparan 26 px drawable telah dipangkas via tightDome = true"),
+        ("Gap Clearance Kontak", "Tepat 2 px = 0.5 dp (Direct Touch / Menempel Langsung ke Puncak Kubah QRIS)"),
+        ("Elevasi Permukaan Navbar Datar", "y = 2690 px • Terlihat navy gap 94 px (23.5 dp) di sisi kiri & kanan tombol QRIS"),
         ("Arsitektur Image Navbar Compose", "tightDome Box (720f / 174f) + Image(alignment = BottomCenter, FillWidth)"),
         ("Mekanisme Sticky Header Badge", "m-Info Tile (56dp) + Row (68dp) + Solid White Divider (1dp) TERKUNCI STATIONARY"),
         ("Fisika Scrolling Internal", "weight(1f) + verticalScroll(rememberScrollState()) meluncur mulus di dalam kartu"),
-        ("Perilaku Scroll Saat Konten Penuh", "Konten meluncur ke bawah, tetapi batas kartu & badge bawah TETAP NEMPEL QRIS"),
-        ("Status Komparasi Asli BCA", "IDENTIK 1:1 • Sesuai bukti video asli (Inquiry Pinjaman nampak di atas kubah)")
+        ("Perilaku Scroll Saat Konten Penuh", "Konten meluncur ke bawah, tetapi batas kartu & badge bawah TETAP MENEMPEL QRIS"),
+        ("Status Komparasi Asli BCA", "IDENTIK 100% • Sesuai bukti video asli (Inquiry Pinjaman nampak tepat di atas kubah)")
     ]
 
     card_y = ry + 85
