@@ -11,9 +11,9 @@ Dokumen ini mencatat ringkasan aturan permanen yang dipelajari dan disepakati be
 - **Implementasi Teknis**:
   - Aset master: `banner_fg_600k.png` (2544 x 336 px, rasio 636:84).
   - Eliminasi total dirty grey fringes dengan *4x SDF (Signed Distance Field) subpixel anti-aliasing* dan *pure white edge extrapolation*.
-  - Titik pusat horizontal tepat di sumbu kanvas `x = 1272.0 px` (`x = 343..2201 px`).
-  - Dimensi terbaru dibesarkan menjadi 1860 px (`1858 px` terukur presisi, tinggi `112 px`).
-  - Jarak margin kiri `343 px` == margin kanan `343 px` (100% pas di tengah simetris sempurna), serta jarak aman ke tombol pill kanan terjaga bebas tabrakan.
+  - Titik pusat horizontal tepat di sumbu kanvas `x = 1272.0 px` (`x = 283..2261 px`).
+  - Dimensi terbaru dibesarkan menjadi 1980 px (`1978 px` terukur presisi, tinggi `120 px`).
+  - Jarak margin kiri `283 px` == margin kanan `283 px` (100% pas di tengah simetris sempurna), serta jarak aman ke tombol pill kanan terjaga bebas tabrakan.
   - Sinkronisasi aset ke:
     - `app/src/main/res/drawable/banner_fg_600k.png`
     - `iklan banner/iklan banner/drawable/banner_fg_600k.png`
