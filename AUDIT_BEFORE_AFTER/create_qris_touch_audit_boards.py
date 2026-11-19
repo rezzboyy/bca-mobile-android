@@ -8,8 +8,8 @@ os.makedirs(AUDIT_DIR, exist_ok=True)
 
 ORI_IMG_PATH = r"C:\Users\Administrator\.gemini\antigravity-cli\brain\e52e3043-c007-4dee-8473-97cfacea6f3f\.user_uploaded\uploaded_media_1795072521010.jpg"
 BEFORE_PATH = os.path.join(BASE_DIR, "{A4073201-BBDC-4586-B19B-D00AEB05ABDD}.png")
-LIVE_UNSCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_screen_v4.png"
-LIVE_SCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_scrolled_v4.png"
+LIVE_UNSCROLLED = os.path.join(BASE_DIR, "work_images", "sisa_kerjaan", "screencaps_testing", "live_minfo_screen_v4.png")
+LIVE_SCROLLED = os.path.join(BASE_DIR, "work_images", "sisa_kerjaan", "screencaps_testing", "live_minfo_scrolled_v4.png")
 
 def get_font(size, bold=False):
     font_paths = [

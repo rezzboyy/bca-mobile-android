@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bca.mobile.R
@@ -62,17 +63,18 @@ fun MInfoMenuScreen(
             BcaSubMenuTopBar(
                 title = "m-Info",
                 onBackClick = onBack,
-                showBackButton = false
+                showBackButton = false,
+                contentHeight = 62.dp
             )
 
             // 2. Main Content: Floating White Card with Locked m-Info Header Badge
-            // Card bottom extends down until it touches QRIS dome directly ("nempel putih kaya di contoh")!
+            // Card bottom extends down until it touches QRIS dome directly ("tempelkan lagi", 0dp clearance, zero gap)!
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .offset(y = 5.dp)
-                    .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 0.dp)
+                    .offset(y = 7.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 0.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(Color.White)
             ) {
@@ -80,7 +82,7 @@ fun MInfoMenuScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(68.dp)
+                        .height(62.dp)
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
@@ -97,15 +99,15 @@ fun MInfoMenuScreen(
                         painter = painterResource(id = R.drawable.tile_minfo),
                         contentDescription = "m-Info",
                         modifier = Modifier
-                            .size(56.dp)
-                            .clip(RoundedCornerShape(13.dp)),
+                            .size(50.dp)
+                            .clip(RoundedCornerShape(12.dp)),
                         contentScale = ContentScale.Fit
                     )
                     Spacer(modifier = Modifier.width(14.dp))
                     Text(
                         text = "m-Info",
                         color = Color(0xFF005CA9),
-                        fontSize = 20.sp,
+                        fontSize = 19.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -280,11 +282,14 @@ fun MInfoMenuScreen(
 }
 
 @Composable
-fun BcaMenuSectionBanner(title: String) {
+fun BcaMenuSectionBanner(
+    title: String,
+    height: Dp = 22.5.dp
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(24.dp)
+            .height(height)
             .background(Color(0xFF555555))
             .padding(horizontal = 14.dp),
         contentAlignment = Alignment.CenterStart
@@ -292,7 +297,7 @@ fun BcaMenuSectionBanner(title: String) {
         Text(
             text = title,
             color = Color.White,
-            fontSize = 13.5.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -301,12 +306,13 @@ fun BcaMenuSectionBanner(title: String) {
 @Composable
 fun BcaMenuItemRow(
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    height: Dp = 41.5.dp
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(42.dp)
+            .height(height)
             .background(Color.White)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },

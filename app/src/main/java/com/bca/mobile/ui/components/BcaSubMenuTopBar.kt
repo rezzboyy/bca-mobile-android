@@ -42,7 +42,8 @@ fun BcaSubMenuTopBar(
     onBackClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     showBackButton: Boolean = onBackClick != null,
-    trailingAction: (@Composable () -> Unit)? = null
+    trailingAction: (@Composable () -> Unit)? = null,
+    contentHeight: Dp = 76.dp
 ) {
     Surface(
         modifier = modifier
@@ -55,7 +56,7 @@ fun BcaSubMenuTopBar(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(76.dp)
+                    .height(contentHeight)
                     .padding(start = 12.dp, end = 6.dp)
             ) {
                 // Left: Optional Back button

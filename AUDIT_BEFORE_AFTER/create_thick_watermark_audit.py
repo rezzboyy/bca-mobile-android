@@ -56,7 +56,7 @@ draw.rounded_rectangle([(px2, py), (px2 + pw, py + 64)], radius=14, fill="#2E7D3
 draw.text((px2 + pw // 2, py + 16), "2. SESUDAH: WATERMARK LEBIH TEBAL & TEGAS", font=get_font(22, True), fill="#FFFFFF", anchor="mt")
 draw.text((px2 + pw // 2, py + 74), "Update Terbaru: Kontras Delta R: 35.1, G: 22.0, B: 9.4 (Stroke +12.7%)", font=get_font(16), fill="#B0BEC5", anchor="mt")
 
-mockup = Image.open(r"C:\Users\Administrator\Desktop\My Produk\receipt_watermark_comparison.png")
+mockup = Image.open(os.path.join(BASE_DIR, "work_images", "sisa_kerjaan", "audit_desktop", "receipt_watermark_comparison.png"))
 # Crop the after dialog
 d_after = mockup.crop((670, 48, 1290, 816))
 d_scaled = d_after.resize((pw - 40, int((pw - 40) * (d_after.height / d_after.width))))

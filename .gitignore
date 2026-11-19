@@ -16,3 +16,5 @@ work_images/
 *.jpeg
 *.jpg
 !app/src/main/res/**/*.png
+__pycache__/
+*.pyc
