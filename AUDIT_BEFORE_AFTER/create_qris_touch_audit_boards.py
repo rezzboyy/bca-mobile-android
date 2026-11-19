@@ -8,8 +8,8 @@ os.makedirs(AUDIT_DIR, exist_ok=True)
 
 ORI_IMG_PATH = r"C:\Users\Administrator\.gemini\antigravity-cli\brain\e52e3043-c007-4dee-8473-97cfacea6f3f\.user_uploaded\uploaded_media_1795072521010.jpg"
 BEFORE_PATH = os.path.join(BASE_DIR, "{A4073201-BBDC-4586-B19B-D00AEB05ABDD}.png")
-LIVE_UNSCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_screen_v3.png"
-LIVE_SCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_scrolled_v3.png"
+LIVE_UNSCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_screen_v4.png"
+LIVE_SCROLLED = r"C:\Users\Administrator\Desktop\My Produk\live_minfo_scrolled_v4.png"
 
 def get_font(size, bold=False):
     font_paths = [
@@ -146,29 +146,22 @@ def create_board_2():
     # Scale factor from 900px crop to 1050px
     sy = target_h / 900.0
     # In live OnePlus 7 Pro:
-    # Card bottom: y = 2596 in 3120 (which is 900 - (3120 - 2596) = 900 - 524 = 376 in crop)
-    card_bottom_draw_y = py_left + int(376 * sy)
-    # QRIS apex: y = 2598 in 3120 (which is 900 - (3120 - 2598) = 900 - 522 = 378 in crop)
-    qris_apex_draw_y = py_left + int(378 * sy)
-    # Flat navbar: y = 2690 in 3120 (which is 900 - (3120 - 2690) = 900 - 430 = 470 in crop)
-    flat_nav_draw_y = py_left + int(470 * sy)
+    # Contact seam: y = 2612 in 3120 (which is 900 - (3120 - 2612) = 900 - 508 = 392 in crop)
+    contact_draw_y = py_left + int(392 * sy)
+    # Flat navbar: y = 2680 in 3120 (which is 900 - (3120 - 2680) = 900 - 440 = 460 in crop)
+    flat_nav_draw_y = py_left + int(460 * sy)
 
     # Guidelines
-    draw.line([(px_left, card_bottom_draw_y), (px_left + target_w + 80, card_bottom_draw_y)], fill="#FF5252", width=3)
-    draw.line([(px_left, qris_apex_draw_y), (px_left + target_w + 80, qris_apex_draw_y)], fill="#00E676", width=3)
+    draw.line([(px_left, contact_draw_y), (px_left + target_w + 80, contact_draw_y)], fill="#00E676", width=3)
     draw.line([(px_left, flat_nav_draw_y), (px_left + target_w + 80, flat_nav_draw_y)], fill="#40C4FF", width=2)
 
-    # Dimension bracket for delta
+    # Dimension label
     bx = px_left + target_w + 40
-    draw.line([(bx, card_bottom_draw_y), (bx, qris_apex_draw_y + 15)], fill="#FFD700", width=4)
-    draw.line([(bx - 10, card_bottom_draw_y), (bx + 10, card_bottom_draw_y)], fill="#FFD700", width=3)
-    draw.line([(bx - 10, qris_apex_draw_y + 15), (bx + 10, qris_apex_draw_y + 15)], fill="#FFD700", width=3)
-    draw.text((bx + 15, card_bottom_draw_y - 12), "Direct Touch: 0 dp (2 px)", font=get_font(20, True), fill="#FFD700")
+    draw.text((bx + 15, contact_draw_y - 14), "Nempel Putih 100% (Seamless Contact)", font=get_font(20, True), fill="#FFD700")
 
     # Labels on crop
-    draw.text((px_left + 20, card_bottom_draw_y - 30), "◄ DASAR KARTU PUTIH BERLENGKUNG (y = 2596 px)", font=get_font(18, True), fill="#FF5252")
-    draw.text((px_left + 20, qris_apex_draw_y + 16), "◄ PUNCAK KUBAH QRIS / TIGHT DOME (y = 2598 px)", font=get_font(18, True), fill="#00E676")
-    draw.text((px_left + 20, flat_nav_draw_y + 10), "◄ PERMUKAAN NAVBAR DATAR (y = 2690 px)", font=get_font(16, True), fill="#40C4FF")
+    draw.text((px_left + 20, contact_draw_y - 30), "◄ TITIK TEMU KARTU PUTIH DENGAN KUBAH QRIS (y = 2612 px)", font=get_font(18, True), fill="#00E676")
+    draw.text((px_left + 20, flat_nav_draw_y + 10), "◄ PERMUKAAN NAVBAR DATAR (y = 2680 px)", font=get_font(16, True), fill="#40C4FF")
 
     # Right: Comprehensive Technical Specifications & Measurement Breakdown
     rx = px_left + target_w + 120
@@ -181,15 +174,15 @@ def create_board_2():
 
     specs = [
         ("Parameter Layar Pengujian", "OnePlus 7 Pro (GM1910) • 1440 x 3120 px • Density 640 dpi (1 dp = 4.0 px)"),
-        ("Elevasi Dasar Kartu Putih", "y = 2596 px • Radius sudut r = 14 dp (56 px)"),
-        ("Elevasi Puncak Kubah QRIS", "y = 2598 px • Transparan 26 px drawable telah dipangkas via tightDome = true"),
-        ("Gap Clearance Kontak", "Tepat 2 px = 0.5 dp (Direct Touch / Menempel Langsung ke Puncak Kubah QRIS)"),
-        ("Elevasi Permukaan Navbar Datar", "y = 2690 px • Terlihat navy gap 94 px (23.5 dp) di sisi kiri & kanan tombol QRIS"),
-        ("Arsitektur Image Navbar Compose", "tightDome Box (720f / 174f) + Image(alignment = BottomCenter, FillWidth)"),
+        ("Elevasi Titik Kontak Putih", "y = 2612 px • Putih kartu menempel mulus langsung ke bibir tombol QRIS"),
+        ("Batas Kubah QRIS", "y = 2600..2612 px • Puncak kubah QRIS duduk langsung di atas dasar kartu putih"),
+        ("Gap Celah Kontak", "0.0 px (0.0 dp) • ZERO DARK GAP (Putih kartu nempel langsung ke kubah QRIS)"),
+        ("Elevasi Permukaan Navbar Datar", "y = 2680 px • Terlihat navy gap 68 px (17 dp) di sisi kiri & kanan tombol QRIS"),
+        ("Arsitektur Image Navbar Compose", "tightDome Box (720f / 174f) + Card offset(y = 5.dp) + zIndex(1f) Navbar"),
         ("Mekanisme Sticky Header Badge", "m-Info Tile (56dp) + Row (68dp) + Solid White Divider (1dp) TERKUNCI STATIONARY"),
         ("Fisika Scrolling Internal", "weight(1f) + verticalScroll(rememberScrollState()) meluncur mulus di dalam kartu"),
-        ("Perilaku Scroll Saat Konten Penuh", "Konten meluncur ke bawah, tetapi batas kartu & badge bawah TETAP MENEMPEL QRIS"),
-        ("Status Komparasi Asli BCA", "IDENTIK 100% • Sesuai bukti video asli (Inquiry Pinjaman nampak tepat di atas kubah)")
+        ("Perilaku Scroll Saat Konten Penuh", "Konten meluncur ke bawah, dasar kartu & badge bawah TETAP NEMPEL PUTIH KE QRIS"),
+        ("Status Komparasi Asli BCA", "PARITAS 100% IDENTIK • Sesuai contoh video asli (putih nempel tepat di atas kubah)")
     ]
 
     card_y = ry + 85

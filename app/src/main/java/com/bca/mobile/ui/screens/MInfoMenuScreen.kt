@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -65,11 +66,12 @@ fun MInfoMenuScreen(
             )
 
             // 2. Main Content: Floating White Card with Locked m-Info Header Badge
-            // Card bottom extends down until it touches QRIS dome directly ("tempelin aja itu", 0dp clearance)!
+            // Card bottom extends down until it touches QRIS dome directly ("nempel putih kaya di contoh")!
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .offset(y = 5.dp)
                     .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 0.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(Color.White)
@@ -246,7 +248,8 @@ fun MInfoMenuScreen(
             BcaBottomNavBar(
                 selectedTab = BcaNavTab.NONE,
                 onTabSelected = onTabSelected,
-                tightDome = true
+                tightDome = true,
+                modifier = Modifier.zIndex(1f)
             )
         }
 
