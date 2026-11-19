@@ -64,57 +64,58 @@ fun MInfoMenuScreen(
                 showBackButton = false
             )
 
-            // 2. Main Scrollable Content: Floating White Card
+            // 2. Main Content: Floating White Card with Locked m-Info Header Badge
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp, vertical = 14.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color.White)
             ) {
-                // Outer Rounded Card Container (14dp corner radius, 656px on 720p / 1312px on 1440p)
+                // Card Header with m-Info Tile & Title (Locked / Sticky - Tidak ikut kescroll!)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(68.dp)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFFFCFDFE),
+                                    Color(0xFFF1F4F7),
+                                    Color(0xFFE8ECEF)
+                                )
+                            )
+                        )
+                        .padding(horizontal = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.tile_minfo),
+                        contentDescription = "m-Info",
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(13.dp)),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Text(
+                        text = "m-Info",
+                        color = Color(0xFF005CA9),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                HorizontalDivider(color = Color.White, thickness = 1.dp)
+
+                // Scrollable Menu List Items (Meluncur mulus di bawah locked badge)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White)
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    // Card Header with m-Info Tile & Title (authentic vertical gradient)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(68.dp)
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color(0xFFFCFDFE),
-                                        Color(0xFFF1F4F7),
-                                        Color(0xFFE8ECEF)
-                                    )
-                                )
-                            )
-                            .padding(horizontal = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.tile_minfo),
-                            contentDescription = "m-Info",
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(RoundedCornerShape(13.dp)),
-                            contentScale = ContentScale.Fit
-                        )
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Text(
-                            text = "m-Info",
-                            color = Color(0xFF005CA9),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    HorizontalDivider(color = Color(0xFFD2D8DF), thickness = 0.8.dp)
-
                     // Group 1: General Info (Directly under Header, no section banner)
                     BcaMenuItemRow(
                         title = "Info Saldo",
@@ -235,9 +236,9 @@ fun MInfoMenuScreen(
                             alertInfoMessage = "Inbox Kartu Kredit: Tidak ada pesan baru."
                         }
                     )
-                }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
+                }
             }
 
             // 3. Unified Bottom Navigation Bar with Floating Elevated QRIS Button
