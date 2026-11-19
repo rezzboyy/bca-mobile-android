@@ -90,3 +90,15 @@ Dokumen ini mencatat ringkasan aturan permanen yang dipelajari dan disepakati be
   - **Tahap 1**: Refactoring struktur layout dan pemisahan kontainer.
   - **Tahap 2**: Implementasi state scrolling independen dan styling garis pemisah.
   - **Tahap 3**: Pengujian unit test, verifikasi render visual, dan pembuatan papan komparasi side-by-side di direktori `AUDIT_BEFORE_AFTER/`.
+
+### 6. Aturan Kontak Presisi Kartu Bawah vs Kubah QRIS (Card Bottom Touches QRIS Dome)
+- Pada layar kartu mengambang berlatar navy (`m-Info`, `m-Transfer`):
+  - Container kartu putih tidak boleh dibiarkan mengambang dengan celah kosong di atas tombol QRIS.
+  - Tepi bawah kartu putih harus memanjang ke bawah sampai **menyentuh puncak kubah QRIS** secara presisi matematis.
+  - Rumus elevasi puncak kubah QRIS pada rasio navbar 720:200:
+    ```kotlin
+    val qrisDomePeakElevation = maxWidth * (174f / 720f)
+    // Padding bawah kartu untuk kontak fisik langsung:
+    bottom = qrisDomePeakElevation - 2.dp
+    ```
+  - `BcaBottomNavBar` ditempatkan pada `Alignment.BottomCenter` di layer teratas `BoxWithConstraints` sehingga tombol elevated QRIS tetap interaktif dan menyatu alami dengan dasar kartu.
