@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bca.mobile.R
@@ -106,70 +107,105 @@ fun MTransferMenuScreen(
 
                 HorizontalDivider(color = Color.White, thickness = 1.dp)
 
-                // Scrollable Menu List Items (Meluncur mulus di bawah locked badge) - Posisi menu mengikuti referensi asli
-                Column(
+                // Scrollable Menu List Items (Meluncur mulus di bawah locked badge)
+                // Dynamic Adaptive Budgeting:
+                // - On tall screens (>= 440dp available for list, e.g. OnePlus 7 Pro), uses standard 41.5dp rows & 22.5dp banners.
+                // - On shorter/compact screens (< 440dp, e.g. Samsung/Vivo with 3-button nav, 18:9, 16:9), adaptively scales
+                //   row heights so that all 8 items fit on one screen without scrolling, preserving the clean white badge touching the QRIS dome!
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .verticalScroll(rememberScrollState())
                 ) {
-                    // Section 1: Daftar Transfer
-                    BcaMenuSectionBanner(title = "Daftar Transfer")
-
-                    BcaMenuItemRow(
-                        title = "Antar Rekening",
-                        onClick = onNavigateDaftarTransferBca
-                    )
-                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
-
-                    BcaMenuItemRow(
-                        title = "Antar Bank",
-                        onClick = onNavigateDaftarTransferBank
-                    )
-
-                    // Section 2: Transfer
-                    BcaMenuSectionBanner(title = "Transfer")
-
-                    BcaMenuItemRow(
-                        title = "Antar Rekening",
-                        onClick = onNavigateTransferBca
-                    )
-                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
-
-                    BcaMenuItemRow(
-                        title = "Antar Bank",
-                        onClick = onNavigateTransferBank
-                    )
-                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
-
-                    BcaMenuItemRow(
-                        title = "BCA Virtual Account",
-                        onClick = {
-                            alertMessage = "Layanan BCA Virtual Account: Masukkan kode perusahaan dan nomor pelanggan untuk melanjutkan pembayaran."
+                    val availableHeight = maxHeight
+                    val (rowHeight, bannerHeight) = remember(availableHeight) {
+                        when {
+                            availableHeight >= 440.dp -> 41.5.dp to 22.5.dp
+                            availableHeight >= 370.dp -> {
+                                val targetBadge = (availableHeight * 0.18f).coerceAtLeast(50.dp)
+                                val targetContent = availableHeight - targetBadge
+                                val r = ((targetContent.value - 4.8f) / 9.0844f).coerceIn(37.5f, 41.5f)
+                                r.dp to (r * 0.5422f).dp
+                            }
+                            else -> {
+                                val targetContent = availableHeight - 22.dp
+                                val r = ((targetContent.value - 4.8f) / 9.0844f).coerceIn(33.0f, 37.5f)
+                                r.dp to (r * 0.5422f).dp
+                            }
                         }
-                    )
-                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+                    }
 
-                    BcaMenuItemRow(
-                        title = "Sakuku",
-                        onClick = {
-                            alertMessage = "Layanan Transfer ke Sakuku: Kirim saldo langsung ke nomor ponsel terdaftar."
-                        }
-                    )
-                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        // Section 1: Daftar Transfer
+                        BcaMenuSectionBanner(title = "Daftar Transfer", height = bannerHeight)
 
-                    BcaMenuItemRow(
-                        title = "Status Transaksi Sakuku",
-                        onClick = {
-                            alertMessage = "Status Transaksi Sakuku: Semua transaksi Sakuku sebelumnya telah berhasil diproses."
-                        }
-                    )
-                    HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+                        BcaMenuItemRow(
+                            title = "Antar Rekening",
+                            onClick = onNavigateDaftarTransferBca,
+                            height = rowHeight
+                        )
+                        HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
 
-                    BcaMenuItemRow(
-                        title = inboxTitle,
-                        onClick = onNavigateToInbox
-                    )
+                        BcaMenuItemRow(
+                            title = "Antar Bank",
+                            onClick = onNavigateDaftarTransferBank,
+                            height = rowHeight
+                        )
+
+                        // Section 2: Transfer
+                        BcaMenuSectionBanner(title = "Transfer", height = bannerHeight)
+
+                        BcaMenuItemRow(
+                            title = "Antar Rekening",
+                            onClick = onNavigateTransferBca,
+                            height = rowHeight
+                        )
+                        HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                        BcaMenuItemRow(
+                            title = "Antar Bank",
+                            onClick = onNavigateTransferBank,
+                            height = rowHeight
+                        )
+                        HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                        BcaMenuItemRow(
+                            title = "BCA Virtual Account",
+                            onClick = {
+                                alertMessage = "Layanan BCA Virtual Account: Masukkan kode perusahaan dan nomor pelanggan untuk melanjutkan pembayaran."
+                            },
+                            height = rowHeight
+                        )
+                        HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                        BcaMenuItemRow(
+                            title = "Sakuku",
+                            onClick = {
+                                alertMessage = "Layanan Transfer ke Sakuku: Kirim saldo langsung ke nomor ponsel terdaftar."
+                            },
+                            height = rowHeight
+                        )
+                        HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                        BcaMenuItemRow(
+                            title = "Status Transaksi Sakuku",
+                            onClick = {
+                                alertMessage = "Status Transaksi Sakuku: Semua transaksi Sakuku sebelumnya telah berhasil diproses."
+                            },
+                            height = rowHeight
+                        )
+                        HorizontalDivider(color = Color(0xFFE8ECEF), thickness = 0.8.dp)
+
+                        BcaMenuItemRow(
+                            title = inboxTitle,
+                            onClick = onNavigateToInbox,
+                            height = rowHeight
+                        )
+                    }
                 }
             }
 

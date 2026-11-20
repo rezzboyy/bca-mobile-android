@@ -43,8 +43,8 @@ import kotlinx.coroutines.launch
  *
  * Siklus Animasi per Iklan:
  * - Masuk dari kecil & mengembang menyembul ke depan (scale 0.50 -> 1.025 -> 1.00)
- * - Sembulan ke-1: Zoom In 1.00 -> 1.035 (2000 ms) & Zoom Out 1.035 -> 1.00 (2000 ms)
- * - Sembulan ke-2: Zoom In 1.00 -> 1.035 (2000 ms) & Zoom Out 1.035 -> 1.00 (2000 ms)
+ * - Sembulan ke-1: Zoom In 1.00 -> 1.060 (2000 ms, mengembang hingga menyentuh awan pada kedua iklan/kedua bola) & Zoom Out 1.060 -> 1.00 (2000 ms)
+ * - Sembulan ke-2: Zoom In 1.00 -> 1.060 (2000 ms, mengembang hingga menyentuh awan pada kedua iklan/kedua bola) & Zoom Out 1.060 -> 1.00 (2000 ms)
  * - Transisi: Mundur menciut mengecil ke belakang secara mulus seraya iklan baru masuk mengembang menyembul ke depan
  * =========================================================================================
  */
@@ -82,12 +82,12 @@ fun BcaPromoBanner(
 
         while (isActive) {
             // 1. Berdenyut sangat halus & kalem (2 kali sembulan zoom in zoom out berturut-turut pada setiap iklan)
-            // Sembulan ke-1
-            currentScale.animateTo(1.035f, tween(2000, easing = FastOutSlowInEasing))
+            // Sembulan ke-1: Mengembang menyembul lembut sampai menyentuh awan (skala 1.060f) lalu kembali ke 1.00f
+            currentScale.animateTo(1.060f, tween(2000, easing = FastOutSlowInEasing))
             currentScale.animateTo(1.00f, tween(2000, easing = FastOutSlowInEasing))
 
-            // Sembulan ke-2
-            currentScale.animateTo(1.035f, tween(2000, easing = FastOutSlowInEasing))
+            // Sembulan ke-2: Mengembang menyembul lembut sampai menyentuh awan (skala 1.060f) lalu kembali ke 1.00f
+            currentScale.animateTo(1.060f, tween(2000, easing = FastOutSlowInEasing))
             currentScale.animateTo(1.00f, tween(2000, easing = FastOutSlowInEasing))
 
             // 2. Transisi Pergantian Iklan:
